@@ -98,8 +98,8 @@ open class BaseApp : Application(), Configuration.Provider {
 		workScheduleManager.init()
 		setupParserOtaUpdate()
 		supabaseConfig.configure(
-			url = "https://fqguzcoytnbnjwaddakn.supabase.co",
-			anonKey = "sb_publishable_RZTcdZZlzb_UhYAxtB09AQ_URTEftE4"
+			url = BuildConfig.SUPABASE_URL.ifBlank { "https://fqguzcoytnbnjwaddakn.supabase.co" },
+			anonKey = BuildConfig.SUPABASE_ANON_KEY.ifBlank { "sb_publishable_RZTcdZZlzb_UhYAxtB09AQ_URTEftE4" }
 		)
 	}
 
