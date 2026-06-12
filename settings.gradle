@@ -30,5 +30,4 @@ dependencyResolutionManagement {
 
 include ':app'
 include ':translator'
-project(':translator').projectDir = new File('../../translator')
 rootProject.name = "Nyora"
