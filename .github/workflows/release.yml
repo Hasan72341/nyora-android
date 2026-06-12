@@ -28,16 +28,6 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
 
-      - name: Read AndroidManifest versions
-        run: |
-          MANIFEST=app/src/main/AndroidManifest.xml
-          if [ ! -f "$MANIFEST" ]; then echo "Missing $MANIFEST" && exit 1; fi
-          MAN_VER=$(grep -oP 'android:versionName="\K[^"]+' "$MANIFEST" | head -n1)
-          MAN_CODE=$(grep -oP 'android:versionCode="\K[^\"]+' "$MANIFEST" | head -n1)
-          echo "manifest_version=$MAN_VER" >> $GITHUB_OUTPUT
-          echo "manifest_version_code=$MAN_CODE" >> $GITHUB_OUTPUT
-          echo "AndroidManifest: $MAN_VER ($MAN_CODE)"
-
       - name: Read build.gradle defaults
         run: |
           FILE=app/build.gradle
@@ -57,19 +47,13 @@ jobs:
           PATCH=${PATCH:-0}
           EXPECTED_CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
 
-          MAN_VER=$(grep -oP 'android:versionName="\K[^"]+' app/src/main/AndroidManifest.xml | head -n1)
-          MAN_CODE=$(grep -oP 'android:versionCode="\K[^\"]+' app/src/main/AndroidManifest.xml | head -n1)
-
           GRADLE_VER=$(grep -oP "versionName project.hasProperty\\('versionName'\\) \\? project.property\\('versionName'\\) : '\\K[^']+" app/build.gradle | head -n1 || true)
           GRADLE_CODE=$(grep -oP "versionCode project.hasProperty\\('versionCode'\\) \\? project.property\\('versionCode'\\).toInteger\\(\\) : \\K[0-9]+" app/build.gradle | head -n1 || true)
 
           echo "Tag: $VERSION ($EXPECTED_CODE)"
-          echo "AndroidManifest: $MAN_VER ($MAN_CODE)"
           echo "build.gradle: $GRADLE_VER ($GRADLE_CODE)"
 
-          if [ "$MAN_VER" != "$VERSION" ]; then echo "ERROR: AndroidManifest versionName ($MAN_VER) does not match tag ($VERSION)" && exit 1; fi
           if [ "$GRADLE_VER" != "$VERSION" ]; then echo "ERROR: app/build.gradle default versionName ($GRADLE_VER) does not match tag ($VERSION)" && exit 1; fi
-          if [ "$MAN_CODE" != "$EXPECTED_CODE" ]; then echo "ERROR: AndroidManifest versionCode ($MAN_CODE) does not match expected ($EXPECTED_CODE)" && exit 1; fi
           if [ "$GRADLE_CODE" != "$EXPECTED_CODE" ]; then echo "ERROR: app/build.gradle default versionCode ($GRADLE_CODE) does not match expected ($EXPECTED_CODE)" && exit 1; fi
           echo "Version check passed."
 

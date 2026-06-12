@@ -16,4 +16,55 @@
 		android:summary="@string/checking_for_updates"
 		android:persistent="false" />
 
+	<PreferenceCategory android:title="Developer">
+
+		<Preference
+			android:key="about_developer"
+			android:icon="@drawable/ic_about_developer"
+			android:title="Md Hasan Raza"
+			android:summary="Creator of Nyora"
+			android:persistent="false" />
+
+		<Preference
+			android:icon="@drawable/ic_about_instagram"
+			android:title="Instagram"
+			android:summary="@md_hasan_raza____"
+			android:persistent="false">
+			<intent
+				android:action="android.intent.action.VIEW"
+				android:data="https://www.instagram.com/md_hasan_raza____?igsh=MXZ6eTk2Y3FsNGs3aQ==" />
+		</Preference>
+
+		<Preference
+			android:icon="@drawable/ic_about_linkedin"
+			android:title="LinkedIn"
+			android:summary="md-hasan-raza"
+			android:persistent="false">
+			<intent
+				android:action="android.intent.action.VIEW"
+				android:data="https://www.linkedin.com/in/md-hasan-raza-8817372a7/" />
+		</Preference>
+
+		<Preference
+			android:icon="@drawable/ic_about_github"
+			android:title="GitHub"
+			android:summary="Hasan72341"
+			android:persistent="false">
+			<intent
+				android:action="android.intent.action.VIEW"
+				android:data="https://github.com/Hasan72341" />
+		</Preference>
+
+		<Preference
+			android:icon="@drawable/ic_about_email"
+			android:title="Email"
+			android:summary="hasanraza96@outlook.com"
+			android:persistent="false">
+			<intent
+				android:action="android.intent.action.VIEW"
+				android:data="mailto:hasanraza96@outlook.com" />
+		</Preference>
+
+	</PreferenceCategory>
+
 </PreferenceScreen>

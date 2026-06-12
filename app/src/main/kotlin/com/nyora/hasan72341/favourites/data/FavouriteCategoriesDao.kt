@@ -17,6 +17,18 @@ abstract class FavouriteCategoriesDao {
 	@Query("SELECT * FROM favourite_categories WHERE deleted_at = 0 ORDER BY sort_key")
 	abstract suspend fun findAll(): List<FavouriteCategoryEntity>
 
+	// Includes soft-deleted rows so category deletions actually propagate on sync push.
+	@Query("SELECT * FROM favourite_categories ORDER BY sort_key")
+	abstract suspend fun findAllForSync(): List<FavouriteCategoryEntity>
+
+	// Move favourites off non-canonical duplicate categories onto the lowest-id one sharing the title.
+	@Query("UPDATE OR IGNORE favourites SET category_id = (SELECT MIN(c.category_id) FROM favourite_categories c WHERE c.deleted_at = 0 AND c.title = (SELECT t.title FROM favourite_categories t WHERE t.category_id = favourites.category_id)) WHERE category_id IN (SELECT c.category_id FROM favourite_categories c WHERE c.deleted_at = 0 AND c.category_id <> (SELECT MIN(c2.category_id) FROM favourite_categories c2 WHERE c2.deleted_at = 0 AND c2.title = c.title))")
+	abstract suspend fun repointDuplicateFavourites()
+
+	// Soft-delete every category that is not the lowest id for its title (collapses duplicates).
+	@Query("UPDATE favourite_categories SET deleted_at = :now WHERE deleted_at = 0 AND category_id <> (SELECT MIN(c2.category_id) FROM favourite_categories c2 WHERE c2.deleted_at = 0 AND c2.title = favourite_categories.title)")
+	abstract suspend fun softDeleteDuplicateCategories(now: Long)
+
 	@Query("SELECT * FROM favourite_categories WHERE deleted_at = 0 ORDER BY sort_key")
 	abstract fun observeAll(): Flow<List<FavouriteCategoryEntity>>
 

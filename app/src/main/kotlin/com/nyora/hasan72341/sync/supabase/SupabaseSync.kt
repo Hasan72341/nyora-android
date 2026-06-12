@@ -348,7 +348,8 @@ class SupabaseSync @Inject constructor(
 
     private suspend fun pushCategories() {
         val uid = config.userId
-        val entities = runCatching { categoriesDao.findAll() }.getOrNull() ?: return
+        // Include soft-deleted rows so category deletions (e.g. duplicate cleanup) propagate.
+        val entities = runCatching { categoriesDao.findAllForSync() }.getOrNull() ?: return
         if (entities.isEmpty()) return
         val rows = JSONArray()
         for (c in entities) {
@@ -536,6 +537,11 @@ class SupabaseSync @Inject constructor(
                     android.util.Log.e("SupabaseSync", "pullCategories row failed", e)
                 }
             }
+            // Collapse any duplicate-title categories that arrived from legacy per-device seeds.
+            runCatching {
+                categoriesDao.repointDuplicateFavourites()
+                categoriesDao.softDeleteDuplicateCategories(System.currentTimeMillis())
+            }.onFailure { android.util.Log.e("SupabaseSync", "pullCategories dedup failed", it) }
         }.onFailure { android.util.Log.e("SupabaseSync", "pullCategories failed", it) }
     }
 

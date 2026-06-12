@@ -40,6 +40,7 @@ import com.nyora.hasan72341.core.db.migrations.Migration27To28
 import com.nyora.hasan72341.core.db.migrations.Migration28To29
 import com.nyora.hasan72341.core.db.migrations.Migration29To30
 import com.nyora.hasan72341.core.db.migrations.Migration30To31
+import com.nyora.hasan72341.core.db.migrations.Migration31To32
 import com.nyora.hasan72341.core.db.migrations.Migration2To3
 import com.nyora.hasan72341.core.db.migrations.Migration3To4
 import com.nyora.hasan72341.core.db.migrations.Migration4To5
@@ -71,7 +72,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-const val DATABASE_VERSION = 31
+const val DATABASE_VERSION = 32
 
 @Database(
 	entities = [
@@ -145,12 +146,13 @@ fun getDatabaseMigrations(context: Context): Array<Migration> = arrayOf(
 	Migration28To29(),
 	Migration29To30(),
 	Migration30To31(),
+	Migration31To32(),
 )
 
 fun MangaDatabase(context: Context): MangaDatabase = Room
 	.databaseBuilder(context, MangaDatabase::class.java, "nyora-db")
 	.addMigrations(*getDatabaseMigrations(context))
-	.addCallback(DatabasePrePopulateCallback(context.resources))
+	.addCallback(DatabasePrePopulateCallback())
 	.build()
 
 fun InvalidationTracker.removeObserverAsync(observer: InvalidationTracker.Observer) {
