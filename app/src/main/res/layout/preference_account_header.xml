@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	style="?materialCardViewFilledStyle"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_marginHorizontal="16dp"
+	android:layout_marginVertical="8dp"
+	android:paddingBottom="8dp"
+	app:cardBackgroundColor="?colorPrimaryContainer"
+	app:cardCornerRadius="24dp">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:baselineAligned="false"
+		android:clipChildren="false"
+		android:clipToPadding="false"
+		android:gravity="center_vertical"
+		android:minHeight="?android:attr/listPreferredItemHeightSmall"
+		android:padding="16dp">
+
+		<ImageView
+			android:id="@android:id/icon"
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:layout_marginEnd="16dp"
+			android:background="@drawable/bg_circle_button"
+			android:backgroundTint="?colorOnPrimaryContainer"
+			android:padding="12dp"
+			android:src="@drawable/ic_user"
+			app:tint="?colorPrimaryContainer"
+			tools:ignore="ContentDescription" />
+
+		<LinearLayout
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:orientation="vertical">
+
+			<TextView
+				android:id="@android:id/title"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textAppearance="?textAppearanceTitleLarge"
+				android:textSize="20sp"
+				android:textColor="?colorOnPrimaryContainer"
+				tools:text="Guest" />
+
+			<TextView
+				android:id="@android:id/summary"
+				style="@style/PreferenceSummaryTextStyle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="start"
+				android:maxLines="10"
+				android:textAppearance="?textAppearanceBodyMedium"
+				android:textColor="?colorOnPrimaryContainer"
+				tools:text="Sign in to sync your data" />
+
+		</LinearLayout>
+
+	</LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:title="@string/translate_page">
+
+	<SwitchPreferenceCompat
+		android:defaultValue="false"
+		android:key="ai_translate_enabled"
+		android:title="@string/ai_translate_enabled_title" />
+
+	<SwitchPreferenceCompat
+		android:defaultValue="false"
+		android:dependency="ai_translate_enabled"
+		android:key="ai_auto_translate"
+		android:summary="@string/ai_auto_translate_summary"
+		android:title="@string/ai_auto_translate_title" />
+
+	<SwitchPreferenceCompat
+		android:defaultValue="false"
+		android:dependency="ai_translate_enabled"
+		android:key="ai_translate_offline"
+		android:summary="@string/ai_translate_offline_summary"
+		android:title="@string/ai_translate_offline_title" />
+
+	<ListPreference
+		android:defaultValue="AUTO"
+		android:dependency="ai_translate_enabled"
+		android:entries="@array/ai_source_langs"
+		android:entryValues="@array/ai_source_langs_values"
+		android:key="ai_source_lang"
+		android:title="@string/ai_source_language_title"
+		app:useSimpleSummaryProvider="true" />
+
+	<ListPreference
+		android:defaultValue="English"
+		android:dependency="ai_translate_enabled"
+		android:entries="@array/ai_target_langs"
+		android:entryValues="@array/ai_target_langs"
+		android:key="ai_target_lang"
+		android:title="@string/ai_target_language_title"
+		app:useSimpleSummaryProvider="true" />
+
+	<PreferenceCategory
+		android:dependency="ai_translate_enabled"
+		android:title="@string/ai_service_configuration_title">
+
+		<EditTextPreference
+			android:defaultValue="https://api.openai.com/v1"
+			android:key="ai_endpoint"
+			android:summary="@string/ai_endpoint_summary"
+			android:title="@string/ai_endpoint_title"
+			app:useSimpleSummaryProvider="true" />
+
+		<EditTextPreference
+			android:key="ai_api_key"
+			android:summary="@string/ai_api_key_summary"
+			android:title="@string/ai_api_key_title" />
+
+		<EditTextPreference
+			android:defaultValue="gpt-4o-mini"
+			android:key="ai_model"
+			android:summary="@string/ai_model_summary"
+			android:title="@string/ai_model_title"
+			app:useSimpleSummaryProvider="true" />
+
+	</PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,581 @@
+Initialized native services in: /Users/hasanraza/.gradle/native
+Initialized jansi services in: /Users/hasanraza/.gradle/native
+Found daemon DaemonInfo{pid=14834, address=[d44d564b-e370-47a4-9ec4-2824dff230d3 port:64519, addresses:[/127.0.0.1]], state=Idle, lastBusy=1780569132504, context=DefaultDaemonContext[uid=e2ab1218-84da-4732-a004-4daaedf02928,javaHome=/opt/homebrew/Cellar/openjdk@17/17.0.19/libexec/openjdk.jdk/Contents/Home,javaVersion=17,javaVendor=Homebrew,daemonRegistryDir=/Users/hasanraza/.gradle/daemon,pid=14834,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-Xmx4096m,-Dfile.encoding=UTF-8,-Duser.country=US,-Duser.language=en,-Duser.variant]} however its context does not match the desired criteria.
+JVM is incompatible.
+Wanted: DaemonRequestContext{jvmCriteria=Compatible with Java 21, Oracle, nativeImageCapable=false (from gradle/gradle-daemon-jvm.properties), daemonOpts=[-Xmx8192M, -Dfile.encoding=UTF-8, -Duser.country=US, -Duser.language=en, -Duser.variant], applyInstrumentationAgent=true, nativeServicesMode=ENABLED, priority=NORMAL}
+Actual: DefaultDaemonContext[uid=e2ab1218-84da-4732-a004-4daaedf02928,javaHome=/opt/homebrew/Cellar/openjdk@17/17.0.19/libexec/openjdk.jdk/Contents/Home,javaVersion=17,javaVendor=Homebrew,daemonRegistryDir=/Users/hasanraza/.gradle/daemon,pid=14834,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-Xmx4096m,-Dfile.encoding=UTF-8,-Duser.country=US,-Duser.language=en,-Duser.variant]
+
+  Looking for a different daemon...
+Found daemon DaemonInfo{pid=14977, address=[6985ec1b-2913-4cb0-bd3c-5f4ad8cb6f9e port:64557, addresses:[/127.0.0.1]], state=Idle, lastBusy=1780569060388, context=DefaultDaemonContext[uid=5a861992-a90e-4471-80a6-06836dd4cbde,javaHome=/opt/homebrew/Cellar/openjdk@17/17.0.19/libexec/openjdk.jdk/Contents/Home,javaVersion=17,javaVendor=Homebrew,daemonRegistryDir=/Users/hasanraza/.gradle/daemon,pid=14977,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-XX:+UseG1GC,-XX:MaxMetaspaceSize=512m,-Xmx4g,-Dfile.encoding=UTF-8,-Duser.country=US,-Duser.language=en,-Duser.variant]} however its context does not match the desired criteria.
+JVM is incompatible.
+Wanted: DaemonRequestContext{jvmCriteria=Compatible with Java 21, Oracle, nativeImageCapable=false (from gradle/gradle-daemon-jvm.properties), daemonOpts=[-Xmx8192M, -Dfile.encoding=UTF-8, -Duser.country=US, -Duser.language=en, -Duser.variant], applyInstrumentationAgent=true, nativeServicesMode=ENABLED, priority=NORMAL}
+Actual: DefaultDaemonContext[uid=5a861992-a90e-4471-80a6-06836dd4cbde,javaHome=/opt/homebrew/Cellar/openjdk@17/17.0.19/libexec/openjdk.jdk/Contents/Home,javaVersion=17,javaVendor=Homebrew,daemonRegistryDir=/Users/hasanraza/.gradle/daemon,pid=14977,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-XX:+UseG1GC,-XX:MaxMetaspaceSize=512m,-Xmx4g,-Dfile.encoding=UTF-8,-Duser.country=US,-Duser.language=en,-Duser.variant]
+
+  Looking for a different daemon...
+The client will now receive all logging from the daemon (pid: 8773). The daemon log file: /Users/hasanraza/.gradle/daemon/9.3.1/daemon-8773.out.log
+Starting 27th build in daemon [uptime: 5 hrs 21 mins 36.798 secs, performance: 97%, GC rate: 0.00/s, heap usage: 2% of 8 GiB]
+Using 8 worker leases.
+Operational build model parameters: {requiresToolingModels=false, parallelProjectExecution=true, configureOnDemand=false, configurationCache=true, configurationCacheParallelStore=false, configurationCacheParallelLoad=true, isolatedProjects=false, parallelProjectConfiguration=false, intermediateModelCache=false, parallelToolingApiActions=true, invalidateCoupledProjects=false, modelAsProjectDependency=false, resilientModelBuilding=false}
+Encryption key source: default Gradle keystore (pkcs12)
+Now considering [/Users/hasanraza/Desktop/kotatsu/Nyora/nyora-android] as hierarchies to watch
+Reusing configuration cache.
+Now considering [/Users/hasanraza/Desktop/kotatsu/Nyora/nyora-android] as hierarchies to watch
+Watching the file system is configured to be enabled if available
+File system watching is active
+Using local directory build cache for the root build (location = /Users/hasanraza/.gradle/caches/build-cache-1, remove unused entries = after 7 days).
+Tasks to be executed: [task ':app:preBuild', task ':app:preDebugBuild', task ':app:mergeDebugNativeDebugMetadata', task ':translator:checkKotlinGradlePluginConfigurationErrors', task ':translator:compileKotlin', task ':translator:compileJava', task ':translator:processResources', task ':translator:classes', task ':translator:jar', task ':app:checkKotlinGradlePluginConfigurationErrors', task ':app:dataBindingMergeDependencyArtifactsDebug', task ':app:generateDebugResValues', task ':app:generateDebugResources', task ':app:mergeDebugResources', task ':app:packageDebugResources', task ':app:processDebugNavigationResources', task ':app:parseDebugLocalResources', task ':app:dataBindingGenBaseClassesDebug', task ':app:generateDebugBuildConfig', task ':app:checkDebugAarMetadata', task ':app:mapDebugSourceSetPaths', task ':app:compileDebugNavigationResources', task ':app:createDebugCompatibleScreenManifests', task ':app:extractDeepLinksDebug', task ':app:processDebugMainManifest', task ':app:processDebugManifest', task ':app:processDebugManifestForPackage', task ':app:processDebugResources', task ':app:kspDebugKotlin', task ':app:compileDebugKotlin', task ':app:javaPreCompileDebug', task ':app:compileDebugJavaWithJavac', task ':app:copyRoomSchemas', task ':app:generateDebugAssets', task ':app:mergeDebugAssets', task ':app:injectSentryDebugMetaPropertiesIntoAssetsDebug', task ':app:compressDebugAssets', task ':app:l8DexDesugarLibDebug', task ':app:desugarDebugFileDependencies', task ':app:hiltAggregateDepsDebug', task ':app:hiltJavaCompileDebug', task ':app:transformDebugClassesWithAsm', task ':app:dexBuilderDebug', task ':app:mergeDebugGlobalSynthetics', task ':app:processDebugJavaRes', task ':app:mergeDebugJavaResource', task ':app:checkDebugDuplicateClasses', task ':app:mergeExtDexDebug', task ':app:mergeLibDexDebug', task ':app:mergeProjectDexDebug', task ':app:mergeDebugJniLibFolders', task ':app:mergeDebugNativeLibs', task ':app:stripDebugDebugSymbols', task ':app:validateSigningDebug', task ':app:writeDebugAppMetadata', task ':app:writeDebugSigningConfigVersions', task ':app:packageDebug', task ':app:createDebugApkListingFileRedirect', task ':app:assembleDebug']
+Tasks that were excluded: []
+Resolve mutations for :app:preBuild (Thread[#1346,Execution worker,5,main]) started.
+:app:preBuild (Thread[#1346,Execution worker,5,main]) started.
+Resolve mutations for :translator:checkKotlinGradlePluginConfigurationErrors (Thread[#1347,Execution worker Thread 2,5,main]) started.
+:translator:checkKotlinGradlePluginConfigurationErrors (Thread[#1347,Execution worker Thread 2,5,main]) started.
+Resolve mutations for :translator:processResources (Thread[#1349,Execution worker Thread 3,5,main]) started.
+:translator:processResources (Thread[#1349,Execution worker Thread 3,5,main]) started.
+work action Unknown value (Thread[#1350,Execution worker Thread 4,5,main]) started.
+Resolve mutations for :app:checkKotlinGradlePluginConfigurationErrors (Thread[#1350,Execution worker Thread 4,5,main]) started.
+:app:checkKotlinGradlePluginConfigurationErrors (Thread[#1350,Execution worker Thread 4,5,main]) started.
+Resolve mutations for :app:generateDebugAssets (Thread[#1351,Execution worker Thread 5,5,main]) started.
+:app:generateDebugAssets (Thread[#1351,Execution worker Thread 5,5,main]) started.
+work action Unknown value (Thread[#1352,Execution worker Thread 6,5,main]) started.
+work action Unknown value (Thread[#1352,Execution worker Thread 6,5,main]) started.
+work action Unknown value (Thread[#1352,Execution worker Thread 6,5,main]) started.
+work action Unknown value (Thread[#1352,Execution worker Thread 6,5,main]) started.
+work action Unknown value (Thread[#1352,Execution worker Thread 6,5,main]) started.
+work action Unknown value (Thread[#1352,Execution worker Thread 6,5,main]) started.
+work action Unknown value (Thread[#1352,Execution worker Thread 6,5,main]) started.
+work action Unknown value (Thread[#1352,Execution worker Thread 6,5,main]) started.
+
+> Task :app:preBuild UP-TO-DATE
+Skipping task ':app:preBuild' as it has no actions.
+Resolve mutations for :app:preDebugBuild (Thread[#1346,Execution worker,5,main]) started.
+:app:preDebugBuild (Thread[#1346,Execution worker,5,main]) started.
+
+> Task :app:preDebugBuild UP-TO-DATE
+Skipping task ':app:preDebugBuild' as it has no actions.
+Resolve mutations for :app:mergeDebugNativeDebugMetadata (Thread[#1346,Execution worker,5,main]) started.
+:app:mergeDebugNativeDebugMetadata (Thread[#1346,Execution worker,5,main]) started.
+
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+Skipping task ':app:mergeDebugNativeDebugMetadata' as it has no source files and no previous output files.
+Resolve mutations for :app:dataBindingMergeDependencyArtifactsDebug (Thread[#1346,Execution worker,5,main]) started.
+:app:dataBindingMergeDependencyArtifactsDebug (Thread[#1346,Execution worker,5,main]) started.
+
+> Task :app:dataBindingMergeDependencyArtifactsDebug UP-TO-DATE
+Caching disabled for task ':app:dataBindingMergeDependencyArtifactsDebug' because:
+  Caching has been disabled for the task
+Skipping task ':app:dataBindingMergeDependencyArtifactsDebug' as it is up-to-date.
+Resolve mutations for :app:generateDebugResValues (Thread[#1346,Execution worker,5,main]) started.
+:app:generateDebugResValues (Thread[#1346,Execution worker,5,main]) started.
+
+> Task :app:generateDebugAssets UP-TO-DATE
+Skipping task ':app:generateDebugAssets' as it has no actions.
+Resolve mutations for :app:processDebugNavigationResources (Thread[#1351,Execution worker Thread 5,5,main]) started.
+
+> Task :translator:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Skipping task ':translator:checkKotlinGradlePluginConfigurationErrors' as task onlyIf 'errorDiagnostics are present' is false.
+Resolve mutations for :translator:compileKotlin (Thread[#1347,Execution worker Thread 2,5,main]) started.
+Build 8dfea74d-9a24-4947-875c-9e97355b2f2e is started
+:translator:compileKotlin (Thread[#1347,Execution worker Thread 2,5,main]) started.
+:app:processDebugNavigationResources (Thread[#1351,Execution worker Thread 5,5,main]) started.
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Skipping task ':app:checkKotlinGradlePluginConfigurationErrors' as task onlyIf 'errorDiagnostics are present' is false.
+Resolve mutations for :app:checkDebugAarMetadata (Thread[#1352,Execution worker Thread 6,5,main]) started.
+Resolve mutations for :app:createDebugCompatibleScreenManifests (Thread[#1350,Execution worker Thread 4,5,main]) started.
+:app:checkDebugAarMetadata (Thread[#1350,Execution worker Thread 4,5,main]) started.
+
+> Task :translator:processResources NO-SOURCE
+Skipping task ':translator:processResources' as it has no source files and no previous output files.
+:app:createDebugCompatibleScreenManifests (Thread[#1349,Execution worker Thread 3,5,main]) started.
+Resolve mutations for :app:generateDebugBuildConfig (Thread[#1345,included builds,5,main]) started.
+
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+Caching disabled for task ':app:createDebugCompatibleScreenManifests' because:
+  Caching has been disabled for the task
+Skipping task ':app:createDebugCompatibleScreenManifests' as it is up-to-date.
+:app:generateDebugBuildConfig (Thread[#1345,included builds,5,main]) started.
+
+> Task :app:generateDebugResValues UP-TO-DATE
+Build cache key for task ':app:generateDebugResValues' is 3b950bb77cba90edccdbf092d15af08b
+Skipping task ':app:generateDebugResValues' as it is up-to-date.
+Resolve mutations for :app:generateDebugResources (Thread[#1346,Execution worker,5,main]) started.
+
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+Build cache key for task ':app:generateDebugBuildConfig' is 4381183989ac64676e90c825cccd2ad8
+Skipping task ':app:generateDebugBuildConfig' as it is up-to-date.
+Resolve mutations for :app:extractDeepLinksDebug (Thread[#1345,included builds,5,main]) started.
+:app:generateDebugResources (Thread[#1346,Execution worker,5,main]) started.
+:app:extractDeepLinksDebug (Thread[#1345,included builds,5,main]) started.
+Resolve mutations for :app:mapDebugSourceSetPaths (Thread[#1349,Execution worker Thread 3,5,main]) started.
+:app:mapDebugSourceSetPaths (Thread[#1349,Execution worker Thread 3,5,main]) started.
+Resolve mutations for :app:mergeDebugAssets (Thread[#1352,Execution worker Thread 6,5,main]) started.
+
+> Task :app:generateDebugResources UP-TO-DATE
+Build cache key for task ':app:generateDebugResources' is e7882b63fcfbcca58476163b487786d0
+Skipping task ':app:generateDebugResources' as it is up-to-date.
+Resolve mutations for :app:mergeDebugResources (Thread[#1346,Execution worker,5,main]) started.
+Resolve mutations for :app:javaPreCompileDebug (Thread[#1353,Execution worker Thread 7,5,main]) started.
+:app:javaPreCompileDebug (Thread[#1353,Execution worker Thread 7,5,main]) started.
+:app:mergeDebugResources (Thread[#1346,Execution worker,5,main]) started.
+Resolve mutations for :app:packageDebugResources (Thread[#1352,Execution worker Thread 6,5,main]) started.
+
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+Build cache key for task ':app:extractDeepLinksDebug' is a7715d895ecbccf60d758cec4a389b61
+Skipping task ':app:extractDeepLinksDebug' as it is up-to-date.
+Resolve mutations for :app:processDebugMainManifest (Thread[#1345,included builds,5,main]) started.
+:app:processDebugMainManifest (Thread[#1345,included builds,5,main]) started.
+:app:packageDebugResources (Thread[#1352,Execution worker Thread 6,5,main]) started.
+
+> Task :app:javaPreCompileDebug UP-TO-DATE
+Build cache key for task ':app:javaPreCompileDebug' is 5aa796c18c0d6a6999fba41c0e370b0d
+Skipping task ':app:javaPreCompileDebug' as it is up-to-date.
+:app:mergeDebugAssets (Thread[#1353,Execution worker Thread 7,5,main]) started.
+
+> Task :translator:compileKotlin UP-TO-DATE
+Build cache key for task ':translator:compileKotlin' is 961ecfb1db5dc10709871855ea1d7e79
+Skipping task ':translator:compileKotlin' as it is up-to-date.
+Resolve mutations for :translator:compileJava (Thread[#1347,Execution worker Thread 2,5,main]) started.
+:translator:compileJava (Thread[#1347,Execution worker Thread 2,5,main]) started.
+
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+Caching disabled for task ':app:checkDebugAarMetadata' because:
+  Caching has been disabled for the task
+Skipping task ':app:checkDebugAarMetadata' as it is up-to-date.
+
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+Caching disabled for task ':app:mapDebugSourceSetPaths' because:
+  Caching has been disabled for the task
+Skipping task ':app:mapDebugSourceSetPaths' as it is up-to-date.
+Resolve mutations for :app:l8DexDesugarLibDebug (Thread[#1350,Execution worker Thread 4,5,main]) started.
+Resolve mutations for :app:desugarDebugFileDependencies (Thread[#1349,Execution worker Thread 3,5,main]) started.
+
+> Task :app:packageDebugResources UP-TO-DATE
+Build cache key for task ':app:packageDebugResources' is 1b8090a2fc2b853771eb4cf9c08157b7
+Skipping task ':app:packageDebugResources' as it is up-to-date.
+:app:l8DexDesugarLibDebug (Thread[#1350,Execution worker Thread 4,5,main]) started.
+Resolve mutations for :app:checkDebugDuplicateClasses (Thread[#1352,Execution worker Thread 6,5,main]) started.
+:app:checkDebugDuplicateClasses (Thread[#1352,Execution worker Thread 6,5,main]) started.
+
+> Task :app:processDebugMainManifest UP-TO-DATE
+Build cache key for task ':app:processDebugMainManifest' is 03bfcf0a300fa6f13ef9ccb79f8b10b9
+Skipping task ':app:processDebugMainManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugManifest (Thread[#1345,included builds,5,main]) started.
+:app:processDebugManifest (Thread[#1345,included builds,5,main]) started.
+:app:desugarDebugFileDependencies (Thread[#1349,Execution worker Thread 3,5,main]) started.
+
+> Task :app:processDebugManifest UP-TO-DATE
+Build cache key for task ':app:processDebugManifest' is 185114ecfd9a1cf51603f23ae2db4099
+Skipping task ':app:processDebugManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugManifestForPackage (Thread[#1345,included builds,5,main]) started.
+:app:processDebugManifestForPackage (Thread[#1345,included builds,5,main]) started.
+
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+Build cache key for task ':app:processDebugManifestForPackage' is 65d605451e714c5502be019fe5f8c6bf
+Skipping task ':app:processDebugManifestForPackage' as it is up-to-date.
+Resolve mutations for :app:mergeDebugJniLibFolders (Thread[#1345,included builds,5,main]) started.
+
+> Task :translator:compileJava NO-SOURCE
+Skipping task ':translator:compileJava' as it has no source files and no previous output files.
+Resolve mutations for :translator:classes (Thread[#1347,Execution worker Thread 2,5,main]) started.
+:translator:classes (Thread[#1347,Execution worker Thread 2,5,main]) started.
+
+> Task :translator:classes UP-TO-DATE
+Skipping task ':translator:classes' as it has no actions.
+Resolve mutations for :translator:jar (Thread[#1347,Execution worker Thread 2,5,main]) started.
+:translator:jar (Thread[#1347,Execution worker Thread 2,5,main]) started.
+
+> Task :app:l8DexDesugarLibDebug UP-TO-DATE
+Build cache key for task ':app:l8DexDesugarLibDebug' is 9dcc8585745edde20140107b641fe491
+Skipping task ':app:l8DexDesugarLibDebug' as it is up-to-date.
+Resolve mutations for :app:validateSigningDebug (Thread[#1350,Execution worker Thread 4,5,main]) started.
+:app:validateSigningDebug (Thread[#1350,Execution worker Thread 4,5,main]) started.
+
+> Task :translator:jar UP-TO-DATE
+Caching disabled for task ':translator:jar' because:
+  Not worth caching
+Skipping task ':translator:jar' as it is up-to-date.
+work action resolve translator-1.1.1.jar (project :translator) (Thread[#1347,Execution worker Thread 2,5,main]) started.
+IdentityTransform (Thread[#1347,Execution worker Thread 2,5,main]) started.
+:app:mergeDebugJniLibFolders (Thread[#1345,included builds,5,main]) started.
+IdentityTransform (Thread[#1347,Execution worker Thread 2,5,main]) started.
+DexingWithClasspathTransform (Thread[#1347,Execution worker Thread 2,5,main]) started.
+
+> Task :app:validateSigningDebug UP-TO-DATE
+Caching disabled for task ':app:validateSigningDebug' because:
+  Caching has been disabled for the task
+Skipping task ':app:validateSigningDebug' as it is up-to-date.
+
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+Caching disabled for task ':app:mergeDebugJniLibFolders' because:
+  Simple merging task
+Skipping task ':app:mergeDebugJniLibFolders' as it is up-to-date.
+CopyTransform (Thread[#1350,Execution worker Thread 4,5,main]) started.
+AggregatedPackagesTransform (Thread[#1350,Execution worker Thread 4,5,main]) started.
+IdentityTransform (Thread[#1350,Execution worker Thread 4,5,main]) started.
+ExtractJniTransform (Thread[#1350,Execution worker Thread 4,5,main]) started.
+Resolve mutations for :app:mergeDebugNativeLibs (Thread[#1350,Execution worker Thread 4,5,main]) started.
+
+> Task :app:processDebugNavigationResources UP-TO-DATE
+Build cache key for task ':app:processDebugNavigationResources' is 5c30f8c4a9f0b711ef5fed2a767e962b
+Skipping task ':app:processDebugNavigationResources' as it is up-to-date.
+Resolve mutations for :app:compileDebugNavigationResources (Thread[#1345,included builds,5,main]) started.
+Resolve mutations for :app:parseDebugLocalResources (Thread[#1351,Execution worker Thread 5,5,main]) started.
+
+> Task :app:mergeDebugAssets UP-TO-DATE
+Caching disabled for task ':app:mergeDebugAssets' because:
+  Simple merging task
+Skipping task ':app:mergeDebugAssets' as it is up-to-date.
+
+> Transform translator-1.1.1.jar (project :translator) with DexingWithClasspathTransform
+Build cache key for DexingWithClasspathTransform: /Users/hasanraza/Desktop/kotatsu/translator/build/libs/translator-1.1.1.jar is 1670d16ebadd8ccc36bf7e9c760b5b78
+Skipping DexingWithClasspathTransform: /Users/hasanraza/Desktop/kotatsu/translator/build/libs/translator-1.1.1.jar as it is up-to-date.
+:app:compileDebugNavigationResources (Thread[#1345,included builds,5,main]) started.
+:app:mergeDebugNativeLibs (Thread[#1350,Execution worker Thread 4,5,main]) started.
+
+> Task :app:mergeDebugResources UP-TO-DATE
+Build cache key for task ':app:mergeDebugResources' is 77dfb0efaf4a87377ab0bc7af4ce09fc
+Skipping task ':app:mergeDebugResources' as it is up-to-date.
+Resolve mutations for :app:writeDebugAppMetadata (Thread[#1346,Execution worker,5,main]) started.
+:app:writeDebugAppMetadata (Thread[#1346,Execution worker,5,main]) started.
+DexingOutputSplitTransform (Thread[#1347,Execution worker Thread 2,5,main]) started.
+DexingOutputSplitTransform (Thread[#1347,Execution worker Thread 2,5,main]) started.
+Resolve mutations for :app:writeDebugSigningConfigVersions (Thread[#1347,Execution worker Thread 2,5,main]) started.
+:app:writeDebugSigningConfigVersions (Thread[#1347,Execution worker Thread 2,5,main]) started.
+Resolve mutations for :app:injectSentryDebugMetaPropertiesIntoAssetsDebug (Thread[#1353,Execution worker Thread 7,5,main]) started.
+
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+Caching disabled for task ':app:writeDebugAppMetadata' because:
+  Caching has been disabled for the task
+Skipping task ':app:writeDebugAppMetadata' as it is up-to-date.
+:app:injectSentryDebugMetaPropertiesIntoAssetsDebug (Thread[#1353,Execution worker Thread 7,5,main]) started.
+:app:parseDebugLocalResources (Thread[#1351,Execution worker Thread 5,5,main]) started.
+
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+Build cache key for task ':app:compileDebugNavigationResources' is d736109bf3e305d63883a90b1964894c
+Skipping task ':app:compileDebugNavigationResources' as it is up-to-date.
+
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+Caching disabled for task ':app:writeDebugSigningConfigVersions' because:
+  Caching has been disabled for the task
+Skipping task ':app:writeDebugSigningConfigVersions' as it is up-to-date.
+
+> Task :app:injectSentryDebugMetaPropertiesIntoAssetsDebug UP-TO-DATE
+Build cache key for task ':app:injectSentryDebugMetaPropertiesIntoAssetsDebug' is d51733b4264272cdefc753ecaa575e8c
+Skipping task ':app:injectSentryDebugMetaPropertiesIntoAssetsDebug' as it is up-to-date.
+Resolve mutations for :app:compressDebugAssets (Thread[#1353,Execution worker Thread 7,5,main]) started.
+:app:compressDebugAssets (Thread[#1353,Execution worker Thread 7,5,main]) started.
+
+> Task :app:compressDebugAssets UP-TO-DATE
+Build cache key for task ':app:compressDebugAssets' is e1b331d146de67b917a9bd20813f7a74
+Skipping task ':app:compressDebugAssets' as it is up-to-date.
+
+> Task :app:parseDebugLocalResources UP-TO-DATE
+Build cache key for task ':app:parseDebugLocalResources' is e0648d2596ad4fd9d4b87c5069fa5887
+Skipping task ':app:parseDebugLocalResources' as it is up-to-date.
+Resolve mutations for :app:dataBindingGenBaseClassesDebug (Thread[#1351,Execution worker Thread 5,5,main]) started.
+:app:dataBindingGenBaseClassesDebug (Thread[#1351,Execution worker Thread 5,5,main]) started.
+Resolve mutations for :app:processDebugResources (Thread[#1353,Execution worker Thread 7,5,main]) started.
+:app:processDebugResources (Thread[#1353,Execution worker Thread 7,5,main]) started.
+
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+Caching disabled for task ':app:checkDebugDuplicateClasses' because:
+  Caching has been disabled for the task
+Skipping task ':app:checkDebugDuplicateClasses' as it is up-to-date.
+Resolve mutations for :app:mergeLibDexDebug (Thread[#1352,Execution worker Thread 6,5,main]) started.
+:app:mergeLibDexDebug (Thread[#1352,Execution worker Thread 6,5,main]) started.
+
+> Task :app:mergeLibDexDebug UP-TO-DATE
+Build cache key for task ':app:mergeLibDexDebug' is 0d349686d2ff5189d7e51ec77e27f3de
+Skipping task ':app:mergeLibDexDebug' as it is up-to-date.
+
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+Caching disabled for task ':app:mergeDebugNativeLibs' because:
+  Caching has been disabled for the task
+Skipping task ':app:mergeDebugNativeLibs' as it is up-to-date.
+Resolve mutations for :app:stripDebugDebugSymbols (Thread[#1350,Execution worker Thread 4,5,main]) started.
+:app:stripDebugDebugSymbols (Thread[#1350,Execution worker Thread 4,5,main]) started.
+
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+Build cache key for task ':app:desugarDebugFileDependencies' is a8ba90f02c20664a11a7b1287509a57b
+Skipping task ':app:desugarDebugFileDependencies' as it is up-to-date.
+Resolve mutations for :app:mergeExtDexDebug (Thread[#1349,Execution worker Thread 3,5,main]) started.
+:app:mergeExtDexDebug (Thread[#1349,Execution worker Thread 3,5,main]) started.
+
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+Caching disabled for task ':app:stripDebugDebugSymbols' because:
+  Caching has been disabled for the task
+Skipping task ':app:stripDebugDebugSymbols' as it is up-to-date.
+
+> Task :app:dataBindingGenBaseClassesDebug UP-TO-DATE
+Build cache key for task ':app:dataBindingGenBaseClassesDebug' is 98c69b0d2444cf0fee8a76e96f2e8cb0
+Skipping task ':app:dataBindingGenBaseClassesDebug' as it is up-to-date.
+
+> Task :app:processDebugResources UP-TO-DATE
+Build cache key for task ':app:processDebugResources' is e8d18392faf631e68a76b98a686dd9f9
+Skipping task ':app:processDebugResources' as it is up-to-date.
+Resolve mutations for :app:kspDebugKotlin (Thread[#1353,Execution worker Thread 7,5,main]) started.
+:app:kspDebugKotlin (Thread[#1353,Execution worker Thread 7,5,main]) started.
+
+> Task :app:kspDebugKotlin UP-TO-DATE
+Build cache key for task ':app:kspDebugKotlin' is 0cb20549dad18cd92734b2361b2622f4
+Skipping task ':app:kspDebugKotlin' as it is up-to-date.
+Resolve mutations for :app:compileDebugKotlin (Thread[#1353,Execution worker Thread 7,5,main]) started.
+:app:compileDebugKotlin (Thread[#1353,Execution worker Thread 7,5,main]) started.
+
+> Task :app:mergeExtDexDebug UP-TO-DATE
+Build cache key for task ':app:mergeExtDexDebug' is fc9728dc36d1bf05bbdcafdbb6c8af5c
+Skipping task ':app:mergeExtDexDebug' as it is up-to-date.
+
+> Task :app:compileDebugKotlin UP-TO-DATE
+Build cache key for task ':app:compileDebugKotlin' is 21fa0eb4911600a51358ac6b36fae38a
+Skipping task ':app:compileDebugKotlin' as it is up-to-date.
+Resolve mutations for :app:compileDebugJavaWithJavac (Thread[#1353,Execution worker Thread 7,5,main]) started.
+:app:compileDebugJavaWithJavac (Thread[#1353,Execution worker Thread 7,5,main]) started.
+
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+file or directory '/Users/hasanraza/Desktop/kotatsu/Nyora/nyora-android/app/build/generated/ksp/debug/classes', not found
+file or directory '/Users/hasanraza/Desktop/kotatsu/Nyora/nyora-android/app/build/generated/ksp/debug/classes', not found
+Build cache key for task ':app:compileDebugJavaWithJavac' is 34785633e9e3bbce79d86d395ae6da70
+Skipping task ':app:compileDebugJavaWithJavac' as it is up-to-date.
+No compile result for :app:compileDebugJavaWithJavac
+Resolve mutations for :app:copyRoomSchemas (Thread[#1353,Execution worker Thread 7,5,main]) started.
+Resolve mutations for :app:hiltAggregateDepsDebug (Thread[#1349,Execution worker Thread 3,5,main]) started.
+:app:copyRoomSchemas (Thread[#1353,Execution worker Thread 7,5,main]) started.
+:app:hiltAggregateDepsDebug (Thread[#1349,Execution worker Thread 3,5,main]) started.
+
+> Task :app:copyRoomSchemas NO-SOURCE
+Skipping task ':app:copyRoomSchemas' as it has no source files and no previous output files.
+
+> Task :app:hiltAggregateDepsDebug UP-TO-DATE
+file or directory '/Users/hasanraza/Desktop/kotatsu/Nyora/nyora-android/app/build/generated/ksp/debug/classes', not found
+Build cache key for task ':app:hiltAggregateDepsDebug' is d057f80bb04f6dba44dbc88d1f283255
+Skipping task ':app:hiltAggregateDepsDebug' as it is up-to-date.
+Resolve mutations for :app:hiltJavaCompileDebug (Thread[#1349,Execution worker Thread 3,5,main]) started.
+:app:hiltJavaCompileDebug (Thread[#1349,Execution worker Thread 3,5,main]) started.
+
+> Task :app:hiltJavaCompileDebug
+file or directory '/Users/hasanraza/Desktop/kotatsu/Nyora/nyora-android/app/build/generated/ksp/debug/classes', not found
+Build cache key for task ':app:hiltJavaCompileDebug' is d0f579fab581206dd190126d18d4ac13
+Task ':app:hiltJavaCompileDebug' is not up-to-date because:
+  Task has failed previously.
+The input changes require a full rebuild for incremental task ':app:hiltJavaCompileDebug'.
+Compilation mode: in-process compilation
+file or directory '/Users/hasanraza/Desktop/kotatsu/Nyora/nyora-android/app/build/generated/ksp/debug/classes', not found
+Full recompilation is required because no incremental change information is available. This is usually caused by clean builds or changing compiler arguments.
+Compiling with toolchain '/Users/hasanraza/.gradle/jdks/oracle_corporation-21-aarch64-os_x.2/jdk-21.0.2.jdk/Contents/Home'.
+Compiling with JDK Java compiler API.
+/Users/hasanraza/Desktop/kotatsu/Nyora/nyora-android/app/build/generated/hilt/component_sources/debug/com/nyora/android/core/BaseApp_HiltComponents.java:336: error: [Dagger/MissingBinding] com.nyora.android.sync.supabase.SupabaseSync cannot be provided without an @Inject constructor or an @Provides-annotated method.
+  public abstract static class SingletonC implements BaseApp_GeneratedInjector,
+                         ^
+  
+      com.nyora.android.sync.supabase.SupabaseSync is injected at
+          [com.nyora.android.core.BaseApp_HiltComponents.FragmentC] com.nyora.android.settings.SyncSettingsFragment.supabaseSync
+      com.nyora.android.settings.SyncSettingsFragment is injected at
+          [com.nyora.android.core.BaseApp_HiltComponents.FragmentC] com.nyora.android.settings.SyncSettingsFragment_GeneratedInjector.injectSyncSettingsFragment(com.nyora.android.settings.SyncSettingsFragment) [com.nyora.android.core.BaseApp_HiltComponents.SingletonC → com.nyora.android.core.BaseApp_HiltComponents.ActivityRetainedC → com.nyora.android.core.BaseApp_HiltComponents.ActivityC → com.nyora.android.core.BaseApp_HiltComponents.FragmentC]
+1 error
+
+> Task :app:hiltJavaCompileDebug FAILED
+Build 8dfea74d-9a24-4947-875c-9e97355b2f2e is closed
+
+[Incubating] Problems report is available at: file:///Users/hasanraza/Desktop/kotatsu/Nyora/nyora-android/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:hiltJavaCompileDebug'.
+> Compilation failed; see the compiler output below.
+  /Users/hasanraza/Desktop/kotatsu/Nyora/nyora-android/app/build/generated/hilt/component_sources/debug/com/nyora/android/core/BaseApp_HiltComponents.java:336: error: [Dagger/MissingBinding] com.nyora.android.sync.supabase.SupabaseSync cannot be provided without an @Inject constructor or an @Provides-annotated method.
+    public abstract static class SingletonC implements BaseApp_GeneratedInjector,
+                           ^
+    
+        com.nyora.android.sync.supabase.SupabaseSync is injected at
+            [com.nyora.android.core.BaseApp_HiltComponents.FragmentC] com.nyora.android.settings.SyncSettingsFragment.supabaseSync
+        com.nyora.android.settings.SyncSettingsFragment is injected at
+            [com.nyora.android.core.BaseApp_HiltComponents.FragmentC] com.nyora.android.settings.SyncSettingsFragment_GeneratedInjector.injectSyncSettingsFragment(com.nyora.android.settings.SyncSettingsFragment) [com.nyora.android.core.BaseApp_HiltComponents.SingletonC → com.nyora.android.core.BaseApp_HiltComponents.ActivityRetainedC → com.nyora.android.core.BaseApp_HiltComponents.ActivityC → com.nyora.android.core.BaseApp_HiltComponents.FragmentC]
+  1 error
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+* Exception is:
+org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':app:hiltJavaCompileDebug'.
+	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.lambda$executeIfValid$1(ExecuteActionsTaskExecuter.java:135)
+	at org.gradle.internal.Try$Failure.ifSuccessfulOrElse(Try.java:288)
+	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeIfValid(ExecuteActionsTaskExecuter.java:133)
+	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.execute(ExecuteActionsTaskExecuter.java:121)
+	at org.gradle.api.internal.tasks.execution.ProblemsTaskPathTrackingTaskExecuter.execute(ProblemsTaskPathTrackingTaskExecuter.java:41)
+	at org.gradle.api.internal.tasks.execution.FinalizePropertiesTaskExecuter.execute(FinalizePropertiesTaskExecuter.java:46)
+	at org.gradle.api.internal.tasks.execution.ResolveTaskExecutionModeExecuter.execute(ResolveTaskExecutionModeExecuter.java:51)
+	at org.gradle.api.internal.tasks.execution.SkipTaskWithNoActionsExecuter.execute(SkipTaskWithNoActionsExecuter.java:57)
+	at org.gradle.api.internal.tasks.execution.SkipOnlyIfTaskExecuter.execute(SkipOnlyIfTaskExecuter.java:74)
+	at org.gradle.api.internal.tasks.execution.CatchExceptionTaskExecuter.execute(CatchExceptionTaskExecuter.java:36)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.executeTask(EventFiringTaskExecuter.java:77)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:55)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:52)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:209)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:204)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:166)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:53)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter.execute(EventFiringTaskExecuter.java:52)
+	at org.gradle.execution.plan.DefaultNodeExecutor.executeLocalTaskNode(DefaultNodeExecutor.java:55)
+	at org.gradle.execution.plan.DefaultNodeExecutor.execute(DefaultNodeExecutor.java:34)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:355)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:343)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.lambda$execute$0(DefaultTaskExecutionGraph.java:339)
+	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:84)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:339)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:328)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:459)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:376)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
+Caused by: org.gradle.api.internal.tasks.compile.CompilationFailedException: Compilation failed; see the compiler output below.
+/Users/hasanraza/Desktop/kotatsu/Nyora/nyora-android/app/build/generated/hilt/component_sources/debug/com/nyora/android/core/BaseApp_HiltComponents.java:336: error: [Dagger/MissingBinding] com.nyora.android.sync.supabase.SupabaseSync cannot be provided without an @Inject constructor or an @Provides-annotated method.
+  public abstract static class SingletonC implements BaseApp_GeneratedInjector,
+                         ^
+  
+      com.nyora.android.sync.supabase.SupabaseSync is injected at
+          [com.nyora.android.core.BaseApp_HiltComponents.FragmentC] com.nyora.android.settings.SyncSettingsFragment.supabaseSync
+      com.nyora.android.settings.SyncSettingsFragment is injected at
+          [com.nyora.android.core.BaseApp_HiltComponents.FragmentC] com.nyora.android.settings.SyncSettingsFragment_GeneratedInjector.injectSyncSettingsFragment(com.nyora.android.settings.SyncSettingsFragment) [com.nyora.android.core.BaseApp_HiltComponents.SingletonC → com.nyora.android.core.BaseApp_HiltComponents.ActivityRetainedC → com.nyora.android.core.BaseApp_HiltComponents.ActivityC → com.nyora.android.core.BaseApp_HiltComponents.FragmentC]
+1 error
+	at org.gradle.api.internal.tasks.compile.JdkJavaCompiler.execute(JdkJavaCompiler.java:89)
+	at org.gradle.api.internal.tasks.compile.JdkJavaCompiler.execute(JdkJavaCompiler.java:50)
+	at org.gradle.api.internal.tasks.compile.NormalizingJavaCompiler.delegateAndHandleErrors(NormalizingJavaCompiler.java:98)
+	at org.gradle.api.internal.tasks.compile.NormalizingJavaCompiler.execute(NormalizingJavaCompiler.java:52)
+	at org.gradle.api.internal.tasks.compile.NormalizingJavaCompiler.execute(NormalizingJavaCompiler.java:38)
+	at org.gradle.api.internal.tasks.compile.AnnotationProcessorDiscoveringCompiler.execute(AnnotationProcessorDiscoveringCompiler.java:52)
+	at org.gradle.api.internal.tasks.compile.AnnotationProcessorDiscoveringCompiler.execute(AnnotationProcessorDiscoveringCompiler.java:38)
+	at org.gradle.api.internal.tasks.compile.ModuleApplicationNameWritingCompiler.execute(ModuleApplicationNameWritingCompiler.java:46)
+	at org.gradle.api.internal.tasks.compile.ModuleApplicationNameWritingCompiler.execute(ModuleApplicationNameWritingCompiler.java:36)
+	at org.gradle.jvm.toolchain.internal.DefaultToolchainJavaCompiler.execute(DefaultToolchainJavaCompiler.java:57)
+	at org.gradle.api.tasks.compile.JavaCompile.lambda$createToolchainCompiler$3(JavaCompile.java:206)
+	at org.gradle.api.internal.tasks.compile.CleaningJavaCompiler.execute(CleaningJavaCompiler.java:53)
+	at org.gradle.api.internal.tasks.compile.incremental.IncrementalCompilerFactory.lambda$createRebuildAllCompiler$0(IncrementalCompilerFactory.java:55)
+	at org.gradle.api.internal.tasks.compile.incremental.SelectiveCompiler.execute(SelectiveCompiler.java:70)
+	at org.gradle.api.internal.tasks.compile.incremental.SelectiveCompiler.execute(SelectiveCompiler.java:44)
+	at org.gradle.api.internal.tasks.compile.incremental.IncrementalResultStoringCompiler.execute(IncrementalResultStoringCompiler.java:66)
+	at org.gradle.api.internal.tasks.compile.incremental.IncrementalResultStoringCompiler.execute(IncrementalResultStoringCompiler.java:52)
+	at org.gradle.api.internal.tasks.compile.CompileJavaBuildOperationReportingCompiler$1.call(CompileJavaBuildOperationReportingCompiler.java:64)
+	at org.gradle.api.internal.tasks.compile.CompileJavaBuildOperationReportingCompiler$1.call(CompileJavaBuildOperationReportingCompiler.java:48)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:209)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:204)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:166)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:53)
+	at org.gradle.api.internal.tasks.compile.CompileJavaBuildOperationReportingCompiler.execute(CompileJavaBuildOperationReportingCompiler.java:48)
+	at org.gradle.api.tasks.compile.JavaCompile.performCompilation(JavaCompile.java:224)
+	at org.gradle.api.tasks.compile.JavaCompile.performIncrementalCompilation(JavaCompile.java:165)
+	at org.gradle.api.tasks.compile.JavaCompile.compile(JavaCompile.java:150)
+	at org.gradle.internal.reflect.JavaMethod.invoke(JavaMethod.java:125)
+	at org.gradle.api.internal.project.taskfactory.IncrementalTaskAction.doExecute(IncrementalTaskAction.java:45)
+	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:51)
+	at org.gradle.api.internal.project.taskfactory.IncrementalTaskAction.execute(IncrementalTaskAction.java:26)
+	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:29)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$3.run(TaskExecution.java:259)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:29)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:26)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:166)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:47)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeAction(TaskExecution.java:244)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeActions(TaskExecution.java:227)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeWithPreviousOutputFiles(TaskExecution.java:210)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.execute(TaskExecution.java:176)
+	at org.gradle.internal.execution.steps.ExecuteStep.executeInternal(ExecuteStep.java:110)
+	at org.gradle.internal.execution.steps.ExecuteStep.access$000(ExecuteStep.java:47)
+	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:64)
+	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:61)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:209)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:204)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:166)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:53)
+	at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:61)
+	at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:47)
+	at org.gradle.internal.execution.steps.CancelExecutionStep.execute(CancelExecutionStep.java:42)
+	at org.gradle.internal.execution.steps.TimeoutStep.executeWithoutTimeout(TimeoutStep.java:75)
+	at org.gradle.internal.execution.steps.TimeoutStep.execute(TimeoutStep.java:55)
+	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:51)
+	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:29)
+	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.executeMutable(RemovePreviousOutputsStep.java:70)
+	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.executeMutable(RemovePreviousOutputsStep.java:40)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:25)
+	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:62)
+	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:27)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:69)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:46)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.executeMutable(ResolveInputChangesStep.java:39)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.executeMutable(ResolveInputChangesStep.java:28)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:25)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:192)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeAndStoreInCache(BuildCacheStep.java:148)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$executeWithCache$4(BuildCacheStep.java:104)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$executeWithCache$5(BuildCacheStep.java:104)
+	at org.gradle.internal.Try$Success.map(Try.java:170)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithCache(BuildCacheStep.java:88)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$0(BuildCacheStep.java:75)
+	at org.gradle.internal.Either$Left.fold(Either.java:116)
+	at org.gradle.internal.execution.caching.CachingState.fold(CachingState.java:62)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:74)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:49)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:46)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:35)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:75)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:53)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:53)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:35)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:27)
+	at org.gradle.internal.execution.steps.ResolveIncrementalCachingStateStep.executeDelegate(ResolveIncrementalCachingStateStep.java:49)
+	at org.gradle.internal.execution.steps.ResolveIncrementalCachingStateStep.executeDelegate(ResolveIncrementalCachingStateStep.java:27)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:71)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:39)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.executeMutable(ResolveChangesStep.java:63)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.executeMutable(ResolveChangesStep.java:34)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:25)
+	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:64)
+	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:42)
+	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:77)
+	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:46)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.executeWithNonEmptySources(AbstractSkipEmptyWorkStep.java:133)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:64)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:36)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsStartedStep.execute(MarkSnapshottingInputsStartedStep.java:38)
+	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:36)
+	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:23)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.executeMutable(HandleStaleOutputsStep.java:77)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.executeMutable(HandleStaleOutputsStep.java:43)
+	at org.gradle.internal.execution.steps.MutableStep.execute(MutableStep.java:25)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.lambda$execute$0(AssignMutableWorkspaceStep.java:35)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$4.withWorkspace(TaskExecution.java:305)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.execute(AssignMutableWorkspaceStep.java:31)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.execute(AssignMutableWorkspaceStep.java:22)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:40)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:23)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.lambda$execute$2(ExecuteWorkBuildOperationFiringStep.java:67)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:67)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:39)
+	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:46)
+	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:34)
+	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:44)
+	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:31)
+	at org.gradle.internal.execution.impl.DefaultExecutionEngine$1.execute(DefaultExecutionEngine.java:68)
+	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeIfValid(ExecuteActionsTaskExecuter.java:132)
+	... 30 more
+
+
+BUILD FAILED in 4s
+40 actionable tasks: 1 executed, 39 up-to-date
+Watched directory hierarchies: [/Users/hasanraza/Desktop/kotatsu/Nyora/nyora-android]
+Configuration cache entry reused.

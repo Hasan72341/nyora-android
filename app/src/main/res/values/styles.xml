@@ -1,0 +1,472 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+	<!--AlertDialog-->
+
+	<style name="ThemeOverlay.Nyora.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+		<item name="alertDialogStyle">@style/AlertDialog.Nyora</item>
+		<item name="android:windowBackground">@drawable/m3_popup_background</item>
+	</style>
+
+	<style name="AlertDialog.Nyora" parent="MaterialAlertDialog.Material3">
+		<item name="backgroundTint">@android:color/transparent</item>
+		<item name="android:background">@android:color/transparent</item>
+	</style>
+
+	<!-- Bottom sheet -->
+
+	<style name="ThemeOverlay.Nyora.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+		<item name="android:windowAnimationStyle">@style/Animation.Nyora.BottomSheetDialog</item>
+		<item name="bottomSheetStyle">@style/Widget.Nyora.BottomSheet.Modal</item>
+	</style>
+
+	<style name="ThemeOverlay.Nyora.SideSheetDialog" parent="ThemeOverlay.Material3.SideSheetDialog" />
+
+	<style name="Widget.Nyora.BottomSheet.Modal" parent="Widget.Material3.BottomSheet.Modal">
+		<item name="paddingBottomSystemWindowInsets">false</item>
+		<item name="backgroundTint">@color/nyora_surface</item>
+	</style>
+
+	<style name="Widget.Nyora.BottomSheet.DragHandle" parent="Widget.Material3.BottomSheet.DragHandle">
+		<!-- Fix weird bottom padding -->
+		<item name="android:paddingBottom">0dp</item>
+	</style>
+
+	<style name="Widget.Nyora.Spinner.DropDown" parent="Widget.AppCompat.Spinner.DropDown">
+		<item name="android:popupBackground">@drawable/m3_spinner_popup_background</item>
+		<item name="android:elevation">8dp</item>
+		<item name="android:popupElevation">3dp</item>
+	</style>
+
+	<style name="Animation.Nyora.BottomSheetDialog" parent="Animation.AppCompat.Dialog">
+		<item name="android:windowEnterAnimation">@anim/bottom_sheet_slide_in</item>
+		<item name="android:windowExitAnimation">@anim/bottom_sheet_slide_out</item>
+	</style>
+
+	<!-- Widget styles -->
+
+	<style name="Widget.Nyora.SearchView" parent="@style/Widget.AppCompat.SearchView">
+		<item name="iconifiedByDefault">false</item>
+		<item name="searchIcon">@null</item>
+		<item name="queryBackground">@null</item>
+		<item name="android:textAppearance">@style/TextAppearance.Nyora.SearchView</item>
+		<item name="android:textSize">18sp</item>
+	</style>
+
+	<style name="Widget.Nyora.CircularProgressIndicator" parent="Widget.Material3.CircularProgressIndicator">
+		<item name="trackCornerRadius">@dimen/mtrl_progress_indicator_full_rounded_corner_radius</item>
+		<item name="trackThickness">4dp</item>
+		<item name="indicatorColor">?attr/colorPrimary</item>
+		<item name="trackColor">?attr/colorSecondaryContainer</item>
+	</style>
+
+	<style name="Widget.Nyora.LinearProgressIndicator" parent="Widget.Material3.LinearProgressIndicator">
+		<item name="trackCornerRadius">@dimen/mtrl_progress_indicator_full_rounded_corner_radius</item>
+		<item name="trackThickness">5dp</item>
+		<item name="indicatorColor">?attr/colorPrimary</item>
+		<item name="trackColor">?attr/colorSecondaryContainer</item>
+	</style>
+
+	<style name="Widget.Nyora.Chip" parent="Widget.Material3.Chip.Suggestion" />
+
+	<style name="Widget.Nyora.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+		<item name="chipCornerRadius">24dp</item>
+		<item name="android:textAppearance">?attr/textAppearanceLabelLarge</item>
+		<item name="android:fontFamily">@font/poppins_semibold</item>
+		<item name="fontFamily">@font/poppins_semibold</item>
+		<item name="chipMinHeight">40dp</item>
+		<item name="chipStartPadding">12dp</item>
+		<item name="chipEndPadding">12dp</item>
+		<item name="iconSize">20dp</item>
+		<item name="android:textColor">?attr/colorOnSurface</item>
+		<item name="chipBackgroundColor">?colorSurfaceContainerLow</item>
+		<item name="chipStrokeWidth">0dp</item>
+		<item name="rippleColor">?attr/colorControlHighlight</item>
+	</style>
+
+	<style name="Widget.Nyora.Chip.Assist" parent="Widget.Material3.Chip.Assist" />
+
+	<style name="Widget.Nyora.Chip.Dropdown" parent="Widget.Material3.Chip.Assist">
+		<item name="closeIconVisible">true</item>
+		<item name="closeIcon">@drawable/ic_expand_more</item>
+		<item name="chipIconVisible">true</item>
+	</style>
+
+	<style name="Widget.Nyora.Button.More" parent="Widget.Material3.Button.TextButton">
+		<item name="android:minWidth">48dp</item>
+	</style>
+
+	<style name="Widget.Nyora.Button.More.Small">
+		<item name="android:insetTop">0dp</item>
+		<item name="android:insetBottom">0dp</item>
+		<item name="android:minHeight">42dp</item>
+		<item name="android:gravity">center</item>
+		<item name="iconPadding">0dp</item>
+		<item name="android:minWidth">48dp</item>
+	</style>
+
+	<style name="Widget.Nyora.Button" parent="Widget.Material3Expressive.Button">
+		<item name="android:fontFamily">@font/poppins_semibold</item>
+		<item name="fontFamily">@font/poppins_semibold</item>
+		<item name="cornerRadius">100dp</item>
+	</style>
+
+	<style name="Widget.Nyora.Button.TonalButton" parent="Widget.Material3Expressive.Button.TonalButton">
+		<item name="android:fontFamily">@font/poppins_semibold</item>
+		<item name="fontFamily">@font/poppins_semibold</item>
+		<item name="cornerRadius">100dp</item>
+	</style>
+
+	<style name="Widget.Nyora.Button.OutlinedButton" parent="Widget.Material3Expressive.Button.OutlinedButton">
+		<item name="android:fontFamily">@font/poppins_semibold</item>
+		<item name="fontFamily">@font/poppins_semibold</item>
+		<item name="cornerRadius">100dp</item>
+	</style>
+
+	<style name="Widget.Nyora.ToggleButton" parent="Widget.Material3.Button.OutlinedButton">
+		<item name="android:checkable">true</item>
+		<item name="android:textAlignment">textStart</item>
+		<item name="iconPadding">16dp</item>
+	</style>
+
+	<style name="Widget.Nyora.ToggleButton.Vertical">
+		<item name="android:textAlignment">center</item>
+		<item name="iconPadding">2dp</item>
+		<item name="android:singleLine">false</item>
+		<item name="iconGravity">top</item>
+		<item name="android:paddingTop">12dp</item>
+		<item name="android:paddingBottom">10dp</item>
+		<item name="android:paddingStart">6dp</item>
+		<item name="android:paddingEnd">6dp</item>
+		<item name="android:elegantTextHeight">false</item>
+		<item name="shapeAppearance">?shapeAppearanceCornerMedium</item>
+	</style>
+
+	<style name="Widget.Nyora.Slider.Wide" parent="Widget.Material3.Slider">
+		<item name="thumbHeight">48dp</item>
+		<item name="trackCornerSize">12dp</item>
+		<item name="trackHeight">40dp</item>
+	</style>
+
+	<style name="Widget.Nyora.RecyclerView" parent="">
+		<item name="android:scrollbarStyle">outsideOverlay</item>
+		<item name="android:clipToPadding">false</item>
+	</style>
+
+	<style name="Widget.Nyora.FastScroller" parent="">
+		<item name="thumbColor">?colorTertiary</item>
+		<item name="bubbleColor">?colorTertiary</item>
+		<item name="bubbleTextColor">?colorOnTertiary</item>
+		<item name="trackColor">?colorOutline</item>
+		<item name="bubbleSize">small</item>
+		<item name="scrollerOffset">@dimen/grid_spacing_outer</item>
+	</style>
+
+	<style name="Widget.Nyora.DotIndicator" parent="" />
+
+	<style name="Widget.Nyora.BadgeView" parent="">
+		<item name="android:textColor">@macro/m3_comp_badge_large_label_text_color</item>
+		<item name="android:minWidth">@dimen/m3_badge_with_text_size</item>
+		<item name="android:minHeight">@dimen/m3_badge_with_text_size</item>
+		<item name="android:textAppearance">@macro/m3_comp_badge_large_label_text_type</item>
+		<item name="android:gravity">center</item>
+		<item name="shapeAppearance">@style/ShapeAppearance.M3.Comp.Badge.Shape</item>
+		<item name="backgroundColor">?attr/colorError</item>
+		<item name="android:elegantTextHeight">false</item>
+		<item name="singleLine">true</item>
+		<item name="android:outlineProvider">background</item>
+	</style>
+
+	<style name="Widget.Nyora.ListItemTextView" parent="">
+		<item name="android:textColor">@color/list_item_text_color</item>
+		<item name="backgroundFillColor">@color/list_item_background_color</item>
+		<item name="checkedDrawableStart">@drawable/ic_check</item>
+		<item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.Material3.NavigationView.Item</item>
+		<item name="android:gravity">center_vertical|start</item>
+		<item name="android:insetRight">6dp</item>
+		<item name="android:insetLeft">6dp</item>
+		<item name="android:insetTop">2dp</item>
+		<item name="android:insetBottom">2dp</item>
+		<item name="android:textAppearance">?textAppearanceListItem</item>
+		<item name="android:minHeight">?android:listPreferredItemHeightSmall</item>
+		<item name="android:drawablePadding">?android:listPreferredItemPaddingStart</item>
+		<item name="android:paddingStart">?android:listPreferredItemPaddingStart</item>
+		<item name="android:paddingEnd">?android:listPreferredItemPaddingEnd</item>
+	</style>
+
+	<style name="Widget.Nyora.TwoLinesItemView" parent="">
+		<item name="backgroundFillColor">@color/list_item_background_color</item>
+		<item name="shapeAppearance">?attr/shapeAppearanceCornerLarge</item>
+		<item name="android:insetRight">6dp</item>
+		<item name="android:insetLeft">6dp</item>
+		<item name="android:insetTop">2dp</item>
+		<item name="android:insetBottom">2dp</item>
+		<item name="android:orientation">horizontal</item>
+		<item name="android:textColor">@color/list_item_text_color</item>
+		<item name="titleTextAppearance">?attr/textAppearanceTitleSmall</item>
+		<item name="subtitleTextAppearance">?attr/textAppearanceBodySmall</item>
+	</style>
+
+	<style name="Widget.Nyora.ExploreButton" parent="Widget.Material3.Button.TonalButton.Icon">
+		<item name="android:minHeight">80dp</item>
+		<item name="android:singleLine">true</item>
+		<item name="shapeAppearance">?shapeAppearanceCornerExtraLarge</item>
+		<item name="android:ellipsize">marquee</item>
+		<item name="android:marqueeRepeatLimit">marquee_forever</item>
+		<item name="iconSize">26dp</item>
+		<item name="iconPadding">8dp</item>
+		<item name="iconGravity">top</item>
+		<item name="iconTint">?attr/colorOnSurface</item>
+		<item name="android:textColor">?attr/colorOnSurface</item>
+		<item name="android:insetTop">0dp</item>
+		<item name="android:insetBottom">0dp</item>
+		<item name="backgroundTint">?attr/colorSurfaceContainerHigh</item>
+		<item name="rippleColor">?attr/colorControlHighlight</item>
+		<item name="android:textAppearance">?attr/textAppearanceLabelMedium</item>
+		<item name="android:fontFamily">@font/poppins_semibold</item>
+		<item name="fontFamily">@font/poppins_semibold</item>
+		<!-- Removing shadow -->
+		<item name="android:outlineProvider">none</item>
+		<item name="elevation">0dp</item>
+	</style>
+
+	<style name="Widget.Nyora.TextView.Indicator" parent="Widget.MaterialComponents.TextView">
+		<item name="android:drawablePadding">12dp</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:textAppearance">?textAppearanceLabelMedium</item>
+	</style>
+
+	<style name="Widget.Nyora.TextView.Badge" parent="Widget.MaterialComponents.TextView">
+		<item name="android:background">@drawable/bg_chip</item>
+		<item name="android:gravity">center</item>
+		<item name="android:textAlignment">center</item>
+		<item name="android:paddingStart">4dp</item>
+		<item name="android:paddingEnd">4dp</item>
+		<item name="android:paddingTop">2dp</item>
+		<item name="android:paddingBottom">2dp</item>
+		<item name="android:textAppearance">?textAppearanceLabelMedium</item>
+		<item name="android:textColor">?colorOnBackground</item>
+	</style>
+
+	<style name="Widget.Nyora.ImageView.Cover" parent="Widget.MaterialComponents.ShapeableImageView">
+		<item name="aspectRationHeight">18</item>
+		<item name="aspectRationWidth">13</item>
+		<item name="android:scaleType">centerCrop</item>
+		<item name="allowRgb565">true</item>
+		<item name="trimImage">true</item>
+	</style>
+
+	<style name="ThemeOverlay.Nyora.MainToolbar" parent="">
+		<item name="colorControlHighlight">@color/selector_overlay</item>
+	</style>
+
+	<style name="ThemeOverlay.Nyora.ActionMode" parent="">
+		<item name="colorOnSurface">?colorPrimary</item>
+		<item name="colorControlNormal">?colorPrimary</item>
+	</style>
+
+	<!-- TextAppearance -->
+
+	<style name="TextAppearance.Nyora.SearchView" parent="TextAppearance.Material3.SearchBar">
+		<item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+	</style>
+
+	<style name="TextAppearance.Widget.Menu" parent="TextAppearance.AppCompat.Menu">
+		<item name="android:textColor">?attr/colorOnBackground</item>
+	</style>
+
+	<style name="TextAppearance.Nyora.Preference.Secondary" parent="TextAppearance.Material3.BodySmall" />
+
+	<style name="TextAppearance.Nyora.GridTitle" parent="TextAppearance.Material3.TitleSmall" />
+
+	<style name="TextAppearance.Nyora.GridTitle.Small" parent="TextAppearance.Material3.TitleSmall">
+		<item name="android:textSize">12sp</item>
+		<item name="android:letterSpacing">0.00714286</item>
+		<item name="lineHeight">14sp</item>
+		<item name="android:lineHeight" tools:ignore="NewApi">14sp</item>
+	</style>
+
+	<!-- Shapes -->
+
+	<style name="ShapeAppearanceOverlay.Nyora.Cover" parent="">
+		<item name="cornerSize">16dp</item>
+	</style>
+
+	<style name="ShapeAppearanceOverlay.Nyora.Cover.Medium" parent="">
+		<item name="cornerSize">12dp</item>
+	</style>
+
+	<style name="ShapeAppearanceOverlay.Nyora.Cover.Small" parent="">
+		<item name="cornerSize">10dp</item>
+	</style>
+
+	<style name="ShapeAppearanceOverlay.Nyora.Circle" parent="">
+		<item name="cornerFamily">rounded</item>
+		<item name="cornerSize">50%</item>
+	</style>
+
+	<style name="ShapeAppearanceOverlay.Material3.Corner.None" parent="">
+		<item name="cornerSizeBottomLeft">0dp</item>
+		<item name="cornerSizeBottomRight">0dp</item>
+		<item name="cornerSizeTopLeft">0dp</item>
+		<item name="cornerSizeTopRight">0dp</item>
+	</style>
+
+	<!--Preferences-->
+
+	<style name="PreferenceThemeOverlay.Nyora">
+		<item name="preferenceCategoryStyle">@style/Preference.Category.Grouped</item>
+		<item name="preferenceStyle">@style/Preference.Grouped</item>
+		<item name="checkBoxPreferenceStyle">@style/Preference.CheckBox.Grouped</item>
+		<item name="switchPreferenceStyle">@style/Preference.Switch.Grouped</item>
+		<item name="switchPreferenceCompatStyle">@style/Preference.Switch.Grouped</item>
+		<item name="dialogPreferenceStyle">@style/Preference.Dialog.Grouped</item>
+		<item name="editTextPreferenceStyle">@style/Preference.Dialog.EditText.Grouped</item>
+		<item name="preferenceScreenStyle">@style/Preference.Screen.Grouped</item>
+		<item name="singleLineTitle">false</item>
+	</style>
+
+	<style name="Preference.Grouped" parent="@style/Preference.Material">
+		<item name="android:layout">@layout/item_preference_grouped</item>
+	</style>
+
+	<style name="Preference.Category.Grouped" parent="@style/Preference.Category.Material">
+		<item name="android:layout">@layout/layout_preference_category_grouped</item>
+	</style>
+
+	<style name="Preference.CheckBox.Grouped" parent="@style/Preference.CheckBoxPreference.Material">
+		<item name="android:layout">@layout/item_preference_grouped</item>
+	</style>
+
+	<style name="Preference.Switch.Grouped" parent="@style/Preference.SwitchPreferenceCompat.Material">
+		<item name="android:layout">@layout/item_preference_grouped</item>
+	</style>
+
+	<style name="Preference.Dialog.Grouped" parent="@style/Preference.DialogPreference.Material">
+		<item name="android:layout">@layout/item_preference_grouped</item>
+	</style>
+
+	<style name="Preference.Dialog.EditText.Grouped" parent="@style/Preference.DialogPreference.EditTextPreference.Material">
+		<item name="android:layout">@layout/item_preference_grouped</item>
+	</style>
+
+	<style name="Preference.Screen.Grouped" parent="@style/Preference.PreferenceScreen.Material">
+		<item name="android:layout">@layout/item_preference_grouped</item>
+	</style>
+
+	<style name="Preference.Slider" parent="Preference.SeekBarPreference.Material">
+		<item name="android:layout">@layout/preference_slider</item>
+	</style>
+
+	<style name="Preference.MultiAutoCompleteTextView" parent="Preference.DialogPreference.EditTextPreference.Material">
+		<item name="android:dialogLayout">@layout/preference_dialog_multiautocompletetextview</item>
+	</style>
+
+	<style name="Preference.AutoCompleteTextView" parent="Preference.DialogPreference.EditTextPreference.Material">
+		<item name="android:dialogLayout">@layout/preference_dialog_autocompletetextview</item>
+	</style>
+
+	<style name="Preference.SwitchPreferenceCompat.M3" parent="Preference.SwitchPreferenceCompat.Material">
+		<item name="android:widgetLayout">@layout/preference_widget_material_switch</item>
+	</style>
+
+	<style name="Preference.ThemeChooser" parent="Preference.Material">
+		<item name="android:layout">@layout/preference_theme</item>
+		<item name="android:selectable">false</item>
+	</style>
+
+	<!-- Drawable -->
+
+	<style name="ProgressDrawable">
+		<item name="android:fillAlpha">1</item>
+		<item name="android:fillColor">?attr/colorPrimary</item>
+		<item name="android:strokeColor">?attr/colorSurfaceVariant</item>
+		<item name="android:textColor">?attr/colorOnPrimary</item>
+		<item name="strokeWidth">4dp</item>
+		<item name="android:textSize">9sp</item>
+		<item name="autoFitTextSize">true</item>
+	</style>
+
+	<style name="FaviconDrawable">
+		<item name="backgroundColor">?colorBackgroundFloating</item>
+		<item name="strokeColor">?colorOutline</item>
+	</style>
+
+	<style name="FaviconDrawable.Small">
+		<item name="strokeWidth">1dp</item>
+		<item name="cornerSize">8dp</item>
+	</style>
+
+	<style name="FaviconDrawable.Large">
+		<item name="strokeWidth">1dp</item>
+		<item name="cornerSize">12dp</item>
+	</style>
+
+	<style name="FaviconDrawable.Chip">
+		<item name="strokeWidth">1px</item>
+		<item name="cornerSize">@dimen/chip_icon_corner</item>
+		<item name="drawableSize">@dimen/m3_chip_icon_size</item>
+	</style>
+
+	<style name="TextAppearance.Nyora.Awwwards.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+		<item name="android:fontFamily">@font/poppins_bold</item>
+		<item name="fontFamily">@font/poppins_bold</item>
+		<item name="android:letterSpacing">-0.02</item>
+		<item name="android:textSize">28sp</item>
+	</style>
+
+	<style name="TextAppearance.Nyora.Awwwards.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+		<item name="android:fontFamily">@font/poppins_black</item>
+		<item name="fontFamily">@font/poppins_black</item>
+		<item name="android:letterSpacing">-0.03</item>
+		<item name="android:textSize">36sp</item>
+	</style>
+
+	<style name="ShapeAppearance.Nyora.Awwwards.Corner" parent="">
+		<item name="cornerFamily">rounded</item>
+		<item name="cornerSize">28dp</item>
+	</style>
+
+	<style name="TextAppearance.Nyora.Reader.Title" parent="TextAppearance.Material3.TitleMedium">
+		<item name="android:fontFamily">@font/poppins_semibold</item>
+		<item name="fontFamily">@font/poppins_semibold</item>
+		<item name="android:textSize">17sp</item>
+		<item name="android:letterSpacing">-0.01</item>
+	</style>
+
+	<style name="TextAppearance.Nyora.Reader.Subtitle" parent="TextAppearance.Material3.LabelMedium">
+		<item name="android:fontFamily">@font/poppins</item>
+		<item name="fontFamily">@font/poppins</item>
+		<item name="android:textSize">12sp</item>
+		<item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+	</style>
+
+	<style name="Widget.Nyora.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+		<item name="itemIconTint">@color/selector_nav_item</item>
+		<item name="itemTextColor">@color/selector_nav_item</item>
+		<item name="itemActiveIndicatorStyle">@style/Widget.Nyora.BottomNavigationView.Indicator</item>
+		<item name="itemTextAppearanceActive">@style/TextAppearance.Nyora.BottomNav.Active</item>
+		<item name="itemTextAppearanceInactive">@style/TextAppearance.Nyora.BottomNav.Inactive</item>
+	</style>
+
+	<style name="Widget.Nyora.BottomNavigationView.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+		<item name="android:color">?attr/colorSurfaceContainerLow</item>
+	</style>
+
+	<style name="TextAppearance.Nyora.BottomNav.Active" parent="TextAppearance.Material3.LabelSmall">
+		<item name="android:fontFamily">@font/poppins_semibold</item>
+		<item name="fontFamily">@font/poppins_semibold</item>
+		<item name="android:textColor">?attr/colorOnSurface</item>
+		<item name="android:textSize">13sp</item>
+	</style>
+
+	<style name="TextAppearance.Nyora.BottomNav.Inactive" parent="TextAppearance.Material3.LabelSmall">
+		<item name="android:fontFamily">@font/poppins</item>
+		<item name="fontFamily">@font/poppins</item>
+		<item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+	</style>
+
+	<style name="Widget.Nyora.PopupMenu" parent="Widget.Material3.PopupMenu">
+		<item name="android:popupBackground">@drawable/m3_dropdown_popup_background</item>
+	</style>
+
+</resources>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_marginHorizontal="@dimen/list_spacing_normal"
+	android:layout_marginVertical="@dimen/margin_small"
+	android:clipChildren="false"
+	android:clipToPadding="false">
+
+	<com.google.android.material.card.MaterialCardView
+		android:id="@+id/card_hero"
+		android:layout_width="0dp"
+		android:layout_height="240dp"
+		app:cardCornerRadius="24dp"
+		app:cardElevation="2dp"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:strokeWidth="0dp">
+
+		<FrameLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+			<com.nyora.hasan72341.image.ui.CoverImageView
+				android:id="@+id/imageView_cover"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:scaleType="centerCrop"
+				app:allowRgb565="true"
+				tools:ignore="ContentDescription"
+				tools:src="@tools:sample/backgrounds/scenic" />
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:background="@drawable/bg_hero_gradient" />
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="bottom"
+				android:orientation="vertical"
+				android:padding="20dp">
+
+				<TextView
+					android:id="@+id/textView_title"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:ellipsize="end"
+					android:maxLines="2"
+					android:textAppearance="?attr/textAppearanceHeadlineSmall"
+					android:textColor="@android:color/white"
+					android:textStyle="bold"
+					tools:text="@tools:sample/lorem" />
+
+				<TextView
+					android:id="@+id/textView_genres"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="4dp"
+					android:ellipsize="end"
+					android:singleLine="true"
+					android:textAppearance="?attr/textAppearanceBodyMedium"
+					android:textColor="#CCFFFFFF"
+					tools:text="Action, Adventure, Fantasy" />
+
+				<com.google.android.material.button.MaterialButton
+					android:id="@+id/button_action"
+					style="@style/Widget.Nyora.Button.TonalButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="12dp"
+					android:backgroundTint="#FFFFFF"
+					android:text="@string/read"
+					android:textColor="@android:color/black"
+					app:cornerRadius="12dp" />
+
+			</LinearLayout>
+		</FrameLayout>
+	</com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="trending_now">Trending now</string>
+	<string name="popular_now">Popular now</string>
+	<string name="discover_rail_error">Couldn’t load</string>
+	<string name="all_time_popular">All-time popular</string>
+	<string name="top_rated">Top rated</string>
+	<string name="popular_this_season">Ongoing now</string>
+	<string name="new_releases">New releases</string>
+	<string name="popular_on_source">Popular on %s</string>
+</resources>

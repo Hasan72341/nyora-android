@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:clipChildren="false"
+	android:orientation="vertical"
+	android:paddingTop="12dp"
+	android:paddingBottom="16dp">
+
+	<TextView
+		android:id="@+id/textView_title"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_alignWithParentIfMissing="true"
+		android:layout_alignParentStart="true"
+		android:layout_alignParentTop="true"
+		android:layout_marginHorizontal="12dp"
+		android:layout_toStartOf="@id/button_more"
+		android:fontFamily="@font/poppins_bold"
+		android:gravity="center_vertical|start"
+		android:paddingHorizontal="8dp"
+		android:paddingVertical="12dp"
+		android:singleLine="true"
+		android:textAppearance="?attr/textAppearanceTitleMedium"
+		android:textColor="?attr/colorOnSurface"
+		android:textSize="18sp"
+		tools:text="Search Group" />
+
+	<com.google.android.material.button.MaterialButton
+		android:id="@+id/button_more"
+		style="@style/Widget.Nyora.Button.TonalButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignBaseline="@id/textView_title"
+		android:layout_alignParentEnd="true"
+		android:layout_marginEnd="16dp"
+		android:minHeight="40dp"
+		android:paddingHorizontal="16dp"
+		android:textAllCaps="false"
+		android:textSize="12sp"
+		app:cornerRadius="20dp"
+		android:text="@string/show_all" />
+
+	<androidx.recyclerview.widget.RecyclerView
+		android:id="@+id/recyclerView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/textView_title"
+		android:layout_alignParentStart="true"
+		android:clipToPadding="false"
+		android:nestedScrollingEnabled="false"
+		android:orientation="horizontal"
+		android:paddingHorizontal="12dp"
+		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+	<TextView
+		android:id="@+id/textView_error"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/recyclerView"
+		android:layout_alignParentStart="true"
+		android:layout_alignParentEnd="true"
+		android:layout_marginHorizontal="16dp"
+		android:layout_marginTop="8dp"
+		android:background="?colorErrorContainer"
+		android:drawablePadding="12dp"
+		android:gravity="center_vertical"
+		android:padding="12dp"
+		android:textAppearance="?attr/textAppearanceBodySmall"
+		android:textColor="?colorOnErrorContainer"
+		android:visibility="gone"
+		app:drawableStartCompat="@drawable/ic_error_small"
+		app:shapeAppearanceOverlay="?shapeAppearanceCornerMedium"
+		tools:text="@tools:sample/lorem[6]"
+		tools:visibility="visible" />
+
+</RelativeLayout>

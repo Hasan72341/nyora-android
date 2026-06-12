@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<com.google.android.material.appbar.MaterialToolbar
+		android:id="@+id/toolbar"
+		android:layout_width="match_parent"
+		android:layout_height="?attr/actionBarSize"
+		tools:navigationIcon="@drawable/abc_ic_clear_material"
+		tools:title="@string/color_correction">
+
+		<Button
+			android:id="@+id/button_done"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="end"
+			android:layout_marginHorizontal="@dimen/toolbar_button_margin"
+			android:text="@string/done" />
+
+	</com.google.android.material.appbar.MaterialToolbar>
+
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingHorizontal="@dimen/margin_normal"
+		android:paddingTop="@dimen/margin_normal"
+		android:paddingBottom="8dp">
+
+		<com.nyora.hasan72341.image.ui.CoverImageView
+			android:id="@+id/imageView_before"
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:padding="2dp"
+			android:scaleType="centerCrop"
+			app:allowRgb565="false"
+			app:decodeRegion="true"
+			app:layout_constraintDimensionRatio="W,14:9"
+			app:layout_constraintEnd_toStartOf="@id/imageView_arrow"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:shapeAppearance="?shapeAppearanceCornerLarge"
+			app:strokeColor="?colorOutline"
+			app:strokeWidth="1dp"
+			tools:src="@tools:sample/backgrounds/scenic" />
+
+		<com.google.android.material.progressindicator.CircularProgressIndicator
+			android:id="@+id/progress_before"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:indeterminate="true"
+			app:layout_constraintBottom_toBottomOf="@id/imageView_before"
+			app:layout_constraintEnd_toEndOf="@id/imageView_before"
+			app:layout_constraintStart_toStartOf="@id/imageView_before"
+			app:layout_constraintTop_toTopOf="@id/imageView_before" />
+
+		<ImageView
+			android:id="@+id/imageView_arrow"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:contentDescription="@null"
+			android:padding="@dimen/margin_normal"
+			android:src="@drawable/ic_arrow_forward"
+			app:layout_constraintBottom_toBottomOf="@id/imageView_before"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="@id/imageView_before" />
+
+		<com.google.android.material.imageview.ShapeableImageView
+			android:id="@+id/imageView_after"
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:padding="2dp"
+			android:scaleType="centerCrop"
+			app:layout_constraintDimensionRatio="W,14:9"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@id/imageView_arrow"
+			app:layout_constraintTop_toTopOf="parent"
+			app:shapeAppearance="?shapeAppearanceCornerLarge"
+			app:strokeColor="?colorOutline"
+			app:strokeWidth="1dp"
+			tools:src="@tools:sample/backgrounds/scenic" />
+
+		<com.google.android.material.progressindicator.CircularProgressIndicator
+			android:id="@+id/progress_after"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:indeterminate="true"
+			app:layout_constraintBottom_toBottomOf="@id/imageView_after"
+			app:layout_constraintEnd_toEndOf="@id/imageView_after"
+			app:layout_constraintStart_toStartOf="@id/imageView_after"
+			app:layout_constraintTop_toTopOf="@id/imageView_after" />
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+
+	<ScrollView
+		android:id="@+id/scrollView"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:clipToPadding="false"
+		android:overScrollMode="ifContentScrolls">
+
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingHorizontal="@dimen/margin_normal"
+			android:paddingBottom="@dimen/margin_normal">
+
+			<com.google.android.material.materialswitch.MaterialSwitch
+				android:id="@+id/switch_invert"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:text="@string/invert_colors"
+				android:textAppearance="?textAppearanceTitleMedium"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent" />
+
+			<com.google.android.material.materialswitch.MaterialSwitch
+				android:id="@+id/switch_grayscale"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="4dp"
+				android:text="@string/grayscale"
+				android:textAppearance="?textAppearanceTitleMedium"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/switch_invert" />
+
+			<TextView
+				android:id="@+id/textView_brightness"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_marginTop="@dimen/margin_normal"
+				android:text="@string/brightness"
+				android:textAppearance="?textAppearanceTitleMedium"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/switch_grayscale" />
+
+			<com.google.android.material.slider.Slider
+				android:id="@+id/slider_brightness"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/margin_small"
+				android:labelFor="@id/textView_brightness"
+				android:value="0.0"
+				android:valueFrom="-1.0"
+				android:valueTo="1.0"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/textView_brightness" />
+
+			<TextView
+				android:id="@+id/textView_contrast"
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_marginTop="@dimen/margin_small"
+				android:text="@string/contrast"
+				android:textAppearance="?textAppearanceTitleMedium"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/slider_brightness" />
+
+			<com.google.android.material.slider.Slider
+				android:id="@+id/slider_contrast"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/margin_small"
+				android:value="0.0"
+				android:valueFrom="-1.0"
+				android:valueTo="1.0"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/textView_contrast" />
+
+			<com.google.android.material.materialswitch.MaterialSwitch
+				android:id="@+id/switch_book"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:text="@string/book_effect"
+				android:textAppearance="?textAppearanceTitleMedium"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/slider_contrast" />
+
+			<TextView
+				android:id="@+id/textView_duotone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="12dp"
+				android:text="@string/color_filter_duotone"
+				android:textAppearance="?textAppearanceTitleMedium"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/switch_book" />
+
+			<HorizontalScrollView
+				android:id="@+id/scrollView_duotone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:scrollbars="none"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/textView_duotone">
+
+				<com.google.android.material.chip.ChipGroup
+					android:id="@+id/chipGroup_duotone"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					app:singleLine="true"
+					app:singleSelection="true">
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_none"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/multitone_none" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_duotone_sepia"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_duotone_sepia" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_duotone_slate"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_duotone_slate" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_duotone_cyberpunk"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_duotone_cyberpunk" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_duotone_emerald"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_duotone_emerald" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_duotone_terracotta"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_duotone_terracotta" />
+
+				</com.google.android.material.chip.ChipGroup>
+
+			</HorizontalScrollView>
+
+			<TextView
+				android:id="@+id/textView_tritone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="12dp"
+				android:text="@string/color_filter_tritone"
+				android:textAppearance="?textAppearanceTitleMedium"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/scrollView_duotone" />
+
+			<HorizontalScrollView
+				android:id="@+id/scrollView_tritone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:scrollbars="none"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/textView_tritone">
+
+				<com.google.android.material.chip.ChipGroup
+					android:id="@+id/chipGroup_tritone"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					app:singleLine="true"
+					app:singleSelection="true">
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_tritone_vintage"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_tritone_vintage" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_tritone_copper"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_tritone_copper" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_tritone_sunset"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_tritone_sunset" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_tritone_biolum"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_tritone_biolum" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_tritone_sage"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_tritone_sage" />
+
+				</com.google.android.material.chip.ChipGroup>
+
+			</HorizontalScrollView>
+
+			<TextView
+				android:id="@+id/textView_quadratone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="12dp"
+				android:text="@string/color_filter_quadratone"
+				android:textAppearance="?textAppearanceTitleMedium"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/scrollView_tritone" />
+
+			<HorizontalScrollView
+				android:id="@+id/scrollView_quadratone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:scrollbars="none"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/textView_quadratone">
+
+				<com.google.android.material.chip.ChipGroup
+					android:id="@+id/chipGroup_quadratone"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					app:singleLine="true"
+					app:singleSelection="true">
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_quad_arcade"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_quad_arcade" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_quad_candy"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_quad_candy" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_quad_lavender"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_quad_lavender" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_quad_autumn"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_quad_autumn" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_quad_aurora"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_quad_aurora" />
+
+				</com.google.android.material.chip.ChipGroup>
+
+			</HorizontalScrollView>
+
+			<TextView
+				android:id="@+id/textView_pentatone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="12dp"
+				android:text="@string/color_filter_pentatone"
+				android:textAppearance="?textAppearanceTitleMedium"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/scrollView_quadratone" />
+
+			<HorizontalScrollView
+				android:id="@+id/scrollView_pentatone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:scrollbars="none"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/textView_pentatone">
+
+				<com.google.android.material.chip.ChipGroup
+					android:id="@+id/chipGroup_pentatone"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					app:singleLine="true"
+					app:singleSelection="true">
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_penta_synthwave"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_penta_synthwave" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_penta_rainbow"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_penta_rainbow" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_penta_canopy"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_penta_canopy" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_penta_cybercity"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_penta_cybercity" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_penta_pastel"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_penta_pastel" />
+
+				</com.google.android.material.chip.ChipGroup>
+
+			</HorizontalScrollView>
+
+			<TextView
+				android:id="@+id/textView_hexatone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="12dp"
+				android:text="@string/color_filter_hexatone"
+				android:textAppearance="?textAppearanceTitleMedium"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/scrollView_pentatone" />
+
+			<HorizontalScrollView
+				android:id="@+id/scrollView_hexatone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:scrollbars="none"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/textView_hexatone">
+
+				<com.google.android.material.chip.ChipGroup
+					android:id="@+id/chipGroup_hexatone"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					app:singleLine="true"
+					app:singleSelection="true">
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_hex_abyss"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_hex_abyss" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_hex_thermal"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_hex_thermal" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_hex_sunset"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_hex_sunset" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_hex_meadow"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_hex_meadow" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_hex_vaporwave"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_hex_vaporwave" />
+
+				</com.google.android.material.chip.ChipGroup>
+
+			</HorizontalScrollView>
+
+			<TextView
+				android:id="@+id/textView_heptatone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="12dp"
+				android:text="@string/color_filter_heptatone"
+				android:textAppearance="?textAppearanceTitleMedium"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/scrollView_hexatone" />
+
+			<HorizontalScrollView
+				android:id="@+id/scrollView_heptatone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:scrollbars="none"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/textView_heptatone">
+
+				<com.google.android.material.chip.ChipGroup
+					android:id="@+id/chipGroup_heptatone"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					app:singleLine="true"
+					app:singleSelection="true">
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_hepta_nebula"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_hepta_nebula" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_hepta_glitch"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_hepta_glitch" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_hepta_vintage"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_hepta_vintage" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_hepta_jungle"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_hepta_jungle" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_hepta_twilight"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_hepta_twilight" />
+
+				</com.google.android.material.chip.ChipGroup>
+
+			</HorizontalScrollView>
+
+			<TextView
+				android:id="@+id/textView_octatone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="12dp"
+				android:text="@string/color_filter_octatone"
+				android:textAppearance="?textAppearanceTitleMedium"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/scrollView_heptatone" />
+
+			<HorizontalScrollView
+				android:id="@+id/scrollView_octatone"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:scrollbars="none"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/textView_octatone">
+
+				<com.google.android.material.chip.ChipGroup
+					android:id="@+id/chipGroup_octatone"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					app:singleLine="true"
+					app:singleSelection="true">
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_octa_acid"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_octa_acid" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_octa_prism"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_octa_prism" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_octa_emerald"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_octa_emerald" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_octa_sakura"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_octa_sakura" />
+
+					<com.google.android.material.chip.Chip
+						android:id="@+id/chip_octa_arctic"
+						style="@style/Widget.Material3.Chip.Filter"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/preset_octa_arctic" />
+
+				</com.google.android.material.chip.ChipGroup>
+
+			</HorizontalScrollView>
+
+			<Button
+				android:id="@+id/button_reset"
+				style="?materialButtonOutlinedStyle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="16dp"
+				android:text="@string/reset"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/scrollView_octatone" />
+
+		</androidx.constraintlayout.widget.ConstraintLayout>
+
+	</ScrollView>
+
+</LinearLayout>

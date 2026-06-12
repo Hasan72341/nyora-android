@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".main.ui.MainActivity">
+
+	<androidx.fragment.app.FragmentContainerView
+		android:id="@id/container"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+		tools:layout="@layout/fragment_list" />
+
+	<com.google.android.material.appbar.AppBarLayout
+		android:id="@+id/appbar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@null"
+		android:clipToPadding="false"
+		android:elevation="0dp"
+		android:fitsSystemWindows="false"
+		android:stateListAnimator="@null"
+		app:elevation="0dp"
+		app:liftOnScroll="false"
+		app:liftOnScrollColor="@null">
+
+		<com.nyora.hasan72341.core.ui.widgets.WindowInsetHolder
+			android:id="@+id/insetsHolder"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top"
+			android:fitsSystemWindows="true"
+			app:layout_scrollFlags="scroll|enterAlways|snap" />
+
+		<com.google.android.material.search.SearchBar
+			android:id="@+id/search_bar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="12dp"
+			android:layout_marginTop="12dp"
+			android:layout_marginBottom="4dp"
+			android:hint="@string/search_manga"
+			app:backgroundTint="?colorSurfaceContainerLow"
+			app:forceDefaultNavigationOnClickListener="true"
+			app:layout_scrollFlags="scroll|enterAlways|snap" />
+
+	</com.google.android.material.appbar.AppBarLayout>
+
+	<com.google.android.material.search.SearchView
+		android:id="@+id/search_view"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:hint="@string/search_hint"
+		app:backgroundTint="?android:colorBackground"
+		app:layout_anchor="@id/search_bar">
+
+		<androidx.recyclerview.widget.RecyclerView
+			android:id="@+id/recyclerView_search"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:clipToPadding="false"
+			android:orientation="vertical"
+			android:scrollbars="vertical"
+			app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+	</com.google.android.material.search.SearchView>
+
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:id="@+id/bottomContainer"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom"
+		android:layout_marginHorizontal="16dp"
+		android:layout_marginBottom="16dp"
+		android:clipChildren="false"
+		android:clipToPadding="false">
+
+		<com.nyora.hasan72341.core.ui.widgets.SlidingBottomNavigationView
+			android:id="@+id/bottomNav"
+			android:layout_width="0dp"
+			android:layout_height="64dp"
+			android:fitsSystemWindows="false"
+			app:backgroundTint="@android:color/transparent"
+			app:labelVisibilityMode="selected"
+			app:itemIconSize="24dp"
+			app:layout_constrainedWidth="true"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toStartOf="@+id/fab"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintHorizontal_chainStyle="packed"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintWidth_max="280dp"
+			app:layout_constraintWidth_min="180dp" />
+
+		<com.google.android.material.floatingactionbutton.FloatingActionButton
+			android:id="@+id/fab"
+			android:layout_width="64dp"
+			android:layout_height="64dp"
+			android:layout_marginStart="12dp"
+			android:contentDescription="@string/_continue"
+			app:backgroundTint="?colorSurfaceBright"
+			app:elevation="4dp"
+			app:fabCustomSize="64dp"
+			app:layout_constraintBottom_toBottomOf="@id/bottomNav"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@id/bottomNav"
+			app:layout_constraintTop_toTopOf="@id/bottomNav"
+			app:maxImageSize="28dp"
+			app:shapeAppearance="@style/ShapeAppearance.Nyora.Awwwards.Corner"
+			app:srcCompat="@drawable/ic_read"
+			app:strokeColor="?colorOutlineVariant"
+			app:strokeWidth="1dp"
+			app:tint="?colorOnSurface" />
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

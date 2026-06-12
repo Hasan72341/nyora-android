@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/card_stats"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:clickable="true"
+	android:focusable="true"
+	app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+	app:cardCornerRadius="20dp"
+	app:cardElevation="0dp"
+	app:strokeColor="?attr/colorOutlineVariant"
+	app:strokeWidth="1dp">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:paddingBottom="16dp">
+
+		<!-- Hero row: heading + day-streak ring -->
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:baselineAligned="false"
+			android:gravity="center_vertical"
+			android:orientation="horizontal"
+			android:paddingHorizontal="16dp"
+			android:paddingTop="16dp"
+			android:paddingBottom="18dp">
+
+			<LinearLayout
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:orientation="vertical">
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/statistics"
+					android:textAppearance="?attr/textAppearanceHeadlineSmall"
+					android:textColor="?attr/colorOnSurface"
+					android:textStyle="bold" />
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="2dp"
+					android:text="@string/history_dashboard_subtitle"
+					android:textAppearance="?attr/textAppearanceBodyMedium"
+					android:textColor="?attr/colorOnSurfaceVariant" />
+
+			</LinearLayout>
+
+			<FrameLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="12dp">
+
+				<com.google.android.material.progressindicator.CircularProgressIndicator
+					android:id="@+id/progress_streak"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:indeterminate="false"
+					app:indicatorColor="?attr/colorPrimary"
+					app:indicatorSize="92dp"
+					app:trackColor="?attr/colorSurfaceContainerHighest"
+					app:trackCornerRadius="4dp"
+					app:trackThickness="7dp" />
+
+				<LinearLayout
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:gravity="center"
+					android:orientation="vertical">
+
+					<TextView
+						android:id="@+id/text_streak"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:textAppearance="?attr/textAppearanceHeadlineSmall"
+						android:textColor="?attr/colorOnSurface"
+						android:textStyle="bold"
+						tools:text="7" />
+
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/day_streak"
+						android:textAppearance="?attr/textAppearanceLabelSmall"
+						android:textColor="?attr/colorOnSurfaceVariant" />
+
+				</LinearLayout>
+
+			</FrameLayout>
+
+		</LinearLayout>
+
+		<!-- Counter bento -->
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="16dp"
+			android:layout_marginTop="16dp"
+			android:baselineAligned="false"
+			android:orientation="horizontal">
+
+			<LinearLayout
+				style="@style/Widget.Nyora.HistoryStatTile"
+				android:layout_marginEnd="8dp">
+
+				<TextView
+					android:id="@+id/text_titles"
+					style="@style/Widget.Nyora.HistoryStatValue"
+					tools:text="128" />
+
+				<TextView
+					style="@style/Widget.Nyora.HistoryStatLabel"
+					android:text="@string/stat_titles" />
+
+			</LinearLayout>
+
+			<LinearLayout
+				style="@style/Widget.Nyora.HistoryStatTile"
+				android:layout_marginEnd="8dp">
+
+				<TextView
+					android:id="@+id/text_completed"
+					style="@style/Widget.Nyora.HistoryStatValue"
+					tools:text="34" />
+
+				<TextView
+					style="@style/Widget.Nyora.HistoryStatLabel"
+					android:text="@string/status_completed" />
+
+			</LinearLayout>
+
+			<LinearLayout
+				style="@style/Widget.Nyora.HistoryStatTile"
+				android:layout_marginEnd="8dp">
+
+				<TextView
+					android:id="@+id/text_favourites"
+					style="@style/Widget.Nyora.HistoryStatValue"
+					tools:text="51" />
+
+				<TextView
+					style="@style/Widget.Nyora.HistoryStatLabel"
+					android:text="@string/favourites" />
+
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/tile_read_time"
+				style="@style/Widget.Nyora.HistoryStatTile">
+
+				<TextView
+					android:id="@+id/text_read_time"
+					style="@style/Widget.Nyora.HistoryStatValue"
+					tools:text="42h" />
+
+				<TextView
+					style="@style/Widget.Nyora.HistoryStatLabel"
+					android:text="@string/stat_read_time" />
+
+			</LinearLayout>
+
+		</LinearLayout>
+
+		<!-- Top sources leaderboard -->
+		<TextView
+			android:id="@+id/title_top_sources"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="16dp"
+			android:layout_marginTop="20dp"
+			android:text="@string/top_sources"
+			android:textAppearance="?attr/textAppearanceTitleSmall"
+			android:textStyle="bold" />
+
+		<LinearLayout
+			android:id="@+id/container_sources"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="16dp"
+			android:layout_marginTop="8dp"
+			android:orientation="vertical" />
+
+	</LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

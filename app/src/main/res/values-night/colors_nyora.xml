@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="nyora_primary">#818CF8</color> <!-- Neon Violet Indigo -->
+	<color name="nyora_primaryContainer">#1E1B4B</color> <!-- Deep Indigo Night -->
+	<color name="nyora_onPrimary">#090D16</color>
+	<color name="nyora_onPrimaryContainer">#E0E7FF</color>
+	<color name="nyora_inversePrimary">#312E81</color>
+	<color name="nyora_secondary">#A78BFA</color> <!-- Electric Violet -->
+	<color name="nyora_secondaryContainer">#2E1065</color> <!-- Dark Purple Space -->
+	<color name="nyora_onSecondary">#090D16</color>
+	<color name="nyora_onSecondaryContainer">#F5F3FF</color>
+	<color name="nyora_tertiary">#F472B6</color> <!-- Neon Pink/Rose -->
+	<color name="nyora_tertiaryContainer">#4C0519</color>
+	<color name="nyora_onTertiary">#FFFFFF</color>
+	<color name="nyora_onTertiaryContainer">#FCE7F3</color>
+	<color name="nyora_surface">#090D16</color> <!-- Curated Cyberpunk Dark Void -->
+	<color name="nyora_surfaceDim">#05070B</color>
+	<color name="nyora_surfaceBright">#0E1322</color>
+	<color name="nyora_surfaceContainerLowest">#030508</color>
+	<color name="nyora_surfaceContainerLow">#0D1222</color>
+	<color name="nyora_surfaceContainer">#131B32</color> <!-- Glowing Elevated Indigo Container -->
+	<color name="nyora_surfaceContainerHigh">#1A2442</color>
+	<color name="nyora_surfaceContainerHighest">#26335C</color>
+	<color name="nyora_surfaceVariant">#131B32</color>
+	<color name="nyora_onSurface">#F8FAFC</color> <!-- Soft White -->
+	<color name="nyora_onSurfaceVariant">#94A3B8</color> <!-- Slate Blue-Grey -->
+	<color name="nyora_inverseSurface">#F8FAFC</color>
+	<color name="nyora_inverseOnSurface">#090D16</color>
+	<color name="nyora_background">#060810</color> <!-- Cosmic Midnight Black -->
+	<color name="nyora_outline">#1E293B</color>
+</resources>

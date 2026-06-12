@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="nyora_primary">#6366F1</color> <!-- Vibrant Indigo -->
+	<color name="nyora_primaryContainer">#EEF2FF</color> <!-- Soft Pastel Indigo -->
+	<color name="nyora_onPrimary">#FFFFFF</color>
+	<color name="nyora_onPrimaryContainer">#312E81</color>
+	<color name="nyora_inversePrimary">#818CF8</color>
+	<color name="nyora_secondary">#4F46E5</color> <!-- Bright Purple-Indigo -->
+	<color name="nyora_secondaryContainer">#F5F3FF</color> <!-- Light Lavender -->
+	<color name="nyora_onSecondary">#FFFFFF</color>
+	<color name="nyora_onSecondaryContainer">#1E1B4B</color>
+	<color name="nyora_tertiary">#D946EF</color> <!-- Soft Magenta Accent -->
+	<color name="nyora_tertiaryContainer">#FDF4FF</color>
+	<color name="nyora_onTertiary">#FFFFFF</color>
+	<color name="nyora_onTertiaryContainer">#701A75</color>
+	<color name="nyora_surface">#FAFAFA</color>
+	<color name="nyora_surfaceDim">#F4F4F5</color>
+	<color name="nyora_surfaceBright">#FFFFFF</color>
+	<color name="nyora_surfaceContainerLowest">#FFFFFF</color>
+	<color name="nyora_surfaceContainerLow">#F4F4F5</color>
+	<color name="nyora_surfaceContainer">#E2E8F0</color>
+	<color name="nyora_surfaceContainerHigh">#CBD5E1</color>
+	<color name="nyora_surfaceContainerHighest">#94A3B8</color>
+	<color name="nyora_surfaceVariant">#F1F5F9</color>
+	<color name="nyora_onSurface">#0F172A</color> <!-- Rich Charcoal -->
+	<color name="nyora_onSurfaceVariant">#334155</color>
+	<color name="nyora_inverseSurface">#1E293B</color>
+	<color name="nyora_inverseOnSurface">#F8FAFC</color>
+	<color name="nyora_background">#F8FAFC</color> <!-- Premium Warm Slate Grey -->
+	<color name="nyora_outline">#E2E8F0</color>
+</resources>

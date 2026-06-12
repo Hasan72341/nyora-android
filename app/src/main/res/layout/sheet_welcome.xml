@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+
+	<com.nyora.hasan72341.core.ui.sheet.AdaptiveSheetHeaderBar
+		android:id="@+id/headerBar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:title="@string/welcome" />
+
+	<androidx.core.widget.NestedScrollView
+		android:id="@+id/scrollView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:clipToPadding="false"
+		android:scrollIndicators="top">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:paddingBottom="@dimen/margin_large">
+
+			<LinearLayout
+				android:id="@+id/welcomeHero"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="@dimen/margin_normal"
+				android:orientation="vertical"
+				android:paddingTop="@dimen/margin_small">
+
+				<ImageView
+					android:id="@+id/imageView_brand"
+					android:layout_width="56dp"
+					android:layout_height="56dp"
+					android:contentDescription="@string/app_name"
+					android:src="@mipmap/ic_launcher_round" />
+
+				<TextView
+					android:id="@+id/textView_welcome_eyebrow"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="@dimen/margin_normal"
+					android:text="@string/welcome_eyebrow"
+					android:textAppearance="?attr/textAppearanceLabelLarge"
+					android:textColor="?attr/colorPrimary"
+					android:textStyle="bold"
+					android:letterSpacing="0.06" />
+
+				<TextView
+					android:id="@+id/textView_welcome_title"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="@dimen/margin_small"
+					android:text="@string/welcome_title"
+					android:textAppearance="?attr/textAppearanceHeadlineLarge"
+					android:textColor="?attr/colorOnSurface"
+					android:maxLines="3" />
+
+				<TextView
+					android:id="@+id/textView_hint"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="@dimen/margin_small"
+					android:text="@string/welcome_text"
+					android:textAppearance="?attr/textAppearanceBodyLarge"
+					android:textColor="?attr/colorOnSurfaceVariant" />
+
+			</LinearLayout>
+
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/card_account"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="@dimen/margin_normal"
+				android:layout_marginTop="@dimen/margin_large"
+				app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+				app:cardCornerRadius="28dp"
+				app:cardElevation="0dp"
+				app:contentPadding="@dimen/margin_normal"
+				app:strokeColor="?attr/colorOutline"
+				app:strokeWidth="1dp">
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="vertical">
+
+					<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:text="@string/welcome_account_title"
+						android:textAppearance="?attr/textAppearanceTitleLarge"
+						android:textColor="?attr/colorOnSurface" />
+
+					<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="6dp"
+						android:text="@string/welcome_account_text"
+						android:textAppearance="?attr/textAppearanceBodyMedium"
+						android:textColor="?attr/colorOnSurfaceVariant" />
+
+					<com.google.android.material.button.MaterialButton
+						android:id="@+id/button_google_sign_in"
+						style="@style/Widget.Nyora.Button"
+						android:layout_width="match_parent"
+						android:layout_height="56dp"
+						android:layout_marginTop="@dimen/margin_normal"
+						android:backgroundTint="?attr/colorSurfaceContainerLowest"
+						android:text="@string/sign_in_with_google"
+						android:textColor="?attr/colorOnSurface"
+						app:cornerRadius="18dp"
+						app:icon="@drawable/ic_google_g"
+						app:iconGravity="textStart"
+						app:iconPadding="12dp"
+						app:iconTint="@null"
+						app:strokeColor="?attr/colorOutline"
+						app:strokeWidth="1dp" />
+
+					<LinearLayout
+						android:id="@+id/layout_loading"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="@dimen/margin_normal"
+						android:gravity="center"
+						android:orientation="horizontal"
+						android:visibility="gone">
+
+						<com.google.android.material.progressindicator.CircularProgressIndicator
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							app:indicatorSize="24dp"
+							app:trackThickness="3dp"
+							android:indeterminate="true" />
+
+						<TextView
+							android:id="@+id/text_loading_status"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:layout_marginStart="12dp"
+							android:text="@string/signing_in_syncing"
+							android:textAppearance="?attr/textAppearanceBodyMedium"
+							android:textColor="?attr/colorOnSurfaceVariant" />
+
+					</LinearLayout>
+
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="@dimen/margin_small"
+						android:orientation="vertical">
+
+						<com.google.android.material.button.MaterialButton
+							android:id="@+id/button_guest"
+							style="@style/Widget.Nyora.Button.TonalButton"
+							android:layout_width="match_parent"
+							android:layout_height="52dp"
+							android:text="@string/continue_as_guest"
+							app:cornerRadius="18dp"
+							app:icon="@drawable/ic_welcome"
+							app:iconGravity="textStart"
+							app:iconPadding="8dp" />
+
+						<com.google.android.material.button.MaterialButton
+							android:id="@+id/button_backup"
+							style="@style/Widget.Nyora.Button.OutlinedButton"
+							android:layout_width="match_parent"
+							android:layout_height="52dp"
+							android:layout_marginTop="@dimen/margin_small"
+							android:text="@string/restore_backup"
+							app:cornerRadius="18dp"
+							app:icon="@drawable/ic_backup_restore"
+							app:iconGravity="textStart"
+							app:iconPadding="8dp" />
+
+					</LinearLayout>
+
+					<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="@dimen/margin_small"
+						android:text="@string/welcome_account_note"
+						android:textAppearance="?attr/textAppearanceLabelMedium"
+						android:textColor="?attr/colorOnSurfaceVariant" />
+
+				</LinearLayout>
+
+			</com.google.android.material.card.MaterialCardView>
+
+			<TextView
+				android:id="@+id/textView_sources_title"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="@dimen/margin_normal"
+				android:layout_marginTop="@dimen/margin_large"
+				android:text="@string/welcome_sources_title"
+				android:textAppearance="?attr/textAppearanceTitleMedium"
+				android:textColor="?attr/colorOnSurface" />
+
+			<TextView
+				android:id="@+id/textView_sources_subtitle"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="@dimen/margin_normal"
+				android:layout_marginTop="4dp"
+				android:text="@string/welcome_sources_text"
+				android:textAppearance="?attr/textAppearanceBodyMedium"
+				android:textColor="?attr/colorOnSurfaceVariant" />
+
+			<TextView
+				android:id="@+id/textView_locales_title"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="@dimen/margin_normal"
+				android:layout_marginTop="@dimen/margin_normal"
+				android:singleLine="true"
+				android:text="@string/languages"
+				android:textAppearance="?attr/textAppearanceTitleSmall"
+				android:textColor="?attr/colorOnSurface" />
+
+			<com.nyora.hasan72341.core.ui.widgets.ChipsView
+				android:id="@+id/chips_locales"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="@dimen/margin_normal"
+				android:layout_marginTop="@dimen/margin_small"
+				app:chipStyle="@style/Widget.Nyora.Chip.Filter" />
+
+			<TextView
+				android:id="@+id/textView_type_title"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="@dimen/margin_normal"
+				android:layout_marginTop="@dimen/margin_normal"
+				android:singleLine="true"
+				android:text="@string/type"
+				android:textAppearance="?attr/textAppearanceTitleSmall"
+				android:textColor="?attr/colorOnSurface" />
+
+			<com.nyora.hasan72341.core.ui.widgets.ChipsView
+				android:id="@+id/chips_type"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="@dimen/margin_normal"
+				android:layout_marginTop="@dimen/margin_small"
+				app:chipStyle="@style/Widget.Nyora.Chip.Filter" />
+
+			<com.google.android.material.button.MaterialButton
+				android:id="@+id/button_directories"
+				style="@style/Widget.Nyora.Button.More"
+				android:layout_width="wrap_content"
+				android:layout_height="48dp"
+				android:layout_marginHorizontal="@dimen/margin_normal"
+				android:layout_marginTop="@dimen/margin_small"
+				android:text="@string/local_manga_directories"
+				app:icon="@drawable/ic_storage"
+				app:iconGravity="textStart"
+				app:iconPadding="8dp"
+				tools:ignore="ButtonStyle" />
+
+		</LinearLayout>
+	</androidx.core.widget.NestedScrollView>
+</LinearLayout>

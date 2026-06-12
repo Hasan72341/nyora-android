@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceScreen
+        android:fragment="com.nyora.hasan72341.settings.AppearanceSettingsFragment"
+        android:icon="@drawable/ic_appearance"
+        android:key="appearance"
+        android:title="@string/appearance" />
+
+    <PreferenceScreen
+        android:fragment="com.nyora.hasan72341.settings.sources.SourcesSettingsFragment"
+        android:icon="@drawable/ic_manga_source"
+        android:key="remote_sources"
+        android:title="@string/remote_sources" />
+
+    <PreferenceScreen
+        android:fragment="com.nyora.hasan72341.settings.ReaderSettingsFragment"
+        android:icon="@drawable/ic_book_page"
+        android:key="reader"
+        android:title="@string/reader_settings" />
+
+    <PreferenceScreen
+        android:fragment="com.nyora.hasan72341.settings.StorageAndNetworkSettingsFragment"
+        android:icon="@drawable/ic_usage"
+        android:key="network"
+        android:title="@string/storage_and_network" />
+
+    <PreferenceScreen
+        android:fragment="com.nyora.hasan72341.settings.DownloadsSettingsFragment"
+        android:icon="@drawable/ic_download"
+        android:key="downloads"
+        android:title="@string/downloads" />
+
+    <PreferenceScreen
+        android:fragment="com.nyora.hasan72341.settings.SyncSettingsFragment"
+        android:icon="@drawable/ic_sync"
+        android:key="account_sync"
+        android:title="@string/account_and_sync"
+        android:summary="@string/account_sync_summary" />
+
+    <PreferenceScreen
+        android:fragment="com.nyora.hasan72341.settings.AiTranslateSettingsFragment"
+        android:icon="@drawable/ic_translate"
+        android:key="ai_translate"
+        android:title="@string/translate"
+        android:summary="@string/translate_summary" />
+
+    <PreferenceScreen
+        android:fragment="com.nyora.hasan72341.settings.tracker.TrackerSettingsFragment"
+        android:icon="@drawable/ic_feed"
+        android:key="tracker"
+        android:title="@string/check_for_new_chapters" />
+
+    <PreferenceScreen
+        android:fragment="com.nyora.hasan72341.settings.ServicesSettingsFragment"
+        android:icon="@drawable/ic_services"
+        android:key="services"
+        android:title="@string/services" />
+
+    <PreferenceScreen
+        android:fragment="com.nyora.hasan72341.settings.userdata.BackupsSettingsFragment"
+        android:icon="@drawable/ic_backup_restore"
+        android:key="userdata"
+        android:title="@string/backup_restore" />
+
+    <PreferenceScreen
+        android:fragment="com.nyora.hasan72341.settings.about.AboutSettingsFragment"
+        android:icon="@drawable/ic_info_outline"
+        android:key="about"
+        android:title="@string/about" />
+
+</PreferenceScreen>

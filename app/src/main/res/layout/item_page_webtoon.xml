@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.nyora.hasan72341.reader.ui.pager.webtoon.WebtoonFrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:defaultFocusHighlightEnabled="false">
+
+	<com.nyora.hasan72341.reader.ui.pager.webtoon.WebtoonImageView
+		android:id="@+id/ssiv"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:defaultFocusHighlightEnabled="false"
+		android:minHeight="1dp"
+		app:panEnabled="false"
+		app:quickScaleEnabled="false"
+		app:zoomEnabled="false" />
+
+	<com.nyora.hasan72341.ai.TranslationOverlayView
+		android:id="@+id/translation_overlay"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent" />
+
+	<include layout="@layout/layout_page_info" />
+
+</com.nyora.hasan72341.reader.ui.pager.webtoon.WebtoonFrameLayout>

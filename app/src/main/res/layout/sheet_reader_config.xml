@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="24dp">
+
+    <com.nyora.hasan72341.core.ui.sheet.AdaptiveSheetHeaderBar
+        android:id="@+id/headerBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="@string/options" />
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:scrollIndicators="top">
+
+        <LinearLayout
+            android:id="@+id/layout_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/margin_normal">
+
+            <!-- Actions Group -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_settings_group"
+                android:orientation="vertical"
+                android:paddingVertical="8dp">
+
+                <com.nyora.hasan72341.core.ui.widgets.ListItemTextView
+                    android:id="@+id/button_save_page"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/save_page"
+                    app:drawableStartCompat="@drawable/ic_save" />
+
+                <com.nyora.hasan72341.core.ui.widgets.ListItemTextView
+                    android:id="@+id/button_bookmark"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bookmark_add"
+                    app:drawableStartCompat="@drawable/ic_bookmark" />
+
+                <com.nyora.hasan72341.core.ui.widgets.ListItemTextView
+                    android:id="@+id/button_image_server"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableEnd="@drawable/ic_expand_more_22px"
+                    android:text="@string/image_server"
+                    android:visibility="gone"
+                    app:drawableStartCompat="@drawable/ic_images"
+                    tools:visibility="visible" />
+            </LinearLayout>
+
+            <!-- Read Mode Group -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="12dp"
+                android:text="@string/read_mode"
+                android:textAllCaps="true"
+                android:letterSpacing="0.1"
+                android:textAppearance="?textAppearanceLabelMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_settings_group"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/checkableGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_toggle_group"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal"
+                    app:selectionRequired="true"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_standard"
+                        style="@style/Widget.Nyora.ToggleButton.Vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/standard"
+                        android:backgroundTint="@android:color/transparent"
+                        app:icon="@drawable/ic_reader_ltr" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_reversed"
+                        style="@style/Widget.Nyora.ToggleButton.Vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/right_to_left"
+                        android:backgroundTint="@android:color/transparent"
+                        app:icon="@drawable/ic_reader_rtl" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_vertical"
+                        style="@style/Widget.Nyora.ToggleButton.Vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/vertical"
+                        android:backgroundTint="@android:color/transparent"
+                        app:icon="@drawable/ic_reader_vertical" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_webtoon"
+                        style="@style/Widget.Nyora.ToggleButton.Vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/webtoon"
+                        android:backgroundTint="@android:color/transparent"
+                        app:icon="@drawable/ic_script" />
+
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:text="@string/reader_mode_hint"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+
+            <!-- Layout Options Group -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="12dp"
+                android:text="@string/layout"
+                android:textAllCaps="true"
+                android:letterSpacing="0.1"
+                android:textAppearance="?textAppearanceLabelMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_settings_group"
+                android:orientation="vertical"
+                android:paddingVertical="8dp">
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_double_reader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="16dp"
+                    android:minHeight="56dp"
+                    android:text="@string/use_two_pages_landscape"
+                    android:textAppearance="?textAppearanceListItem"
+                    app:thumbIcon="@drawable/ic_split_horizontal" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_double_foldable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="16dp"
+                    android:minHeight="56dp"
+                    android:text="@string/auto_double_foldable"
+                    android:textAppearance="?textAppearanceListItem"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:background="#0D808080" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/text_double_sensitivity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/two_page_scroll_sensitivity"
+                        android:textAppearance="?textAppearanceLabelLarge"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/slider_double_sensitivity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:valueFrom="0"
+                        android:valueTo="100"
+                        app:labelBehavior="floating"
+                        app:trackHeight="12dp"
+                        app:trackCornerSize="6dp"
+                        tools:value="50" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Tools Group -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="12dp"
+                android:text="@string/tools"
+                android:textAllCaps="true"
+                android:letterSpacing="0.1"
+                android:textAppearance="?textAppearanceLabelMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_settings_group"
+                android:orientation="vertical"
+                android:paddingVertical="8dp">
+
+                <com.nyora.hasan72341.core.ui.widgets.ListItemTextView
+                    android:id="@+id/button_scroll_timer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/automatic_scroll"
+                    app:drawableStartCompat="@drawable/ic_timer" />
+
+                <com.nyora.hasan72341.core.ui.widgets.ListItemTextView
+                    android:id="@+id/button_color_filter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/color_correction"
+                    app:drawableStartCompat="@drawable/ic_appearance" />
+
+                <com.nyora.hasan72341.core.ui.widgets.ListItemTextView
+                    android:id="@+id/button_ai_translate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/translate_page"
+                    app:drawableStartCompat="@drawable/ic_translate" />
+
+                <com.nyora.hasan72341.core.ui.widgets.ListItemTextView
+                    android:id="@+id/button_screen_rotate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/rotate_screen"
+                    android:visibility="gone"
+                    app:drawableStartCompat="@drawable/ic_screen_rotation"
+                    tools:visibility="visible" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_screen_lock_rotation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="16dp"
+                    android:minHeight="56dp"
+                    android:text="@string/lock_screen_rotation"
+                    android:textAppearance="?textAppearanceListItem"
+                    android:visibility="gone"
+                    app:thumbIcon="@drawable/ic_screen_rotation_lock"
+                    tools:visibility="visible" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_manga_translate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="16dp"
+                    android:minHeight="56dp"
+                    android:text="@string/translate_this_manga"
+                    android:textAppearance="?textAppearanceListItem"
+                    app:thumbIcon="@drawable/ic_translate" />
+            </LinearLayout>
+
+            <!-- Footer Group -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_settings_group"
+                android:orientation="vertical"
+                android:paddingVertical="8dp">
+
+                <com.nyora.hasan72341.core.ui.widgets.ListItemTextView
+                    android:id="@+id/button_settings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings"
+                    app:drawableStartCompat="@drawable/ic_settings" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

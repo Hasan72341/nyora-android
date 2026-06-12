@@ -1,0 +1,156 @@
+package com.nyora.hasan72341.settings.sources.catalog
+
+import androidx.annotation.WorkerThread
+import androidx.lifecycle.viewModelScope
+import androidx.room.invalidationTrackerFlow
+import dagger.hilt.android.lifecycle.HiltViewModel
+import com.nyora.hasan72341.R
+import com.nyora.hasan72341.core.db.MangaDatabase
+import com.nyora.hasan72341.core.db.TABLE_SOURCES
+import com.nyora.hasan72341.core.prefs.AppSettings
+import com.nyora.hasan72341.core.ui.BaseViewModel
+import com.nyora.hasan72341.core.ui.util.ReversibleAction
+import com.nyora.hasan72341.core.util.ext.MutableEventFlow
+import com.nyora.hasan72341.core.util.ext.call
+import com.nyora.hasan72341.core.model.getContentTypeOrNull
+import com.nyora.hasan72341.explore.data.MangaSourcesRepository
+import com.nyora.hasan72341.explore.data.SourcesSortOrder
+import com.nyora.hasan72341.list.ui.model.ListModel
+import com.nyora.hasan72341.list.ui.model.LoadingState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.plus
+import com.nyora.hasan72341.mihon.parsers.model.ContentType
+import com.nyora.hasan72341.mihon.parsers.model.MangaSource
+import java.util.EnumSet
+import java.util.Locale
+import javax.inject.Inject
+
+@HiltViewModel
+class SourcesCatalogViewModel @Inject constructor(
+	private val repository: MangaSourcesRepository,
+	db: MangaDatabase,
+	settings: AppSettings,
+) : BaseViewModel() {
+
+	val onActionDone = MutableEventFlow<ReversibleAction>()
+	val locales: Set<String?> = buildSet {
+		repository.allMangaSources.forEach { add(it.locale) }
+		add(null)
+	}
+
+	private val searchQuery = MutableStateFlow<String?>(null)
+	val appliedFilter = MutableStateFlow(
+		SourcesCatalogFilter(
+			types = emptySet(),
+			locale = Locale.getDefault().language.takeIf { it in locales },
+			isNewOnly = false,
+		),
+	)
+
+	val hasNewSources = repository.observeHasNewSources()
+		.stateIn(viewModelScope + Dispatchers.IO, SharingStarted.Lazily, false)
+
+	val contentTypes = MutableStateFlow<List<ContentType>>(emptyList())
+
+	val content: StateFlow<List<ListModel>> = combine(
+		searchQuery,
+		appliedFilter,
+		db.invalidationTrackerFlow(TABLE_SOURCES),
+	) { q, f, _ ->
+		buildSourcesList(f, q)
+	}.stateIn(viewModelScope + Dispatchers.IO, SharingStarted.Eagerly, listOf(LoadingState))
+
+	init {
+		repository.clearNewSourcesBadge()
+		launchJob(Dispatchers.IO) {
+			contentTypes.value = getContentTypes(settings.isNsfwContentDisabled)
+		}
+	}
+
+	fun performSearch(query: String?) {
+		searchQuery.value = query?.trim()
+	}
+
+	fun setLocale(value: String?) {
+		appliedFilter.value = appliedFilter.value.copy(locale = value)
+	}
+
+	fun addSource(source: MangaSource) {
+		launchJob(Dispatchers.IO) {
+			val rollback = repository.setSourcesEnabled(setOf(source), true)
+			onActionDone.call(ReversibleAction(R.string.source_enabled, rollback))
+		}
+	}
+
+	fun setContentType(value: ContentType, isAdd: Boolean) {
+		val filter = appliedFilter.value
+		val types = EnumSet.noneOf(ContentType::class.java)
+		types.addAll(filter.types)
+		if (isAdd) {
+			types.add(value)
+		} else {
+			types.remove(value)
+		}
+		appliedFilter.value = filter.copy(types = types)
+	}
+
+	fun setNewOnly(value: Boolean) {
+		appliedFilter.value = appliedFilter.value.copy(isNewOnly = value)
+	}
+
+	private suspend fun buildSourcesList(filter: SourcesCatalogFilter, query: String?): List<SourceCatalogItem> {
+		val sources = repository.queryParserSources(
+			isDisabledOnly = true,
+			isNewOnly = filter.isNewOnly,
+			excludeBroken = false,
+			types = filter.types,
+			query = query,
+			locale = filter.locale,
+			sortOrder = SourcesSortOrder.ALPHABETIC,
+		)
+		return if (sources.isEmpty()) {
+			listOf(
+				if (query == null) {
+					SourceCatalogItem.Hint(
+						icon = R.drawable.ic_empty_feed,
+						title = R.string.no_manga_sources,
+						text = R.string.no_manga_sources_catalog_text,
+					)
+				} else {
+					SourceCatalogItem.Hint(
+						icon = R.drawable.ic_empty_feed,
+						title = R.string.nothing_found,
+						text = R.string.no_manga_sources_found,
+					)
+				},
+			)
+		} else {
+			sources.map {
+				SourceCatalogItem.Source(source = it)
+			}
+		}
+	}
+
+	@WorkerThread
+	private fun getContentTypes(isNsfwDisabled: Boolean): List<ContentType> {
+		val result = buildSet {
+			repository.allMangaSources.forEach { add(it.getContentTypeOrNull() ?: return@forEach) }
+		}.toList().sortedByDescending { type ->
+			repository.allMangaSources.count { it.getContentTypeOrNull() == type }
+		}
+		return if (isNsfwDisabled) {
+			result.filterNot {
+				it == ContentType.HENTAI_MANGA ||
+					it == ContentType.HENTAI_NOVEL ||
+					it == ContentType.HENTAI_VIDEO
+			}
+		} else {
+			result
+		}
+	}
+}

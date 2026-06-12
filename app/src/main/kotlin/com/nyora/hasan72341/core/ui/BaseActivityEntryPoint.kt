@@ -1,0 +1,16 @@
+package com.nyora.hasan72341.core.ui
+
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import com.nyora.hasan72341.core.exceptions.resolve.ExceptionResolver
+import com.nyora.hasan72341.core.prefs.AppSettings
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface BaseActivityEntryPoint {
+
+	val settings: AppSettings
+
+	val exceptionResolverFactory: ExceptionResolver.Factory
+}

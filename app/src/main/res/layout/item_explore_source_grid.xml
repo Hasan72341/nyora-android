@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_margin="8dp"
+	app:cardBackgroundColor="?colorSurfaceContainerLow"
+	app:cardCornerRadius="32dp"
+	app:cardElevation="0dp"
+	app:strokeWidth="0dp">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="?attr/selectableItemBackground"
+		android:gravity="center_horizontal"
+		android:orientation="vertical"
+		android:padding="16dp">
+
+		<com.nyora.hasan72341.core.ui.image.FaviconView
+			android:id="@+id/imageView_icon"
+			android:layout_width="72dp"
+			android:layout_height="72dp"
+			android:background="?colorSurfaceContainer"
+			android:labelFor="@id/textView_title"
+			android:padding="14dp"
+			android:scaleType="fitCenter"
+			app:iconStyle="@style/FaviconDrawable.Large"
+			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Nyora.Cover.Medium"
+			app:strokeWidth="0dp" />
+
+		<TextView
+			android:id="@+id/textView_title"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="12dp"
+			android:ellipsize="end"
+			android:fontFamily="@font/poppins_semibold"
+			android:gravity="center_horizontal"
+			android:maxLines="1"
+			android:singleLine="true"
+			android:textAppearance="?attr/textAppearanceLabelSmall"
+			android:textColor="?attr/colorOnSurface"
+			android:textSize="13sp"
+			tools:text="Manga Source" />
+
+	</LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

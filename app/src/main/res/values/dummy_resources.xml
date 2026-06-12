@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dummy strings to fix build errors -->
+    <string name="history_dashboard_subtitle">History Dashboard</string>
+    <string name="day_streak">Day Streak</string>
+    <string name="stat_titles">Titles Read</string>
+    <string name="stat_read_time">Read Time</string>
+    <string name="top_sources">Top Sources</string>
+    <string name="genre_action">Action</string>
+    <string name="genre_romance">Romance</string>
+    <string name="continue_reading">Continue Reading</string>
+
+    <!-- Dummy styles to fix build errors -->
+    <style name="Widget.Nyora.Chip.Genre" parent="Widget.MaterialComponents.Chip.Action" />
+    <style name="Widget.Nyora.HistoryStatTile" parent="Widget.MaterialComponents.CardView" />
+    <style name="Widget.Nyora.HistoryStatValue" parent="TextAppearance.MaterialComponents.Headline5" />
+    <style name="Widget.Nyora.HistoryStatLabel" parent="TextAppearance.MaterialComponents.Caption" />
+</resources>

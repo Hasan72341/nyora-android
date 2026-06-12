@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<Preference
+		android:key="supabase_status"
+		android:layout="@layout/preference_account_header"
+		android:title="@string/guest"
+		android:summary="@string/welcome_account_note"
+		android:selectable="false" />
+
+	<PreferenceCategory
+		android:key="supabase_guest_category"
+		android:title="@string/guest">
+
+		<Preference
+			android:key="supabase_sign_in_google"
+			android:title="@string/sign_in_with_google"
+			app:icon="@drawable/ic_google_g" />
+
+		<Preference
+			android:key="supabase_continue_guest"
+			android:title="@string/continue_as_guest"
+			app:icon="@drawable/ic_arrow_forward" />
+
+	</PreferenceCategory>
+
+	<PreferenceCategory
+		android:key="supabase_account_category"
+		android:title="@string/account_and_sync">
+
+		<Preference
+			android:key="supabase_sync_now"
+			android:title="@string/sync_now"
+			app:icon="@drawable/ic_sync" />
+
+		<Preference
+			android:key="supabase_last_synced"
+			android:title="@string/last_synced"
+			app:iconSpaceReserved="true" />
+
+		<Preference
+			android:key="supabase_sync_error"
+			android:title="@string/error_occurred"
+			app:icon="@drawable/ic_error_small"
+			android:selectable="false" />
+
+		<Preference
+			android:key="supabase_sign_out"
+			android:title="@string/sign_out"
+			app:iconSpaceReserved="true" />
+
+	</PreferenceCategory>
+
+</PreferenceScreen>

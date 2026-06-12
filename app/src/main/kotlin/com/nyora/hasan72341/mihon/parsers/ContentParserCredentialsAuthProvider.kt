@@ -1,0 +1,15 @@
+package com.nyora.hasan72341.mihon.parsers
+
+/**
+ * Optional interface for parsers that support in-app username/password login.
+ * Host apps can detect and use this to provide credential input fields.
+ */
+interface ContentParserCredentialsAuthProvider {
+
+    /**
+     * Perform authorization using provided username and password.
+     * Returns true if login succeeded and authorization cookies were set.
+     */
+
+    suspend fun login(username: String, password: String): Boolean
+}

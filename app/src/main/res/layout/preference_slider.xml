@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/bg_preference_item"
+	android:layout_marginHorizontal="16dp"
+	android:layout_marginVertical="2dp"
+	android:minHeight="?android:attr/listPreferredItemHeight"
+	android:orientation="vertical"
+	android:paddingHorizontal="16dp"
+	android:paddingVertical="12dp">
+
+	<TextView
+		android:id="@android:id/title"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:ellipsize="marquee"
+		android:fadingEdge="horizontal"
+		android:singleLine="true"
+		android:textAppearance="?android:attr/textAppearanceListItem"
+		tools:text="Preference Title" />
+
+	<TextView
+		android:id="@android:id/summary"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="2dp"
+		android:textAppearance="?textAppearanceBodySmall"
+		android:textColor="?attr/colorOnSurfaceVariant"
+		tools:text="Preference summary goes here." />
+
+	<com.google.android.material.slider.Slider
+		android:id="@+id/slider"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="8dp"
+		app:trackHeight="12dp"
+		app:trackCornerSize="6dp" />
+
+</LinearLayout>

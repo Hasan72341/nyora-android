@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:gravity="center_vertical"
+	android:orientation="horizontal"
+	android:paddingHorizontal="@dimen/list_spacing_normal"
+	android:paddingVertical="@dimen/margin_small">
+
+	<TextView
+		android:id="@+id/textView_error"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:text="@string/discover_rail_error"
+		android:textAppearance="?attr/textAppearanceBodyMedium"
+		android:textColor="?android:attr/textColorSecondary" />
+
+	<com.google.android.material.button.MaterialButton
+		android:id="@+id/button_retry"
+		style="@style/Widget.Nyora.Button.More"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="@string/retry" />
+
+</LinearLayout>

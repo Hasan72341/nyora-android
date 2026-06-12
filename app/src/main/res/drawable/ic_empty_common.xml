@@ -1,0 +1,29 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="500"
+    android:viewportHeight="500">
+    <!-- Blade Shadow/Depth -->
+    <path
+        android:fillColor="?colorSurfaceContainerHighest"
+        android:pathData="M148,358 L408,102 C412,98 418,98 422,102 L426,106 C430,110 430,116 426,120 L166,376 Z" />
+    <!-- Main Blade -->
+    <path
+        android:fillColor="?colorOnSurfaceVariant"
+        android:pathData="M140,350 L400,94 C404,90 410,90 414,94 L418,98 C422,102 422,108 418,112 L158,368 Z" />
+    <!-- Guard (Tsuba) -->
+    <path
+        android:fillColor="?colorPrimary"
+        android:pathData="M125,335 L175,385 C180,390 180,400 175,405 C170,410 160,410 155,405 L105,355 C100,350 100,340 105,335 C110,330 120,330 125,335 Z" />
+    <!-- Handle (Tsuka) -->
+    <path
+        android:fillColor="?colorOnSurface"
+        android:pathData="M80,380 L130,340 C135,335 145,335 150,340 L160,350 C165,355 165,365 160,370 L110,410 C105,415 95,415 90,410 L80,400 C75,395 75,385 80,380 Z" />
+    <!-- Handle Wrap Detail -->
+    <path
+        android:fillColor="?colorPrimary"
+        android:pathData="M100,395 L115,375 M120,375 L135,355 M140,355 L155,335"
+        android:strokeWidth="4"
+        android:strokeColor="?colorPrimary"
+        android:strokeLineCap="round" />
+</vector>

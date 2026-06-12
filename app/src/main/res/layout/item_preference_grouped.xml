@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/bg_preference_item"
+	android:layout_marginHorizontal="16dp"
+	android:layout_marginVertical="2dp"
+	android:gravity="center_vertical"
+	android:minHeight="?android:attr/listPreferredItemHeightSmall"
+	android:orientation="horizontal"
+	android:paddingHorizontal="16dp"
+	android:paddingVertical="12dp">
+
+	<LinearLayout
+		android:id="@android:id/icon_frame"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:minWidth="40dp"
+		android:orientation="horizontal">
+		<androidx.preference.internal.PreferenceImageView
+			android:id="@android:id/icon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			app:maxHeight="24dp"
+			app:maxWidth="24dp" />
+	</LinearLayout>
+
+	<RelativeLayout
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="12dp"
+		android:layout_weight="1">
+
+		<TextView
+			android:id="@android:id/title"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ellipsize="marquee"
+			android:fadingEdge="horizontal"
+			android:singleLine="true"
+			android:textAppearance="?textAppearanceListItem"
+			tools:text="Preference Title" />
+
+		<TextView
+			android:id="@android:id/summary"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@android:id/title"
+			android:layout_alignStart="@android:id/title"
+			android:textAppearance="?textAppearanceBodySmall"
+			android:textColor="?attr/colorOnSurfaceVariant"
+			android:maxLines="10"
+			tools:text="Preference summary goes here." />
+
+	</RelativeLayout>
+
+	<!-- Preference control widget will be here -->
+	<LinearLayout
+		android:id="@android:id/widget_frame"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="12dp"
+		android:gravity="center"
+		android:orientation="vertical" />
+
+</LinearLayout>

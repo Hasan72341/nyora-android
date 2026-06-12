@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	style="?materialCardViewFilledStyle"
+	android:layout_width="wrap_content"
+	android:layout_height="match_parent"
+	app:cardBackgroundColor="?colorSurfaceContainer"
+	app:cardElevation="0dp"
+	app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Nyora.Cover.Medium"
+	app:strokeWidth="0dp"
+	tools:layout_height="@dimen/search_suggestions_manga_height">
+
+	<LinearLayout
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+
+		<com.nyora.hasan72341.image.ui.CoverImageView
+			android:id="@+id/imageView_cover"
+			android:layout_width="wrap_content"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			android:scaleType="centerCrop"
+			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Nyora.Cover.Medium"
+			tools:src="@tools:sample/backgrounds/scenic" />
+
+		<TextView
+			android:id="@+id/textView_title"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:elegantTextHeight="false"
+			android:ellipsize="end"
+			android:fontFamily="@font/poppins_semibold"
+			android:lines="1"
+			android:paddingHorizontal="6dp"
+			android:paddingVertical="8dp"
+			android:textAppearance="?attr/textAppearanceLabelSmall"
+			tools:text="@tools:sample/lorem" />
+
+	</LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

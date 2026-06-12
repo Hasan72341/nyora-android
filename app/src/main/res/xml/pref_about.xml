@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:title="@string/about">
+
+	<Preference
+		android:key="about_app_info"
+		android:title="Nyora"
+		android:summary="Version 1.0 beta"
+		android:persistent="false" />
+
+	<Preference
+		android:key="about_parser_info"
+		android:title="@string/parser_bundle"
+		android:summary="@string/checking_for_updates"
+		android:persistent="false" />
+
+</PreferenceScreen>

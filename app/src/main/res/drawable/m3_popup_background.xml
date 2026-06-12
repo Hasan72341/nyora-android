@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+	android:insetLeft="24dp"
+	android:insetTop="24dp"
+	android:insetRight="24dp"
+	android:insetBottom="24dp">
+	<shape android:shape="rectangle">
+		<solid android:color="@color/nyora_surface" />
+		<corners android:radius="28dp" />
+		<stroke
+			android:width="1.2dp"
+			android:color="@color/nyora_outline" />
+	</shape>
+</inset>

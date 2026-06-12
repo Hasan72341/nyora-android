@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_marginHorizontal="12dp"
+	android:layout_marginVertical="16dp"
+	app:cardBackgroundColor="?colorSurfaceContainer"
+	app:cardCornerRadius="32dp"
+	app:cardElevation="0dp"
+	app:strokeWidth="0dp">
+
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="8dp">
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/button_local"
+			style="@style/Widget.Nyora.ExploreButton"
+			android:layout_width="0dp"
+			android:layout_height="80dp"
+			android:text="@string/local_storage"
+			app:backgroundTint="?colorSurfaceContainerHigh"
+			app:icon="@drawable/ic_storage"
+			app:shapeAppearance="?shapeAppearanceCornerExtraLarge" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/button_bookmarks"
+			style="@style/Widget.Nyora.ExploreButton"
+			android:layout_width="0dp"
+			android:layout_height="80dp"
+			android:text="@string/bookmarks"
+			app:backgroundTint="?colorSurfaceContainerHigh"
+			app:icon="@drawable/ic_bookmark"
+			app:shapeAppearance="?shapeAppearanceCornerExtraLarge" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/button_random"
+			style="@style/Widget.Nyora.ExploreButton"
+			android:layout_width="0dp"
+			android:layout_height="80dp"
+			android:text="@string/random"
+			app:backgroundTint="?colorSurfaceContainerHigh"
+			app:icon="@drawable/ic_dice"
+			app:shapeAppearance="?shapeAppearanceCornerExtraLarge" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/button_downloads"
+			style="@style/Widget.Nyora.ExploreButton"
+			android:layout_width="0dp"
+			android:layout_height="80dp"
+			android:text="@string/downloads"
+			app:backgroundTint="?colorSurfaceContainerHigh"
+			app:icon="@drawable/ic_download"
+			app:shapeAppearance="?shapeAppearanceCornerExtraLarge" />
+
+		<androidx.constraintlayout.helper.widget.Flow
+			android:id="@+id/flow"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:constraint_referenced_ids="button_local,button_bookmarks,button_random,button_downloads"
+			app:flow_horizontalGap="8dp"
+			app:flow_maxElementsWrap="2"
+			app:flow_verticalGap="8dp"
+			app:flow_wrapMode="aligned"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
