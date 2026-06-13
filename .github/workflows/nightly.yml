@@ -64,6 +64,17 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Configure Gradle memory for CI
+        # Project gradle.properties asks for 8 GB for both daemons (dev-machine
+        # tuned) which OOM-kills hosted runners; a ~/.gradle override wins.
+        run: |
+          mkdir -p ~/.gradle
+          {
+            echo 'org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=1g -XX:+UseParallelGC -Dkotlin.daemon.jvm.options\="-Xmx2g"'
+            echo 'org.gradle.parallel=false'
+            echo 'org.gradle.workers.max=2'
+          } >> ~/.gradle/gradle.properties
+
       - name: Decode keystore
         run: |
           echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > keystore.jks
@@ -76,6 +87,9 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
         run: ./gradlew assembleNightly --no-build-cache --no-configuration-cache
 
       - name: Get version

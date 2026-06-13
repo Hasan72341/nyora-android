@@ -136,6 +136,12 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          # Supabase/Google sync config — build.gradle's supabaseEnv() reads these
+          # env vars first (taking precedence over the now-untracked .env.sync;
+          # falls back to the baked prod defaults in BaseApp.kt if unset).
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
         run: |
           ./gradlew assembleRelease \
             -PversionName=${{ steps.version.outputs.version }} \
