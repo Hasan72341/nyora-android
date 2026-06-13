@@ -43,3 +43,4 @@ replay_pid*.log
 *.jks
 *.keystore
 .idea/
+.env.sync
