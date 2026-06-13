@@ -82,6 +82,20 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Configure Gradle memory for CI
+        # The project gradle.properties asks for 8 GB for BOTH the Gradle daemon
+        # and the Kotlin daemon — that's tuned for the dev machine and gets the
+        # build OOM-killed on a hosted runner. A gradle.properties in
+        # GRADLE_USER_HOME (~/.gradle) overrides the project file, so cap the
+        # daemons here and serialize work so R8 and Kotlin don't both peak at once.
+        run: |
+          mkdir -p ~/.gradle
+          {
+            echo 'org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=1g -XX:+UseParallelGC -Dkotlin.daemon.jvm.options\="-Xmx2g"'
+            echo 'org.gradle.parallel=false'
+            echo 'org.gradle.workers.max=2'
+          } >> ~/.gradle/gradle.properties
+
       - name: Notify Discord - Environment Setup Complete
         env:
           WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_BUILD }}
