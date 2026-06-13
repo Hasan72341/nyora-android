@@ -1,60 +1,79 @@
-# Nyora (にょら) — Android
+<div align="center">
 
-Nyora is a free, open-source, ad-free manga reader for Android, built on the Kotatsu
-engine with a premium reading experience and AI-powered page translation. Read
-manga, manhwa and manhua from a huge catalogue of online sources, organise your
-library, and keep everything in sync across all your devices.
+<img src="https://nyora.pages.dev/icon.png" width="112" alt="Nyora"/>
 
-> **Download:** grab the latest signed APK from the [Releases page](https://github.com/Hasan72341/nyora-android/releases/latest). Supports **Android 6.0+** (phones and tablets).
+# Nyora — Android
 
-## Features
+### Read like the world can wait.
 
-### Sources & discovery
-- **1100+ built-in sources** — browse, search and filter a huge catalogue of online manga/manhwa/manhua sources out of the box, with multi-language support.
-- **Extension support** — install third-party **Tachiyomi / Mihon / Keiyoushi** extensions for even more sources.
-- **Explore & recommendations** — discover new titles by genre/tag, and get recommendations filtered to your taste based on your library.
+A fast, free, **ad-free** manga reader for Android — **1100+ sources**, AI page translation, and a buttery reader, with your library synced across every device.
 
-### Reading
-- **Standard & Webtoon reader** — left-to-right, right-to-left, and vertical webtoon modes, with full gesture support, zoom, double-page spreads, and per-title overrides.
-- **AI page translation** — translate a whole manga page at once: text is detected, translated, and typeset back over the original art in context. Uses high-context LLM translation online, with an **on-device ML Kit offline fallback** when you have no connection.
-- **Dynamic colour correction** — tune brightness, contrast and colour filters live while reading for the perfect look on any screen (great for low-quality scans or OLED).
-- **Smooth navigation** — pages are cached and preloaded, with seamless transitions between chapters; keep-screen-on while reading.
+[![License: GPL v3](https://img.shields.io/github/license/Hasan72341/nyora-android?color=blue)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/Hasan72341/nyora-android?label=download&color=0ae448)](https://github.com/Hasan72341/nyora-android/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/Hasan72341/nyora-android/total?color=9d95ff)](https://github.com/Hasan72341/nyora-android/releases)
+[![Stars](https://img.shields.io/github/stars/Hasan72341/nyora-android?style=social)](https://github.com/Hasan72341/nyora-android/stargazers)
 
-### Library & organisation
-- **Favourites in custom categories** — organise saved titles into your own user-defined categories.
-- **Reading history & bookmarks** — pick up exactly where you left off; bookmark pages.
-- **Incognito mode** — read without recording anything in history.
-- **Offline downloads & CBZ** — download chapters to read offline anywhere, and open third-party **CBZ** archives from local storage.
+**[⬇️ Download the APK](https://github.com/Hasan72341/nyora-android/releases/latest)** · **[🌐 nyora.pages.dev](https://nyora.pages.dev)**
 
-### Updates & tracking
-- **Updates feed & notifications** — a live feed of new chapters for the titles you follow, with new-chapter notifications.
-- **Tracker integration** — sync your reading progress with **AniList, MyAnimeList, Shikimori and Kitsu**.
+</div>
 
-### Sync, privacy & theming
-- **Cloud sync** — sign in with Google and your library, favourites, categories, reading history and progress sync automatically across all your devices (Supabase backend).
-- **App-lock** — protect the app with a password or fingerprint/biometric lock.
-- **No ads, no tracking** — completely free and open source.
-- **Theming** — light / dark / system themes, accent colours, and a true-black AMOLED mode.
+<p align="center">
+  <img src="https://nyora.pages.dev/screenshots/phone-1.png" width="200"/>
+  <img src="https://nyora.pages.dev/screenshots/phone-3.png" width="200"/>
+  <img src="https://nyora.pages.dev/screenshots/phone-5.png" width="200"/>
+</p>
 
-## Build from source
+---
 
-Requires **Android Studio** (Ladybug+) and **JDK 17**.
+## ✨ Features
+
+- 📚 **1100+ built-in sources** — manga, manhwa & manhua out of the box, plus **Tachiyomi / Mihon / Keiyoushi** extension support.
+- 🌐 **AI page translation** — translate a whole page at once; text is detected, translated and typeset back over the art, with an **on-device offline** fallback.
+- 📖 **Standard & Webtoon reader** — LTR / RTL / vertical, gestures, zoom, double-page, per-title settings.
+- 🎨 **Dynamic colour correction** — tune brightness, contrast & colour live while reading.
+- 🗂️ **Library that stays organised** — favourites in custom categories, history, bookmarks, and **incognito mode**.
+- ⬇️ **Offline downloads & CBZ** — read anywhere; open local CBZ archives.
+- 🔔 **Updates & recommendations** — new-chapter feed + notifications, tailored to your library.
+- 🔄 **Trackers** — AniList, MyAnimeList, Shikimori & Kitsu.
+- ☁️ **Cloud sync** — sign in with Google; library, categories, history & progress sync across all your devices.
+- 🔒 **Private** — app-lock (PIN / fingerprint), no ads, no tracking.
+- 🌗 **Themes** — light / dark / system + true-black AMOLED.
+
+## ⬇️ Install
+
+Grab the latest signed **APK** from the **[Releases page](https://github.com/Hasan72341/nyora-android/releases/latest)** and open it (allow installs from your browser when prompted). Supports **Android 6.0+**, phones & tablets.
+
+## 🛠️ Build from source
+
+Requires **Android Studio** + **JDK 17**.
 
 ```bash
 git clone https://github.com/Hasan72341/nyora-android.git
 cd nyora-android
-./gradlew assembleRelease        # signed release APK (needs keystore + signing props)
-# or open the project in Android Studio and Run ▸ app
+./gradlew assembleRelease   # or open in Android Studio and Run ▸ app
 ```
 
-Releases are built and published automatically by GitHub Actions: pushing a `v<x.y>`
-tag (matching the `versionName` in `app/build.gradle`) builds the signed APK on a
-hosted runner and publishes it to a GitHub Release. Supabase/Google config is
-injected from repository secrets at build time, with baked production defaults as a
-fallback.
+## 🧩 Nyora on every platform
 
-## Author & license
+| Platform | Repo | Get it |
+|---|---|---|
+| 🤖 Android | **nyora-android** *(you are here)* | [APK](https://github.com/Hasan72341/nyora-android/releases/latest) |
+| 🪟 Windows | [nyora-windows](https://github.com/Hasan72341/nyora-windows) | [.exe (x64/ARM64)](https://github.com/Hasan72341/nyora-windows/releases/latest) |
+| 🍎 macOS | [nyora-mac](https://github.com/Hasan72341/nyora-mac) | [.dmg / `brew`](https://github.com/Hasan72341/nyora-mac/releases/latest) |
+| 🐧 Linux | [nyora-linux](https://github.com/Hasan72341/nyora-linux) | [deb · rpm · curl](https://github.com/Hasan72341/nyora-linux/releases/latest) |
+| 📱 iOS / iPadOS | [nyora-ios](https://github.com/Hasan72341/nyora-ios) | [sideload IPA](https://github.com/Hasan72341/nyora-ios/releases/latest) |
+| 🌍 Web | — | [nyoraweb.pages.dev](https://nyoraweb.pages.dev) |
 
-Developed and maintained by **Md Hasan Raza** — [GitHub](https://github.com/Hasan72341) · [Instagram](https://instagram.com/md_hasan_raza____) · [LinkedIn](https://www.linkedin.com/in/md-hasan-raza) · hasanraza96@outlook.com
+## 🤝 Contributing
 
-Licensed under the **GNU General Public License v3.0** (see [`LICENSE`](LICENSE)). Nyora is a fork of [Kotatsu](https://github.com/KotatsuApp/Kotatsu) and is not affiliated with any of the manga sources it can access.
+Issues and PRs are welcome — bug reports, new sources, translations and UI polish especially. ⭐ **Star the repo** if Nyora is useful to you!
+
+## 📄 License
+
+Licensed under the **GNU General Public License v3.0** (see [`LICENSE`](LICENSE)) — Nyora for Android is a fork of [Kotatsu](https://github.com/KotatsuApp/Kotatsu).
+
+## 🙏 Credits
+
+Built on the excellent [Kotatsu](https://github.com/KotatsuApp/Kotatsu) reader. Developed & maintained by **Md Hasan Raza** — [GitHub](https://github.com/Hasan72341) · [Instagram](https://instagram.com/md_hasan_raza____) · [LinkedIn](https://www.linkedin.com/in/md-hasan-raza) · hasanraza96@outlook.com
+
+> Nyora is not affiliated with any of the manga sources it can access.
