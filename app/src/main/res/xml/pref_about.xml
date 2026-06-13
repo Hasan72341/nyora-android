@@ -16,6 +16,15 @@
 		android:summary="@string/checking_for_updates"
 		android:persistent="false" />
 
+	<Preference
+		android:title="Official website"
+		android:summary="nyora.pages.dev"
+		android:persistent="false">
+		<intent
+			android:action="android.intent.action.VIEW"
+			android:data="https://nyora.pages.dev" />
+	</Preference>
+
 	<PreferenceCategory android:title="Developer">
 
 		<Preference
