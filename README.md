@@ -25,6 +25,16 @@ A fast, free, **ad-free** manga reader for Android — **1100+ sources**, AI pag
 
 ---
 
+## 📸 Screenshots
+
+| | | |
+|:-:|:-:|:-:|
+| ![Home](docs/screenshots/01-home.png) | ![Explore](docs/screenshots/02-explore.png) | ![Library](docs/screenshots/03-library.png) |
+| ![History](docs/screenshots/04-history.png) | ![Details](docs/screenshots/05-details.png) | ![Reader](docs/screenshots/06-reader.png) |
+| ![Translate](docs/screenshots/07-translate.png) | ![Search](docs/screenshots/08-search.png) | ![Settings](docs/screenshots/09-settings.png) |
+
+---
+
 ## ✨ Features
 
 - 📚 **1100+ built-in sources** — manga, manhwa & manhua out of the box, plus **Tachiyomi / Mihon / Keiyoushi** extension support.
