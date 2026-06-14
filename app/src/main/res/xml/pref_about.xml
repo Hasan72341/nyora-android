@@ -25,6 +25,16 @@
 			android:data="https://nyora.pages.dev" />
 	</Preference>
 
+	<Preference
+		android:icon="@drawable/ic_about_github"
+		android:title="Source code"
+		android:summary="Hasan72341/nyora-android"
+		android:persistent="false">
+		<intent
+			android:action="android.intent.action.VIEW"
+			android:data="https://github.com/Hasan72341/nyora-android" />
+	</Preference>
+
 	<PreferenceCategory android:title="Developer">
 
 		<Preference
@@ -75,5 +85,10 @@
 		</Preference>
 
 	</PreferenceCategory>
+
+	<Preference
+		android:summary="Nyora — your manga library, everywhere. Available on Android, Windows, macOS, Linux, iOS and the web."
+		android:selectable="false"
+		android:persistent="false" />
 
 </PreferenceScreen>
