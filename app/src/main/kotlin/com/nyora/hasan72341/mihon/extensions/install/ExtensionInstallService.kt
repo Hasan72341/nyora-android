@@ -57,7 +57,8 @@ class ExtensionInstallService @Inject constructor(
 	suspend fun createInstallIntent(extension: RepoAvailableExtension): Intent? = withContext(Dispatchers.IO) {
 		val apkUrl = applyMirror("${extension.repoUrl}/apk/${extension.apkName}")
 		val outputDir = File(context.cacheDir, "extension-installs").apply { mkdirs() }
-		val outputFile = File(outputDir, "${extension.pkgName}-${extension.versionCode}.apk")
+		val safePkgName = extension.pkgName.replace(Regex("[^A-Za-z0-9._-]"), "_")
+		val outputFile = File(outputDir, "$safePkgName-${extension.versionCode}.apk")
 		val call = httpClient.newCachelessCallWithProgress(GET(apkUrl), ExtensionInstallProgressListener(extension.pkgName))
 		check(activeCalls.putIfAbsent(extension.pkgName, call) == null) {
 			"Extension install download already in progress for ${extension.pkgName}"
@@ -84,7 +85,7 @@ class ExtensionInstallService @Inject constructor(
 		
 		if (extension.type == com.nyora.hasan72341.mihon.extensions.repo.ExternalExtensionType.JAR) {
 			val pluginsDir = File(context.filesDir, "plugins").apply { mkdirs() }
-			val jarFile = File(pluginsDir, "${extension.pkgName}.jar")
+			val jarFile = File(pluginsDir, "$safePkgName.jar")
 			outputFile.copyTo(jarFile, overwrite = true)
 			outputFile.delete()
 			context.getSharedPreferences("jar_plugin_versions", Context.MODE_PRIVATE)

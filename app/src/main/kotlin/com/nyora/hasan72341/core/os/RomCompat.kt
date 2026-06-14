@@ -12,7 +12,15 @@ object RomCompat {
 	}
 
 	@Blocking
-	private fun getProp(propName: String) = Runtime.getRuntime().exec("getprop $propName").inputStream.use {
-		it.reader().use(InputStreamReader::readText).trim()
+	private fun getProp(propName: String): String {
+		require(propName.matches(Regex("[A-Za-z0-9._-]+"))) { "Invalid property name: $propName" }
+		val process = Runtime.getRuntime().exec(arrayOf("getprop", propName))
+		return try {
+			process.inputStream.use {
+				it.reader().use(InputStreamReader::readText).trim()
+			}
+		} finally {
+			process.destroy()
+		}
 	}
 }

@@ -442,4 +442,53 @@
 		<item name="colorSurfaceContainerHigh">@color/sakura_surfaceContainerHigh</item>
 		<item name="colorSurfaceContainerHighest">@color/sakura_surfaceContainerHighest</item>
 	</style>
+	<!-- Yuki -->
+	<style name="ThemeOverlay.Nyora.Yuki">
+		<item name="colorPrimary">@color/yuki_primary</item>
+		<item name="colorOnPrimary">@color/yuki_onPrimary</item>
+		<item name="colorPrimaryContainer">@color/yuki_primaryContainer</item>
+		<item name="colorOnPrimaryContainer">@color/yuki_onPrimaryContainer</item>
+		<item name="colorSecondary">@color/yuki_secondary</item>
+		<item name="colorOnSecondary">@color/yuki_onSecondary</item>
+		<item name="colorSecondaryContainer">@color/yuki_secondaryContainer</item>
+		<item name="colorOnSecondaryContainer">@color/yuki_onSecondaryContainer</item>
+		<item name="colorTertiary">@color/yuki_tertiary</item>
+		<item name="colorOnTertiary">@color/yuki_onTertiary</item>
+		<item name="colorTertiaryContainer">@color/yuki_tertiaryContainer</item>
+		<item name="colorOnTertiaryContainer">@color/yuki_onTertiaryContainer</item>
+		<item name="colorError">@color/yuki_error</item>
+		<item name="colorOnError">@color/yuki_onError</item>
+		<item name="colorErrorContainer">@color/yuki_errorContainer</item>
+		<item name="colorOnErrorContainer">@color/yuki_onErrorContainer</item>
+		<item name="android:colorBackground">@color/yuki_background</item>
+		<item name="colorOnBackground">@color/yuki_onBackground</item>
+		<item name="colorSurface">@color/yuki_surface</item>
+		<item name="colorOnSurface">@color/yuki_onSurface</item>
+		<item name="colorSurfaceVariant">@color/yuki_surfaceVariant</item>
+		<item name="colorOnSurfaceVariant">@color/yuki_onSurfaceVariant</item>
+		<item name="colorOutline">@color/yuki_outline</item>
+		<item name="colorOutlineVariant">@color/yuki_outlineVariant</item>
+		<item name="colorSurfaceInverse">@color/yuki_inverseSurface</item>
+		<item name="colorOnSurfaceInverse">@color/yuki_inverseOnSurface</item>
+		<item name="colorPrimaryInverse">@color/yuki_inversePrimary</item>
+		<item name="colorPrimaryFixed">@color/yuki_primaryFixed</item>
+		<item name="colorOnPrimaryFixed">@color/yuki_onPrimaryFixed</item>
+		<item name="colorPrimaryFixedDim">@color/yuki_primaryFixedDim</item>
+		<item name="colorOnPrimaryFixedVariant">@color/yuki_onPrimaryFixedVariant</item>
+		<item name="colorSecondaryFixed">@color/yuki_secondaryFixed</item>
+		<item name="colorOnSecondaryFixed">@color/yuki_onSecondaryFixed</item>
+		<item name="colorSecondaryFixedDim">@color/yuki_secondaryFixedDim</item>
+		<item name="colorOnSecondaryFixedVariant">@color/yuki_onSecondaryFixedVariant</item>
+		<item name="colorTertiaryFixed">@color/yuki_tertiaryFixed</item>
+		<item name="colorOnTertiaryFixed">@color/yuki_onTertiaryFixed</item>
+		<item name="colorTertiaryFixedDim">@color/yuki_tertiaryFixedDim</item>
+		<item name="colorOnTertiaryFixedVariant">@color/yuki_onTertiaryFixedVariant</item>
+		<item name="colorSurfaceDim">@color/yuki_surfaceDim</item>
+		<item name="colorSurfaceBright">@color/yuki_surfaceBright</item>
+		<item name="colorSurfaceContainerLowest">@color/yuki_surfaceContainerLowest</item>
+		<item name="colorSurfaceContainerLow">@color/yuki_surfaceContainerLow</item>
+		<item name="colorSurfaceContainer">@color/yuki_surfaceContainer</item>
+		<item name="colorSurfaceContainerHigh">@color/yuki_surfaceContainerHigh</item>
+		<item name="colorSurfaceContainerHighest">@color/yuki_surfaceContainerHighest</item>
+	</style>
 </resources>
