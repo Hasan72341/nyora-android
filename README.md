@@ -166,6 +166,8 @@ A quick, honest snapshot of what the Android app does today.
 |:-:|:-:|
 | ![Tablet — Home](docs/screenshots/tablet/01-home.png)<br/>**Home** — A featured spotlight over Trending Now, All-Time Popular and Top Rated rows. | ![Tablet — Explore](docs/screenshots/tablet/02-explore.png)<br/>**Explore** — Local, Bookmarks, Random and Downloads shortcuts above the full grid of sources. |
 | ![Tablet — Favourites](docs/screenshots/tablet/03-favorites.png)<br/>**Favourites** — Favourites organised into the categories you control. | ![Tablet — History](docs/screenshots/tablet/04-history.png)<br/>**History** — Your recent reading, with room to breathe on a bigger screen. |
+| ![Tablet — Details](docs/screenshots/tablet/05-details.png)<br/>**Details** — Cover, source, rating, genre tags and the full chapter list. | ![Tablet — Reader](docs/screenshots/tablet/06-reader.png)<br/>**Reader** — A full-colour page in the immersive reader, with chapter and page progress. |
+| ![Tablet — Search](docs/screenshots/tablet/08-search.png)<br/>**Search** — Global search results grouped by source. | ![Tablet — Settings](docs/screenshots/tablet/09-settings.png)<br/>**Settings** — Appearance, sources, reader, translation, sync and backup. |
 
 ## Installation
 
