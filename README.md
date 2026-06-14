@@ -25,12 +25,14 @@ A fast, free, ad-free, open-source manga reader for Android — 1100+ sources, w
 [![Website](https://img.shields.io/badge/Website-nyora.pages.dev-FF4655?style=for-the-badge&logo=githubpages&logoColor=white)](https://nyora.pages.dev)
 [![Open Web App](https://img.shields.io/badge/Open-Web_App-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](https://nyoraweb.pages.dev)
 
+**Open-source · No ads · No tracking · No account needed to read · Your library is yours**
+
 </div>
 
 <p align="center">
-  <img src="https://nyora.pages.dev/screenshots/phone-1.png" width="200"/>
-  <img src="https://nyora.pages.dev/screenshots/phone-3.png" width="200"/>
-  <img src="https://nyora.pages.dev/screenshots/phone-5.png" width="200"/>
+  <img src="docs/screenshots/01-home.png" width="200" alt="Home"/>
+  <img src="docs/screenshots/06-reader.png" width="200" alt="Reader"/>
+  <img src="docs/screenshots/07-translate.png" width="200" alt="AI translation"/>
 </p>
 
 ---
@@ -38,6 +40,14 @@ A fast, free, ad-free, open-source manga reader for Android — 1100+ sources, w
 ## About
 
 Nyora is a polished, privacy-first manga reader for Android — a fork of [Kotatsu](https://github.com/KotatsuApp/Kotatsu) rebuilt around five things readers actually care about: translating a whole page of any language back over the original art, downloading chapters for offline reading, pulling from 1100+ built-in sources plus Tachiyomi/Mihon/Keiyoushi extensions, syncing your entire library across every device for free, and staying 100% open-source with no ads, no tracking and no account required to read. Read on your phone at lunch and pick up exactly where you left off on your laptop at night.
+
+## Why You'll Love It
+
+- **Read raws in your language, instantly.** Translation isn't a side feature — it's the headline. Tap once and the *whole page* is detected, translated and typeset back over the original art. No copy-paste, no cropping, no waiting on a scanlation that may never land.
+- **Your library, everywhere, for free.** One free Google sign-in keeps your library, categories, history, bookmarks and exact reading progress in lockstep across Android, iOS, macOS, Windows, Linux and the Web. Switch devices mid-chapter; never lose your place.
+- **Works on the train, on a flight, off-grid.** Download chapters with a tap, open CBZ archives you already own, and an on-device translation fallback keeps working with no connection.
+- **Nothing watching you.** No ads, no trackers, no telemetry, no account to read. Sign-in exists *only* for optional sync. Because every line is open-source, you can verify exactly that.
+- **Native, fast, and yours.** Built with Jetpack Compose and Material You, with AMOLED dark mode, app-lock and incognito reading. Your library is stored on your device and is yours to keep, export and move.
 
 ## Highlights
 
@@ -52,6 +62,7 @@ Nyora is a polished, privacy-first manga reader for Android — a fork of [Kotat
 ## Table of Contents
 
 - [About](#about)
+- [Why You'll Love It](#why-youll-love-it)
 - [Highlights](#highlights)
 - [Features](#features)
   - [Translate](#translate)
@@ -72,6 +83,11 @@ Nyora is a polished, privacy-first manga reader for Android — a fork of [Kotat
 - [Roadmap](#roadmap)
 - [FAQ](#faq)
 - [Contributing](#contributing)
+  - [Ways to Contribute](#ways-to-contribute)
+  - [Development Setup](#development-setup)
+  - [Where Things Live](#where-things-live)
+  - [Good First Contributions](#good-first-contributions)
+  - [Pull Request & Issue Etiquette](#pull-request--issue-etiquette)
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
 
@@ -140,20 +156,20 @@ A quick, honest snapshot of what the Android app does today.
 
 | | | |
 |:-:|:-:|:-:|
-| ![Home](docs/screenshots/01-home.png) | ![Explore](docs/screenshots/02-explore.png) | ![Library](docs/screenshots/03-library.png) |
-| ![History](docs/screenshots/04-history.png) | ![Details](docs/screenshots/05-details.png) | ![Reader](docs/screenshots/06-reader.png) |
-| ![Translate](docs/screenshots/07-translate.png) | ![Search](docs/screenshots/08-search.png) | ![Settings](docs/screenshots/09-settings.png) |
+| ![Home](docs/screenshots/01-home.png)<br/>**Home** — A featured spotlight, Continue Reading and Trending Now the moment you open the app. | ![Explore](docs/screenshots/02-explore.png)<br/>**Explore** — Browse the full catalogue of online sources and pick where to read. | ![Library](docs/screenshots/03-library.png)<br/>**Library** — Your saved manga in custom categories, sorted however you like. |
+| ![History](docs/screenshots/04-history.png)<br/>**History** — Everything you have read recently, ready to pick back up. | ![Details](docs/screenshots/05-details.png)<br/>**Details** — Cover, synopsis and the full chapter list for any title. | ![Reader](docs/screenshots/06-reader.png)<br/>**Reader** — An immersive reader that melts away to just you and the page. |
+| ![Translate](docs/screenshots/07-translate.png)<br/>**AI translation** — Whole-page translation overlaid right onto the original art. | ![Search](docs/screenshots/08-search.png)<br/>**Search** — Search every installed source at once. | ![Settings](docs/screenshots/09-settings.png)<br/>**Settings** — Deep control over the reader, sources, sync and privacy. |
 
 ### Tablet
 
 | | |
 |:-:|:-:|
-| ![Tablet — Home](docs/screenshots/tablet/01-home.png) | ![Tablet — Explore](docs/screenshots/tablet/02-explore.png) |
-| ![Tablet — Favourites](docs/screenshots/tablet/03-favorites.png) | ![Tablet — History](docs/screenshots/tablet/04-history.png) |
+| ![Tablet — Home](docs/screenshots/tablet/01-home.png)<br/>**Home** — A featured spotlight over Trending Now, All-Time Popular and Top Rated rows. | ![Tablet — Explore](docs/screenshots/tablet/02-explore.png)<br/>**Explore** — Local, Bookmarks, Random and Downloads shortcuts above the full grid of sources. |
+| ![Tablet — Favourites](docs/screenshots/tablet/03-favorites.png)<br/>**Favourites** — Favourites organised into the categories you control. | ![Tablet — History](docs/screenshots/tablet/04-history.png)<br/>**History** — Your recent reading, with room to breathe on a bigger screen. |
 
 ## Installation
 
-The recommended way to install Nyora is the signed release APK.
+Installing Nyora takes about a minute. It is the **signed release APK** — open-source, auditable, with **no ads, no tracking and no account required to read**. Nyora is distributed outside the Play Store, so Android will ask for a one-time permission to install it. That prompt is **normal and expected** for any app installed from a browser — you are simply telling Android you trust this file. Below is exactly what to tap and why.
 
 **Requirements**
 
@@ -163,8 +179,10 @@ The recommended way to install Nyora is the signed release APK.
 **Steps**
 
 1. Open the **[Releases page](https://github.com/Hasan72341/nyora-android/releases/latest)** and download the latest `nyora-*.apk`.
-2. Open the downloaded file. If this is your first sideloaded app, Android will prompt you to **allow installs from your browser (or file manager)** — grant the permission and continue.
+2. Open the downloaded file. If this is your first sideloaded app, Android will prompt you to **allow installs from your browser (or file manager)** — this is the expected one-time permission for apps not from the Play Store. Grant it and continue.
 3. Confirm the install and launch Nyora.
+
+That's it — no sign-up, no onboarding wall. Start reading immediately; sign in later only if you want cloud sync.
 
 **Updating**
 
@@ -172,7 +190,7 @@ Newer releases are published on the same Releases page. Download and install the
 
 **Troubleshooting**
 
-- *"App not installed" / blocked by Play Protect*: choose **Install anyway** when prompted. Nyora is sideloaded and is not distributed through the Play Store.
+- *"App not installed" / blocked by Play Protect*: choose **Install anyway** when prompted. Nyora is sideloaded and is not distributed through the Play Store; Play Protect flags any non-Store app, so this is expected.
 - *Install permission missing*: go to **Settings → Apps → Special access → Install unknown apps**, select the browser or file manager you used, and enable it, then retry.
 
 ## Build from Source
@@ -191,6 +209,8 @@ cd nyora-android
 ```
 
 The release APK is produced under the app module's build outputs. You can also open the project in Android Studio and use **Run ▸ app** to build and deploy a debug build to a connected device or emulator.
+
+> Good news for contributors: the Android app builds from this public repo with no private dependencies — the 1100+ sources are pulled in as a published parsers library, so you can clone, build and run today. See [Development Setup](#development-setup) for the contributor-oriented quickstart.
 
 ## Tech Stack
 
@@ -244,8 +264,17 @@ Honest, already-stated directions for the wider Nyora family — no dates, no pr
 **Is Nyora free? Are there ads?**
 Yes, it is 100% free and completely ad-free. There is no premium tier, no subscription and no tracking.
 
+**Is it safe? Why does Android warn me / why is it "unknown sources"?**
+Nyora is distributed as a **signed APK** outside the Play Store, so the first time you install it Android asks you to allow installs from your browser or file manager. That prompt — and any Play Protect warning — is **standard for every non-Store app**; it is not specific to Nyora and does not mean anything is wrong. Because Nyora is fully open-source, you (or anyone) can read every line and even build the APK yourself to confirm it matches the release. Choose **Install anyway** when prompted.
+
 **Do I need an account?**
 No account is required to read. Signing in with Google is only for optional cloud sync of your library and progress.
+
+**Will my data be private?**
+Yes. There are no ads and no tracking, and reading never requires an account. Your library, history and downloads live on your device. If you opt into sync, it carries only your own reading state (library, categories, history, bookmarks, progress) between your own devices via your Google sign-in — nothing more.
+
+**How do I update?**
+Download the newest APK from the [Releases page](https://github.com/Hasan72341/nyora-android/releases/latest) and install it over your existing version. Your library, downloads and settings are preserved, and cloud sync restores your library after a fresh install once you sign back in.
 
 **Where does the content come from?**
 Nyora hosts no manga. It accesses 1100+ built-in sources and is compatible with Tachiyomi / Mihon / Keiyoushi extensions — it is a reader, not a host, and is not affiliated with any of the sources it can access.
@@ -262,9 +291,6 @@ Yes. Download chapters in-app for offline reading, and open local CBZ archives y
 **Which Android versions are supported?**
 Android 6.0 and newer, on both phones and tablets.
 
-**How do I update the APK?**
-Download the newest APK from the Releases page and install it over your existing version. Your library, downloads and settings are preserved, and cloud sync restores your library after a fresh install once you sign back in.
-
 **Which other platforms share my library?**
 Android, Windows, macOS, Linux, iOS/iPadOS and the Web — all sync the same library and progress. See [Nyora on Every Platform](#nyora-on-every-platform).
 
@@ -272,9 +298,93 @@ Android, Windows, macOS, Linux, iOS/iPadOS and the Web — all sync the same lib
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-0ae448?style=for-the-badge)](https://github.com/Hasan72341/nyora-android/pulls)
 
-Contributions are welcome — bug reports, new sources, translations and UI polish especially. The best place to start is the project's [Issues](https://github.com/Hasan72341/nyora-android/issues) and [Pull Requests](https://github.com/Hasan72341/nyora-android/pulls). Clone the repo, follow the [Build from Source](#build-from-source) steps, and open a PR with a clear description of your change.
+Nyora is built in the open, and contributions of every size and skill level are genuinely welcome — you do **not** need to be an Android developer to help, and you can start today. This section is here to make that first step easy.
 
-If Nyora makes your reading better, the simplest way to help is to [star the repo](https://github.com/Hasan72341/nyora-android/stargazers) — it genuinely helps the project grow and reach more readers.
+If you only do one thing: open the [Issues](https://github.com/Hasan72341/nyora-android/issues) tab, find something that interests you, and say hello. We try to keep the project approachable and kind.
+
+### Ways to Contribute
+
+There is a place for everyone here — coders and non-coders alike:
+
+- **Report a bug.** Hit something broken? Open a [bug report](https://github.com/Hasan72341/nyora-android/issues/new/choose) — the issue form walks you through the few details we need (app version, Android version, steps). Clear bug reports are one of the most valuable contributions there is.
+- **Suggest a feature.** Have an idea? File a feature request through the [issue templates](https://github.com/Hasan72341/nyora-android/issues/new/choose) and tell us the problem you're trying to solve.
+- **Translate the UI.** Nyora's strings are translated through **Weblate** at [hosted.weblate.org/engage/Nyora](https://hosted.weblate.org/engage/Nyora) — no code, no setup, just pick your language and start. (Please use Weblate rather than editing string resources by hand, so translations stay in sync.)
+- **Help with sources.** The 1100+ sources come from the Kotatsu-style parsers project. If a source breaks or you'd like to propose a new one, that work happens upstream in the parsers repository: [kotatsu-parsers-redo](https://github.com/kotatsu-redo/kotatsu-parsers-redo). Reporting a broken source there (with the site and what failed) is a real, welcome contribution.
+- **Improve the docs.** Spot something unclear in this README or want to add a how-to? Docs PRs are some of the friendliest first contributions.
+- **Test releases.** Try the latest release (or a [nightly build](https://github.com/Hasan72341/nyora-android/releases)) on your device and report what works and what doesn't — especially on less common phones, tablets and Android versions.
+- **Star and share.** Genuinely one of the most helpful things you can do — [star the repo](https://github.com/Hasan72341/nyora-android/stargazers) and tell a friend who reads manga. It costs nothing and helps the project reach more readers and contributors.
+
+> **Looking for a bigger, high-impact project?** The largest open contributor opportunity in the Nyora family right now is **NyoraEngine**, the iOS source engine in [nyora-ios](https://github.com/Hasan72341/nyora-ios). Its framework is built and one source template is complete, but of roughly **3,659 classes** and **~1,331 parsers**, around **1,300 sources** still need porting — and they're mostly **mechanical template subclasses**, which makes the work highly parallelisable and ideal for many contributors working at once. If you know (or want to learn) Swift, that's the headline "help wanted." See the iOS repo for the current status and how to claim a batch.
+
+### Development Setup
+
+This is the contributor quickstart for hacking on the **Android app** itself (distinct from the end-user [Build from Source](#build-from-source) steps).
+
+**Prerequisites**
+
+- **Android Studio** (latest stable)
+- **JDK 17**
+
+**Clone, build and run**
+
+```bash
+git clone https://github.com/Hasan72341/nyora-android.git
+cd nyora-android
+./gradlew assembleDebug      # builds a debug APK
+```
+
+Then open the project in Android Studio and use **Run ▸ app** to deploy a debug build to a connected device or emulator. The app builds from this public repo with **no private dependencies** — the sources are pulled in as a published parsers library (`com.github.clquwu:kotatsu-parsers-redo`), so you get a working build without any special access.
+
+**Useful tasks**
+
+- `./gradlew assembleDebug` — debug APK
+- `./gradlew test` — run the unit tests
+- The project uses Hilt (DI), Room (database), OkHttp + Coil (networking & images), Jetpack Compose and Material You. minSdk is Android 6.0; compileSdk targets current Android.
+
+**Testing against a specific parsers build** (optional, advanced): the sources library version is pinned in Gradle, and you can override it for a build to test newer parser changes, e.g.:
+
+```bash
+./gradlew assembleDebug -DparsersVersionOverride=<short-sha>
+```
+
+### Where Things Live
+
+The app follows a **package-per-feature** layout, so you can usually find a screen or capability by its name. Code lives under `app/src/main/kotlin/com/nyora/hasan72341/…`:
+
+- `reader/` — the reading experience (standard & webtoon modes, gestures, colour correction)
+- `details/` — the manga details screen
+- `explore/`, `search/`, `discover/`, `filter/` — browsing, searching and filtering sources
+- `library/`, `favourites/`, `history/`, `bookmarks/` — your saved library and reading state
+- `download/`, `local/` — offline downloads and local CBZ reading
+- `sync/`, `backups/`, `scrobbling/`, `tracker/` — cloud sync, backups and trackers
+- `ai/` — the translation feature surfaces
+- `tachiyomi/`, `mihon/` — Tachiyomi / Mihon / Keiyoushi extension compatibility
+- `settings/` — all settings screens (reader, sources, protection, about, …)
+- `core/` — shared infrastructure (database, network, parser glue, prefs, UI, utils)
+
+UI strings are managed through **Weblate** (see [Ways to Contribute](#ways-to-contribute)); please don't edit string resources by hand. The repository also ships **issue templates** (bug report and feature request) under `.github/ISSUE_TEMPLATE/`, and CI builds run on pull requests so you (and reviewers) can be confident a change compiles.
+
+### Good First Contributions
+
+If you're not sure where to begin, these tend to be approachable and genuinely useful:
+
+- **File a great bug report** for something you've personally hit — small, specific and reproducible.
+- **A small UI fix or polish** — fix an alignment issue, a wrong string, a theming glitch in light/dark/AMOLED, or improve an accessibility label. The package-per-feature layout above makes these easy to locate.
+- **Docs improvements** — clarify a confusing step, fix a typo, or add a short how-to.
+- **A translation** in your language via Weblate — zero code required.
+- **Report or propose a source** in the upstream [parsers repo](https://github.com/kotatsu-redo/kotatsu-parsers-redo), where source code actually lives. The parser project is built around reusable templates (Madara, MangaReader and friends), so adding a new site is often a small, mechanical subclass — a great way to make a visible impact.
+
+### Pull Request & Issue Etiquette
+
+A few simple norms keep reviews fast and friendly:
+
+- **Keep PRs focused.** One change per PR is much easier to review than a mixed bag. If you find yourself touching unrelated things, split them.
+- **Describe the change.** Say what it does and why; link the issue it addresses if there is one. Screenshots help enormously for UI changes.
+- **Match the surrounding style.** Follow the existing patterns in the file you're editing; prefer Weblate for strings and avoid adding heavy dependencies (APK size matters).
+- **Be kind.** We review each other's work generously and assume good intent. New contributors are explicitly welcome — ask questions if you're stuck.
+- Start from the [Issues](https://github.com/Hasan72341/nyora-android/issues) page, and open your work as a [Pull Request](https://github.com/Hasan72341/nyora-android/pulls).
+
+Thank you for being here — whether you fix a typo, file one good bug, translate a screen, or port a hundred sources, you make Nyora better for every reader. And if all you do is [star the repo](https://github.com/Hasan72341/nyora-android/stargazers) and share it with a friend who reads manga, that genuinely helps too. Welcome aboard.
 
 ## Acknowledgements
 
