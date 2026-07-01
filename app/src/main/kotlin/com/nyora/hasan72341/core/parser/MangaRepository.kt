@@ -10,8 +10,6 @@ import com.nyora.hasan72341.core.model.MangaSourceInfo
 import com.nyora.hasan72341.core.model.TestMangaSource
 import com.nyora.hasan72341.core.model.UnknownMangaSource
 import com.nyora.hasan72341.local.data.LocalMangaRepository
-import com.nyora.hasan72341.js.NyoraJsMangaRepository
-import com.nyora.hasan72341.js.NyoraJsMangaSource
 import com.nyora.hasan72341.mihon.parsers.MangaLoaderContext
 import com.nyora.hasan72341.mihon.parsers.model.Manga
 import com.nyora.hasan72341.mihon.parsers.model.MangaChapter
@@ -60,7 +58,6 @@ interface MangaRepository {
 		private val loaderContext: MangaLoaderContext,
 		private val contentCache: MemoryContentCache,
 		private val mirrorSwitcher: MirrorSwitcher,
-		private val nyoraJsSourcesManager: com.nyora.hasan72341.js.NyoraJsSourcesManager,
 	) {
 
 		private val cache = ArrayMap<MangaSource, WeakReference<MangaRepository>>()
@@ -91,24 +88,13 @@ interface MangaRepository {
 				cache = contentCache,
 			)
 
-			is NyoraJsMangaSource -> NyoraJsMangaRepository(
-				source = source,
+			is MangaParserSource -> ParserMangaRepository(
+				parser = loaderContext.newParserInstance(source),
+				mirrorSwitcher = mirrorSwitcher,
 				cache = contentCache,
-				engine = nyoraJsSourcesManager.engine,
 			)
 
-			else -> {
-				if (source.name.startsWith("JS_")) {
-					nyoraJsSourcesManager.getByName(source.name)?.let {
-						return NyoraJsMangaRepository(
-							source = it,
-							cache = contentCache,
-							engine = nyoraJsSourcesManager.engine,
-						)
-					}
-				}
-				null
-			}
+			else -> null
 		}
 	}
 }

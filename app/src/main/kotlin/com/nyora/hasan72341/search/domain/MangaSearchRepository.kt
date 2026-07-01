@@ -14,6 +14,7 @@ import com.nyora.hasan72341.core.db.entity.toEntity
 import com.nyora.hasan72341.core.db.entity.toManga
 import com.nyora.hasan72341.core.prefs.AppSettings
 import com.nyora.hasan72341.core.model.getContentTypeOrNull
+import com.nyora.hasan72341.core.model.titleOrName
 import com.nyora.hasan72341.explore.data.MangaSourcesRepository
 import com.nyora.hasan72341.mihon.parsers.model.ContentType
 import com.nyora.hasan72341.mihon.parsers.model.Manga
@@ -120,7 +121,7 @@ class MangaSearchRepository @Inject constructor(
 		val skipNsfw = settings.isNsfwContentDisabled
 		val sources = sourcesRepository.allMangaSources
 			.filter { x ->
-				(x.getContentTypeOrNull() !in HENTAI_CONTENT_TYPES || !skipNsfw) && x.title.contains(query, ignoreCase = true)
+				(x.getContentTypeOrNull() !in HENTAI_CONTENT_TYPES || !skipNsfw) && x.titleOrName().contains(query, ignoreCase = true)
 			}
 		return if (limit == 0) {
 			sources

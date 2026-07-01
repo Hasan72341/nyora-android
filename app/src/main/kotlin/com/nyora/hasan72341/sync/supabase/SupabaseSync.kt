@@ -3,6 +3,7 @@ package com.nyora.hasan72341.sync.supabase
 import android.content.Context
 import com.nyora.hasan72341.core.db.MangaDatabase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -16,6 +17,7 @@ import javax.inject.Singleton
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.nyora.hasan72341.core.db.entity.MangaEntity
 import com.nyora.hasan72341.core.network.BaseHttpClient
+import com.nyora.hasan72341.scrobbling.common.data.ScrobblingEntity
 
 @Singleton
 class SupabaseSync @Inject constructor(
@@ -30,78 +32,67 @@ class SupabaseSync @Inject constructor(
     private val mangaDao get() = database.getMangaDao()
     private val categoriesDao get() = database.getFavouriteCategoriesDao()
     private val preferencesDao get() = database.getPreferencesDao()
+    private val scrobblingDao get() = database.getScrobblingDao()
     
     private val JSON_MT = "application/json; charset=utf-8".toMediaType()
     private val syncFunctionUrl get() = "${config.url}/functions/v1/nyora-sync"
 
-    // -- Auth --
+    // -- Auth (email/password against the self-hosted OAuth2 server) --
 
-    suspend fun signInWithGoogle(idToken: String): Boolean = withContext(Dispatchers.IO) {
+    private fun applyTokenResponse(json: JSONObject): Boolean {
+        val previousUserId = config.userId
+        config.accessToken = json.getString("access_token")
+        config.refreshToken = json.optString("refresh_token", config.refreshToken)
+        config.userId = json.optString("user_id", "")
+            .ifBlank { config.parseUserIdFromJwt(config.accessToken) }
+        if (previousUserId.isNotBlank() && previousUserId != config.userId) {
+            config.lastSyncTimestamp = SupabaseConfig.INITIAL_SYNC_TIMESTAMP
+        }
+        config.saveTokens()
+        return config.userId.isNotBlank()
+    }
+
+    /** OAuth2 password grant (form-encoded) → POST /auth/token. */
+    suspend fun signIn(email: String, password: String): Boolean = withContext(Dispatchers.IO) {
         if (!config.isConfigured) return@withContext false
-        val body = """{"provider":"google","id_token":${idToken.jq}}""".toRequestBody(JSON_MT)
-        val req = Request.Builder()
-            .url("${config.url}/auth/v1/token?grant_type=id_token")
-            .header("apikey", config.anonKey)
-            .post(body)
+        val body = okhttp3.FormBody.Builder()
+            .add("grant_type", "password")
+            .add("username", email.trim())
+            .add("password", password)
             .build()
+        val req = Request.Builder().url("${config.url}/auth/token").post(body).build()
         runCatching {
             http.newCall(req).execute().use { resp ->
                 if (!resp.isSuccessful) return@withContext false
-                val json = JSONObject(resp.body!!.string())
-                val previousUserId = config.userId
-                config.accessToken = json.getString("access_token")
-                config.refreshToken = json.optString("refresh_token", "")
-                config.userId = config.parseUserIdFromJwt(config.accessToken)
-                if (previousUserId.isNotBlank() && previousUserId != config.userId) {
-                    config.lastSyncTimestamp = SupabaseConfig.INITIAL_SYNC_TIMESTAMP
-                }
-                config.saveTokens()
-                config.userId.isNotBlank()
+                applyTokenResponse(JSONObject(resp.body!!.string()))
             }
         }.getOrDefault(false)
     }
 
-    suspend fun signIn(email: String, password: String): Boolean = withContext(Dispatchers.IO) {
+    /** Create an account → POST /auth/register {email,password}; returns tokens on success. */
+    suspend fun register(email: String, password: String): Boolean = withContext(Dispatchers.IO) {
         if (!config.isConfigured) return@withContext false
-        val body = """{"email":${email.jq},"password":${password.jq}}""".toRequestBody(JSON_MT)
-        val req = Request.Builder()
-            .url("${config.url}/auth/v1/token?grant_type=password")
-            .header("apikey", config.anonKey)
-            .post(body)
-            .build()
+        val payload = """{"email":${email.trim().jq},"password":${password.jq}}""".toRequestBody(JSON_MT)
+        val req = Request.Builder().url("${config.url}/auth/register").post(payload).build()
         runCatching {
             http.newCall(req).execute().use { resp ->
                 if (!resp.isSuccessful) return@withContext false
-                val json = JSONObject(resp.body!!.string())
-                val previousUserId = config.userId
-                config.accessToken = json.getString("access_token")
-                config.refreshToken = json.optString("refresh_token", "")
-                config.userId = config.parseUserIdFromJwt(config.accessToken)
-                if (previousUserId.isNotBlank() && previousUserId != config.userId) {
-                    config.lastSyncTimestamp = SupabaseConfig.INITIAL_SYNC_TIMESTAMP
-                }
-                config.saveTokens()
-                config.userId.isNotBlank()
+                applyTokenResponse(JSONObject(resp.body!!.string()))
             }
         }.getOrDefault(false)
     }
 
     suspend fun refreshToken(): Boolean = withContext(Dispatchers.IO) {
         if (!config.isConfigured || config.refreshToken.isBlank()) return@withContext false
-        val body = """{"refresh_token":${config.refreshToken.jq}}""".toRequestBody(JSON_MT)
-        val req = Request.Builder()
-            .url("${config.url}/auth/v1/token?grant_type=refresh_token")
-            .header("apikey", config.anonKey)
-            .post(body)
+        val body = okhttp3.FormBody.Builder()
+            .add("grant_type", "refresh_token")
+            .add("refresh_token", config.refreshToken)
             .build()
+        val req = Request.Builder().url("${config.url}/auth/token").post(body).build()
         runCatching {
             http.newCall(req).execute().use { resp ->
                 if (!resp.isSuccessful) return@withContext false
-                val json = JSONObject(resp.body!!.string())
-                config.accessToken = json.getString("access_token")
-                config.refreshToken = json.optString("refresh_token", config.refreshToken)
-                config.saveTokens()
-                true
+                applyTokenResponse(JSONObject(resp.body!!.string()))
             }
         }.getOrDefault(false)
     }
@@ -166,6 +157,7 @@ class SupabaseSync @Inject constructor(
         pushMangaCategories()
         pushMangaPrefs()
         pushSourcePrefs()
+        pushTracking()
         pushExtensionRepos()
     }
 
@@ -246,6 +238,145 @@ class SupabaseSync @Inject constructor(
             })
         }
         upsert("nyora_source_prefs", rows)
+    }
+
+    // -- Tracking (scrobbling) --
+
+    /**
+     * Push every scrobbling link/state to nyora_tracking (canonical snake_case schema).
+     * ScrobblingEntity has no updated_at column, so all rows are pushed each time with
+     * updated_at = now(); LWW on the server resolves conflicts. The entity `id` is a
+     * local surrogate and is NOT synced (see NYORA_TRACKING_SCHEMA.md §4).
+     */
+    private suspend fun pushTracking() {
+        val uid = config.userId
+        val entities = runCatching {
+            scrobblingDao.dumpEnabled().toList()
+        }.getOrNull()
+        if (entities == null) {
+            android.util.Log.w("SupabaseSync", "pushTracking: dumpEnabled returned null")
+            return
+        }
+        if (entities.isEmpty()) {
+            android.util.Log.d("SupabaseSync", "pushTracking: no data to push")
+            return
+        }
+        val nowStr = now()
+        val rows = JSONArray()
+        for (e in entities) {
+            val trackerId = scrobblerSlug(e.scrobbler) ?: continue
+            val dto = SbTracking(
+                trackerId = trackerId,
+                mangaId = e.mangaId,
+                remoteId = e.targetId.toString(),
+                sourceId = "",
+                title = "",
+                status = canonicalStatus(e.scrobbler, e.status) ?: "",
+                score = e.rating,
+                lastReadChapter = e.chapter.toFloat(),
+                lastReadVolume = 0,
+                totalChapters = 0,
+                totalVolumes = 0,
+                chapterOffset = 0,
+                startedAt = "",
+                finishedAt = "",
+                comment = e.comment ?: "",
+                updatedAt = nowStr,
+                deletedAt = null,
+            )
+            rows.put(dto.toRow(uid))
+        }
+        upsert("nyora_tracking", rows)
+        android.util.Log.d("SupabaseSync", "pushTracking: pushed ${rows.length()} rows")
+    }
+
+    /**
+     * Pull nyora_tracking rows into ScrobblingEntity. tracker_id → scrobbler int, canonical
+     * status → service-specific status string, remote_id → target_id. Unknown trackers are
+     * ignored. deleted_at tombstones remove the local link.
+     */
+    private suspend fun pullTracking(cutoff: String) {
+        val text = fetch(
+            "nyora_tracking?select=tracker_id,manga_id,remote_id,source_id,title,status,score,last_read_chapter,comment,updated_at,deleted_at",
+            cutoff,
+        ) ?: return
+        runCatching {
+            val arr = JSONArray(text)
+            for (i in 0 until arr.length()) {
+                try {
+                    val row = arr.getJSONObject(i)
+                    val dto = SbTracking.fromRow(row)
+                    val scrobbler = scrobblerId(dto.trackerId) ?: continue
+                    if (dto.deletedAt != null && dto.deletedAt.isNotBlank()) {
+                        scrobblingDao.delete(scrobbler, dto.mangaId)
+                        continue
+                    }
+                    val remoteId = dto.remoteId.toLongOrNull() ?: 0L
+                    val existing = scrobblingDao.find(scrobbler, dto.mangaId)
+                    scrobblingDao.upsert(ScrobblingEntity(
+                        scrobbler = scrobbler,
+                        id = existing?.id ?: remoteId.toInt(),
+                        mangaId = dto.mangaId,
+                        targetId = remoteId,
+                        status = serviceStatus(scrobbler, dto.status),
+                        chapter = dto.lastReadChapter.toInt(),
+                        comment = dto.comment.ifBlank { existing?.comment },
+                        rating = dto.score,
+                    ))
+                } catch (e: Exception) {
+                    android.util.Log.e("SupabaseSync", "pullTracking row failed", e)
+                }
+            }
+        }.onFailure { android.util.Log.e("SupabaseSync", "pullTracking failed", it) }
+    }
+
+    // scrobbler int <-> canonical tracker_id slug (NYORA_TRACKING_SCHEMA.md §3)
+    private fun scrobblerSlug(id: Int): String? = when (id) {
+        1 -> "shikimori"
+        2 -> "anilist"
+        3 -> "myanimelist"
+        4 -> "kitsu"
+        else -> null
+    }
+
+    private fun scrobblerId(slug: String): Int? = when (slug) {
+        "shikimori" -> 1
+        "anilist" -> 2
+        "myanimelist" -> 3
+        "kitsu" -> 4
+        else -> null
+    }
+
+    // Per-service stored status string -> canonical status (NYORA_TRACKING_SCHEMA.md §2).
+    // The entity stores the service-specific API status (e.g. AniList "CURRENT"), not the
+    // ScrobblingStatus enum name, so mapping is keyed by service.
+    private val serviceToCanonicalStatus: Map<Int, Map<String, String>> = mapOf(
+        2 to mapOf( // AniList
+            "PLANNING" to "planning", "CURRENT" to "reading", "REPEATING" to "rereading",
+            "COMPLETED" to "completed", "PAUSED" to "paused", "DROPPED" to "dropped",
+        ),
+        3 to mapOf( // MyAnimeList
+            "plan_to_read" to "planning", "reading" to "reading", "completed" to "completed",
+            "on_hold" to "paused", "dropped" to "dropped",
+        ),
+        4 to mapOf( // Kitsu
+            "planned" to "planning", "current" to "reading", "completed" to "completed",
+            "on_hold" to "paused", "dropped" to "dropped",
+        ),
+        1 to mapOf( // Shikimori
+            "planned" to "planning", "watching" to "reading", "rewatching" to "rereading",
+            "completed" to "completed", "on_hold" to "paused", "dropped" to "dropped",
+        ),
+    )
+
+    private fun canonicalStatus(scrobbler: Int, serviceStatus: String?): String? {
+        if (serviceStatus.isNullOrBlank()) return null
+        return serviceToCanonicalStatus[scrobbler]?.get(serviceStatus)
+    }
+
+    private fun serviceStatus(scrobbler: Int, canonical: String?): String? {
+        if (canonical.isNullOrBlank()) return null
+        return serviceToCanonicalStatus[scrobbler]?.entries?.firstOrNull { it.value == canonical }?.key
     }
 
     private suspend fun pushFavourites(cutoff: Long) {
@@ -422,6 +553,7 @@ class SupabaseSync @Inject constructor(
         pullBookmarks(cutoff)
         pullMangaPrefs(cutoff)
         pullSourcePrefs(cutoff)
+        pullTracking(cutoff)
         pullExtensionRepos()
         config.lastSyncTimestamp = Instant.now().toString()
         config.saveTokens()
@@ -860,5 +992,73 @@ class SupabaseSync @Inject constructor(
     private fun parseEpochMilli(text: String): Long {
         return runCatching { Instant.parse(text).toEpochMilli() }
             .getOrElse { java.time.OffsetDateTime.parse(text).toInstant().toEpochMilli() }
+    }
+}
+
+/**
+ * DTO for the canonical `nyora_tracking` row (snake_case, see NYORA_TRACKING_SCHEMA.md §1).
+ * Serializes/parses the full canonical field set so Android round-trips losslessly with
+ * iOS/desktop even for columns Android does not yet store locally.
+ */
+private data class SbTracking(
+    val trackerId: String,
+    val mangaId: String,
+    val remoteId: String,
+    val sourceId: String,
+    val title: String,
+    val status: String,
+    val score: Float,
+    val lastReadChapter: Float,
+    val lastReadVolume: Int,
+    val totalChapters: Int,
+    val totalVolumes: Int,
+    val chapterOffset: Int,
+    val startedAt: String,
+    val finishedAt: String,
+    val comment: String,
+    val updatedAt: String,
+    val deletedAt: String?,
+) {
+    fun toRow(uid: String): JSONObject = JSONObject().apply {
+        put("user_id", uid)
+        put("tracker_id", trackerId)
+        put("manga_id", mangaId)
+        put("remote_id", remoteId)
+        put("source_id", sourceId)
+        put("title", title)
+        put("status", status)
+        put("score", score.toDouble())
+        put("last_read_chapter", lastReadChapter.toDouble())
+        put("last_read_volume", lastReadVolume)
+        put("total_chapters", totalChapters)
+        put("total_volumes", totalVolumes)
+        put("chapter_offset", chapterOffset)
+        put("started_at", startedAt)
+        put("finished_at", finishedAt)
+        put("comment", comment)
+        put("updated_at", updatedAt)
+        deletedAt?.let { put("deleted_at", it) }
+    }
+
+    companion object {
+        fun fromRow(row: JSONObject): SbTracking = SbTracking(
+            trackerId = row.optString("tracker_id", ""),
+            mangaId = row.optString("manga_id", ""),
+            remoteId = row.optString("remote_id", ""),
+            sourceId = row.optString("source_id", ""),
+            title = row.optString("title", ""),
+            status = row.optString("status", ""),
+            score = row.optDouble("score", 0.0).toFloat(),
+            lastReadChapter = row.optDouble("last_read_chapter", 0.0).toFloat(),
+            lastReadVolume = row.optInt("last_read_volume", 0),
+            totalChapters = row.optInt("total_chapters", 0),
+            totalVolumes = row.optInt("total_volumes", 0),
+            chapterOffset = row.optInt("chapter_offset", 0),
+            startedAt = row.optString("started_at", ""),
+            finishedAt = row.optString("finished_at", ""),
+            comment = row.optString("comment", ""),
+            updatedAt = row.optString("updated_at", ""),
+            deletedAt = if (row.isNull("deleted_at")) null else row.optString("deleted_at", ""),
+        )
     }
 }

@@ -16,8 +16,7 @@
 
 		<Preference
 			android:key="supabase_sign_in_google"
-			android:title="@string/sign_in_with_google"
-			app:icon="@drawable/ic_google_g" />
+			android:title="@string/sign_in" />
 
 		<Preference
 			android:key="supabase_continue_guest"

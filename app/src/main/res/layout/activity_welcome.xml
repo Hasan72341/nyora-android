@@ -129,22 +129,60 @@
 							android:textAppearance="?attr/textAppearanceBodyMedium"
 							android:textColor="?attr/colorOnSurfaceVariant" />
 
+						<com.google.android.material.textfield.TextInputLayout
+							android:id="@+id/input_email"
+							style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:layout_marginTop="@dimen/margin_normal"
+							android:hint="@string/email">
+
+							<com.google.android.material.textfield.TextInputEditText
+								android:id="@+id/edit_email"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:imeOptions="actionNext"
+								android:inputType="textEmailAddress"
+								android:maxLines="1" />
+
+						</com.google.android.material.textfield.TextInputLayout>
+
+						<com.google.android.material.textfield.TextInputLayout
+							android:id="@+id/input_password"
+							style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:layout_marginTop="@dimen/margin_small"
+							android:hint="@string/password"
+							app:endIconMode="password_toggle">
+
+							<com.google.android.material.textfield.TextInputEditText
+								android:id="@+id/edit_password"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content"
+								android:imeOptions="actionDone"
+								android:inputType="textPassword"
+								android:maxLines="1" />
+
+						</com.google.android.material.textfield.TextInputLayout>
+
 						<com.google.android.material.button.MaterialButton
-							android:id="@+id/button_google_sign_in"
+							android:id="@+id/button_sign_in"
 							style="@style/Widget.Nyora.Button"
 							android:layout_width="match_parent"
 							android:layout_height="56dp"
 							android:layout_marginTop="@dimen/margin_normal"
-							android:backgroundTint="?attr/colorSurface"
-							android:text="@string/sign_in_with_google"
-							android:textColor="?attr/colorOnSurface"
-							app:cornerRadius="18dp"
-							app:icon="@drawable/ic_google_g"
-							app:iconGravity="textStart"
-							app:iconPadding="12dp"
-							app:iconTint="@null"
-							app:strokeColor="?attr/colorOutlineVariant"
-							app:strokeWidth="1dp" />
+							android:text="@string/sign_in"
+							app:cornerRadius="18dp" />
+
+						<com.google.android.material.button.MaterialButton
+							android:id="@+id/button_register"
+							style="@style/Widget.Nyora.Button.OutlinedButton"
+							android:layout_width="match_parent"
+							android:layout_height="52dp"
+							android:layout_marginTop="@dimen/margin_small"
+							android:text="@string/create_account"
+							app:cornerRadius="18dp" />
 
 						<LinearLayout
 							android:id="@+id/layout_loading"

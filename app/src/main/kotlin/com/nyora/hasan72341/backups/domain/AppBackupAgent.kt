@@ -13,7 +13,6 @@ import com.nyora.hasan72341.core.db.MangaDatabase
 import com.nyora.hasan72341.core.prefs.AppSettings
 import com.nyora.hasan72341.explore.data.MangaSourcesRepository
 import com.nyora.hasan72341.filter.data.SavedFiltersRepository
-import com.nyora.hasan72341.js.NyoraJsSourcesManager
 import com.nyora.hasan72341.reader.data.TapGridSettings
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -22,12 +21,8 @@ import java.io.FileInputStream
 import java.util.EnumSet
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import javax.inject.Inject
-import javax.inject.Provider
 
 class AppBackupAgent : BackupAgent() {
-	@Inject
-	lateinit var nyoraJsSourcesManager: Provider<NyoraJsSourcesManager>
 
 	override fun onBackup(
 		oldState: ParcelFileDescriptor?,
@@ -54,7 +49,6 @@ class AppBackupAgent : BackupAgent() {
 					context = applicationContext,
 					db = MangaDatabase(context = applicationContext),
 					settings = AppSettings(applicationContext),
-					nyoraJsSourcesManager = nyoraJsSourcesManager.get(),
 				),
 				savedFiltersRepository = SavedFiltersRepository(
 					context = applicationContext,
@@ -88,7 +82,6 @@ class AppBackupAgent : BackupAgent() {
 						context = applicationContext,
 						db = MangaDatabase(context = applicationContext),
 						settings = AppSettings(applicationContext),
-						nyoraJsSourcesManager = nyoraJsSourcesManager.get(),
 					),
 					savedFiltersRepository = SavedFiltersRepository(
 						context = applicationContext,
