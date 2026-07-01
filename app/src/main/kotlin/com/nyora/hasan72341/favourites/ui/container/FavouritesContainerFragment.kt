@@ -114,10 +114,16 @@ class FavouritesContainerFragment : BaseFragment<FragmentFavouritesContainerBind
 	}
 
 	private fun onEmptyStateChanged(isEmpty: Boolean) {
+		// The Library always contains the Downloads subsection in addition to any
+		// favourite categories, so the pager is never truly empty. Keep the pager
+		// and tab strip visible so Downloads stays reachable even when there are no
+		// favourite categories; the "manage categories" affordance remains in the
+		// toolbar overflow menu, and each favourite category tab shows its own
+		// per-list empty state.
 		viewBinding?.run {
-			pager.isGone = isEmpty
-			tabs.isGone = isEmpty
-			stubEmpty.isVisible = isEmpty
+			pager.isVisible = true
+			tabs.isVisible = true
+			stubEmpty.isGone = true
 		}
 	}
 
