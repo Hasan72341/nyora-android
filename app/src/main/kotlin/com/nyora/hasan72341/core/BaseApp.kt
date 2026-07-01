@@ -8,16 +8,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.room.InvalidationTracker
 import androidx.work.Configuration
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import com.nyora.hasan72341.js.ParserOtaWorker
 import dagger.hilt.android.HiltAndroidApp
-import java.util.concurrent.TimeUnit
 import com.nyora.hasan72341.BuildConfig
 import com.nyora.hasan72341.core.db.MangaDatabase
 import com.nyora.hasan72341.core.os.AppValidator
@@ -96,33 +87,11 @@ open class BaseApp : Application(), Configuration.Provider {
 			localStorageChanges.collect(localMangaIndexProvider.get())
 		}
 		workScheduleManager.init()
-		setupParserOtaUpdate()
+		// Self-hosted Nyora sync server (OAuth2/JWT — replaces Supabase + Google).
+		// anonKey is unused by this server but kept non-blank so isConfigured stays true.
 		supabaseConfig.configure(
-			url = BuildConfig.SUPABASE_URL.ifBlank { "https://fqguzcoytnbnjwaddakn.supabase.co" },
-			anonKey = BuildConfig.SUPABASE_ANON_KEY.ifBlank { "sb_publishable_RZTcdZZlzb_UhYAxtB09AQ_URTEftE4" }
-		)
-	}
-
-	private fun setupParserOtaUpdate() {
-		val constraints = Constraints.Builder()
-			.setRequiredNetworkType(NetworkType.CONNECTED)
-			.build()
-		val oneTimeRequest = OneTimeWorkRequestBuilder<ParserOtaWorker>()
-			.setConstraints(constraints)
-			.build()
-		val periodicRequest = PeriodicWorkRequestBuilder<ParserOtaWorker>(12, TimeUnit.HOURS)
-			.setConstraints(constraints)
-			.build()
-		val workManager = WorkManager.getInstance(this)
-		workManager.enqueueUniqueWork(
-			"ParserOtaUpdateNow",
-			ExistingWorkPolicy.REPLACE,
-			oneTimeRequest
-		)
-		workManager.enqueueUniquePeriodicWork(
-			"ParserOtaUpdate",
-			ExistingPeriodicWorkPolicy.KEEP,
-			periodicRequest
+			url = "https://stream.hasanraza.tech",
+			anonKey = "self-hosted"
 		)
 	}
 

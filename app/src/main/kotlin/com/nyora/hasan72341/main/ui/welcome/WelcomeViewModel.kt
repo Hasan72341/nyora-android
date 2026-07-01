@@ -7,7 +7,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import com.nyora.hasan72341.core.LocalizedAppContext
+import com.nyora.hasan72341.core.model.contentTypeOrManga
 import com.nyora.hasan72341.core.model.isHentai
+import com.nyora.hasan72341.core.model.localeCode
 import com.nyora.hasan72341.core.prefs.AppSettings
 import com.nyora.hasan72341.core.ui.BaseViewModel
 import com.nyora.hasan72341.core.util.LocaleComparator
@@ -30,7 +32,7 @@ class WelcomeViewModel @Inject constructor(
 ) : BaseViewModel() {
 
 	private val allSources = repository.allMangaSources
-	private val localesGroups by lazy { allSources.groupBy { it.locale.toLocale() } }
+	private val localesGroups by lazy { allSources.groupBy { it.localeCode().toLocale() } }
 
 	private var updateJob: Job
 
@@ -54,7 +56,7 @@ class WelcomeViewModel @Inject constructor(
 
 	init {
 		updateJob = launchJob(Dispatchers.IO) {
-			val contentTypes = allSources.mapSortedByCount { it.contentType }
+			val contentTypes = allSources.mapSortedByCount { it.contentTypeOrManga() }
 			types.value = types.value.copy(
 				availableItems = contentTypes,
 				isLoading = false,
@@ -114,7 +116,7 @@ class WelcomeViewModel @Inject constructor(
 		val languages = locales.value.selectedItems.mapToSet { it.language }
 		val types = types.value.selectedItems
 		val enabledSources = allSources.filterTo(HashSet()) { x ->
-			x.contentType in types && x.locale in languages
+			x.contentTypeOrManga() in types && x.localeCode() in languages
 		}
 		repository.setSourcesEnabledExclusive(enabledSources)
 	}

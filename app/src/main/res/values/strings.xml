@@ -175,6 +175,8 @@
     <string name="reverse">Reverse</string>
     <string name="chapters_grid_view">Grid view</string>
     <string name="sign_in">Sign in</string>
+    <string name="create_account">Create account</string>
+    <string name="enter_email_and_password">Enter your email and password</string>
     <string name="auth_required">Sign in to view this content</string>
     <string name="default_s">Default: %s</string>
     <string name="next">Next</string>
@@ -570,7 +572,7 @@
     <string name="welcome_title">Read like the world can wait.</string>
     <string name="welcome_text">Nyora pulls hundreds of sources into one quiet shelf and remembers exactly where you stopped — on your phone, your tablet, your desk. Sign in to sync and back it up, or just start reading.</string>
     <string name="welcome_account_title">Keep your library in sync</string>
-    <string name="welcome_account_text">Sign in with Google to protect your favorites, history, categories, and settings across Nyora apps.</string>
+    <string name="welcome_account_text">Sign in (or create an account) to protect your favorites, history, categories, and settings across Nyora apps.</string>
     <string name="welcome_account_note">Your data stays tied to your account. You can also continue as a guest and sync later.</string>
     <string name="welcome_sources_title">Pick your reading sources</string>
     <string name="welcome_sources_text">Enable the languages and content types you want. You can change this anytime in Settings.</string>

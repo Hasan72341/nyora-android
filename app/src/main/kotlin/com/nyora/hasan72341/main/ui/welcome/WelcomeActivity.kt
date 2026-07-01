@@ -25,7 +25,6 @@ import com.nyora.hasan72341.core.util.ext.tryLaunch
 import com.nyora.hasan72341.databinding.ActivityWelcomeBinding
 import com.nyora.hasan72341.filter.ui.model.FilterProperty
 import com.nyora.hasan72341.mihon.parsers.model.ContentType
-import com.nyora.hasan72341.sync.supabase.SupabaseGoogleAuthHelper
 import com.nyora.hasan72341.sync.supabase.SupabaseSync
 import com.nyora.hasan72341.sync.supabase.SupabaseSyncWorker
 import kotlinx.coroutines.Dispatchers
@@ -48,12 +47,6 @@ class WelcomeActivity : BaseActivity<ActivityWelcomeBinding>(), ChipsView.OnChip
 		this,
 	)
 
-	private val googleSignInCall = registerForActivityResult(
-		ActivityResultContracts.StartActivityForResult(),
-	) { result ->
-		onGoogleSignInResult(result.data)
-	}
-
 	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
 		val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 		v.updatePadding(top = systemBars.top, bottom = systemBars.bottom)
@@ -67,7 +60,8 @@ class WelcomeActivity : BaseActivity<ActivityWelcomeBinding>(), ChipsView.OnChip
 		viewBinding.chipsLocales.onChipClickListener = this
 		viewBinding.chipsType.onChipClickListener = this
 		viewBinding.buttonBackup.setOnClickListener(this)
-		viewBinding.buttonGoogleSignIn.setOnClickListener(this)
+		viewBinding.buttonSignIn.setOnClickListener(this)
+		viewBinding.buttonRegister.setOnClickListener(this)
 		viewBinding.buttonGuest.setOnClickListener(this)
 		viewBinding.buttonDirectories.setOnClickListener(this)
 		viewBinding.buttonFinishSetup.setOnClickListener(this)
@@ -104,9 +98,9 @@ class WelcomeActivity : BaseActivity<ActivityWelcomeBinding>(), ChipsView.OnChip
 				}
 			}
 
-			R.id.button_google_sign_in -> {
-				googleSignInCall.launch(SupabaseGoogleAuthHelper.createIntent(this))
-			}
+			R.id.button_sign_in -> doAuth(register = false)
+
+			R.id.button_register -> doAuth(register = true)
 
 			R.id.button_guest -> {
 				viewBinding.viewFlipper.displayedChild = 1 // Go to step 2
@@ -123,40 +117,41 @@ class WelcomeActivity : BaseActivity<ActivityWelcomeBinding>(), ChipsView.OnChip
 		}
 	}
 
-	private fun onGoogleSignInResult(data: Intent?) {
-		when (val signInResult = SupabaseGoogleAuthHelper.handleResult(data)) {
-			is SupabaseGoogleAuthHelper.GoogleSignInResult.Success -> {
-				viewBinding.buttonGoogleSignIn.isEnabled = false
-				viewBinding.buttonGuest.isEnabled = false
-				viewBinding.buttonBackup.isEnabled = false
-				viewBinding.layoutLoading.visibility = View.VISIBLE
-				lifecycleScope.launch(Dispatchers.IO) {
-					val ok = supabaseSync.signInWithGoogle(signInResult.idToken)
-					if (ok) {
-						try {
-							supabaseSync.syncNow()
-						} catch (e: Exception) {
-							android.util.Log.e("WelcomeActivity", "Initial sync failed", e)
-						}
-					}
-					withContext(Dispatchers.Main) {
-						viewBinding.buttonGoogleSignIn.isEnabled = true
-						viewBinding.buttonGuest.isEnabled = true
-						viewBinding.buttonBackup.isEnabled = true
-						viewBinding.layoutLoading.visibility = View.GONE
-						if (ok) {
-							SupabaseSyncWorker.schedulePeriodic(this@WelcomeActivity)
-							Snackbar.make(viewBinding.root, R.string.signed_in, Snackbar.LENGTH_SHORT).show()
-							viewBinding.viewFlipper.displayedChild = 1 // Go to step 2
-							viewBinding.headerTitle.setText(R.string.welcome_sources_title)
-						} else {
-							Snackbar.make(viewBinding.root, R.string.sign_in_failed, Snackbar.LENGTH_LONG).show()
-						}
-					}
+	private fun setAuthBusy(busy: Boolean) {
+		viewBinding.buttonSignIn.isEnabled = !busy
+		viewBinding.buttonRegister.isEnabled = !busy
+		viewBinding.buttonGuest.isEnabled = !busy
+		viewBinding.buttonBackup.isEnabled = !busy
+		viewBinding.layoutLoading.visibility = if (busy) View.VISIBLE else View.GONE
+	}
+
+	private fun doAuth(register: Boolean) {
+		val email = viewBinding.editEmail.text?.toString()?.trim().orEmpty()
+		val password = viewBinding.editPassword.text?.toString().orEmpty()
+		if (email.isEmpty() || password.isEmpty()) {
+			Snackbar.make(viewBinding.root, R.string.enter_email_and_password, Snackbar.LENGTH_SHORT).show()
+			return
+		}
+		setAuthBusy(true)
+		lifecycleScope.launch(Dispatchers.IO) {
+			val ok = if (register) supabaseSync.register(email, password) else supabaseSync.signIn(email, password)
+			if (ok) {
+				try {
+					supabaseSync.syncNow()
+				} catch (e: Exception) {
+					android.util.Log.e("WelcomeActivity", "Initial sync failed", e)
 				}
 			}
-			is SupabaseGoogleAuthHelper.GoogleSignInResult.Error -> {
-				Snackbar.make(viewBinding.root, signInResult.message, Snackbar.LENGTH_LONG).show()
+			withContext(Dispatchers.Main) {
+				setAuthBusy(false)
+				if (ok) {
+					SupabaseSyncWorker.schedulePeriodic(this@WelcomeActivity)
+					Snackbar.make(viewBinding.root, R.string.signed_in, Snackbar.LENGTH_SHORT).show()
+					viewBinding.viewFlipper.displayedChild = 1 // Go to step 2
+					viewBinding.headerTitle.setText(R.string.welcome_sources_title)
+				} else {
+					Snackbar.make(viewBinding.root, R.string.sign_in_failed, Snackbar.LENGTH_LONG).show()
+				}
 			}
 		}
 	}

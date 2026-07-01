@@ -14,7 +14,6 @@ import com.nyora.hasan72341.core.parser.external.ExternalMangaSource
 import com.nyora.hasan72341.core.util.ext.getDisplayName
 import com.nyora.hasan72341.core.util.ext.toLocale
 import com.nyora.hasan72341.core.util.ext.toLocaleOrNull
-import com.nyora.hasan72341.js.NyoraJsMangaSource
 import com.nyora.hasan72341.mihon.parsers.model.ContentType
 import com.nyora.hasan72341.mihon.parsers.model.MangaParserSource
 import com.nyora.hasan72341.mihon.parsers.model.MangaSource
@@ -44,16 +43,11 @@ fun MangaSource(name: String?): MangaSource {
 		val parts = name.substringAfter(':').splitTwoParts('/') ?: return UnknownMangaSource
 		return ExternalMangaSource(packageName = parts.first, authority = parts.second)
 	}
-	if (name.startsWith("JS_")) {
-		return AnonymousMangaSource(name)
-	}
 	MangaParserSource.entries.forEach {
 		if (it.name == name) return it
 	}
 	return UnknownMangaSource
 }
-
-private data class AnonymousMangaSource(override val name: String) : MangaSource
 
 fun Collection<String>.toMangaSources() = map(::MangaSource)
 
@@ -64,7 +58,6 @@ fun ContentType.isHentai(): Boolean = this == ContentType.HENTAI_MANGA ||
 fun MangaSource.isNsfw(): Boolean = when (val source = unwrap()) {
 	is MangaSourceInfo -> source.mangaSource.isNsfw()
 	is MangaParserSource -> source.contentType.toNyoraContentType().isHentai()
-	is NyoraJsMangaSource -> source.contentType.isHentai()
 	is com.nyora.hasan72341.mihon.parsers.model.ContentSource -> source.contentType.isHentai()
 	else -> false
 }
@@ -107,6 +100,22 @@ fun MangaSource.getContentTypeOrNull(): ContentType? = when (val source = unwrap
 	else -> null
 }
 
+fun MangaSource.contentTypeOrManga(): ContentType = getContentTypeOrNull() ?: ContentType.MANGA
+
+// Raw locale code (e.g. "en"; "" for multi-language sources). Works for both native
+// MangaParserSource and JS/ContentSource sources, which don't share it on the base interface.
+fun MangaSource.localeCode(): String = when (val source = unwrap()) {
+	is MangaParserSource -> source.locale
+	is com.nyora.hasan72341.mihon.parsers.model.ContentSource -> source.locale
+	else -> ""
+}
+
+// Context-free source title for search/grouping (display title goes through getTitle(context)).
+fun MangaSource.titleOrName(): String = when (val source = unwrap()) {
+	is MangaParserSource -> source.title
+	else -> name
+}
+
 fun MangaSource.getSummary(context: Context): String? = when (val source = unwrap()) {
 	is MangaParserSource -> {
 		val type = context.getString(source.contentType.toNyoraContentType().titleResId)
@@ -116,7 +125,6 @@ fun MangaSource.getSummary(context: Context): String? = when (val source = unwra
 
 	is ExternalMangaSource -> context.getString(R.string.external_source)
 
-	is NyoraJsMangaSource,
 	is com.nyora.hasan72341.mihon.parsers.model.ContentSource -> {
 		val contentType = source.contentType
 		val type = context.getString(contentType.titleResId)
@@ -132,11 +140,7 @@ fun MangaSource.getTitle(context: Context): String = when (val source = unwrap()
 	LocalMangaSource -> context.getString(R.string.local_storage)
 	TestMangaSource -> context.getString(R.string.test_parser)
 	is ExternalMangaSource -> source.resolveName(context)
-	is NyoraJsMangaSource -> source.title
-	else -> when {
-		source.name.startsWith("JS_") -> source.name.removePrefix("JS_").replace('_', ' ')
-		else -> context.getString(R.string.unknown)
-	}
+	else -> context.getString(R.string.unknown)
 }
 
 fun MangaSourceRef.toMangaSource(): MangaSource = MangaSource(name)

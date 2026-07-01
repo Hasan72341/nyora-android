@@ -13,7 +13,6 @@ import com.nyora.hasan72341.core.db.MangaDatabase
 import com.nyora.hasan72341.core.ui.BasePreferenceFragment
 import com.nyora.hasan72341.sync.supabase.SupabaseSync
 import com.nyora.hasan72341.sync.supabase.SupabaseConfig
-import com.nyora.hasan72341.sync.supabase.SupabaseGoogleAuthHelper
 import com.nyora.hasan72341.sync.supabase.SupabaseSyncWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,15 +36,8 @@ class SyncSettingsFragment : BasePreferenceFragment(R.string.sync_settings) {
 	@Inject
 	lateinit var database: MangaDatabase
 
-	private var googleSignInLauncher: androidx.activity.result.ActivityResultLauncher<Intent>? = null
-
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 		addPreferencesFromResource(R.xml.pref_sync)
-	}
-
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		super.onViewCreated(view, savedInstanceState)
-		registerGoogleSignInLauncher()
 	}
 
 	override fun onStart() {
@@ -53,28 +45,54 @@ class SyncSettingsFragment : BasePreferenceFragment(R.string.sync_settings) {
 		refreshState()
 	}
 
-	private fun registerGoogleSignInLauncher() {
-		googleSignInLauncher = registerForActivityResult(
-			androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
-		) { result ->
-			when (val signInResult = SupabaseGoogleAuthHelper.handleResult(result.data)) {
-				is SupabaseGoogleAuthHelper.GoogleSignInResult.Success -> {
-					lifecycleScope.launch(Dispatchers.IO) {
-						val ok = supabaseSync.signInWithGoogle(signInResult.idToken)
-						withContext(Dispatchers.Main) {
-							if (ok) {
-								Snackbar.make(view!!, "Signed in", Snackbar.LENGTH_SHORT).show()
-								SupabaseSyncWorker.schedulePeriodic(requireContext())
-								checkFirstLoginMerge()
-								refreshState()
-							} else {
-								Snackbar.make(view!!, "Sign-in failed", Snackbar.LENGTH_LONG).show()
-							}
-						}
-					}
-				}
-				is SupabaseGoogleAuthHelper.GoogleSignInResult.Error -> {
-					view?.let { Snackbar.make(it, signInResult.message, Snackbar.LENGTH_LONG).show() }
+	/** Email/password sign-in (or registration) dialog against the self-hosted server. */
+	private fun promptSignIn() {
+		val ctx = requireContext()
+		val pad = (16 * resources.displayMetrics.density).toInt()
+		val emailInput = android.widget.EditText(ctx).apply {
+			hint = getString(R.string.email)
+			inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+		}
+		val passwordInput = android.widget.EditText(ctx).apply {
+			hint = getString(R.string.password)
+			inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+		}
+		val container = android.widget.LinearLayout(ctx).apply {
+			orientation = android.widget.LinearLayout.VERTICAL
+			setPadding(pad, pad / 2, pad, 0)
+			addView(emailInput)
+			addView(passwordInput)
+		}
+		com.google.android.material.dialog.MaterialAlertDialogBuilder(ctx)
+			.setTitle(R.string.sign_in)
+			.setView(container)
+			.setPositiveButton(R.string.sign_in) { _, _ ->
+				doAuth(emailInput.text.toString(), passwordInput.text.toString(), register = false)
+			}
+			.setNeutralButton(R.string.create_account) { _, _ ->
+				doAuth(emailInput.text.toString(), passwordInput.text.toString(), register = true)
+			}
+			.setNegativeButton(android.R.string.cancel, null)
+			.show()
+	}
+
+	private fun doAuth(email: String, password: String, register: Boolean) {
+		val e = email.trim()
+		if (e.isEmpty() || password.isEmpty()) {
+			view?.let { Snackbar.make(it, R.string.enter_email_and_password, Snackbar.LENGTH_SHORT).show() }
+			return
+		}
+		lifecycleScope.launch(Dispatchers.IO) {
+			val ok = if (register) supabaseSync.register(e, password) else supabaseSync.signIn(e, password)
+			withContext(Dispatchers.Main) {
+				val v = view ?: return@withContext
+				if (ok) {
+					Snackbar.make(v, R.string.signed_in, Snackbar.LENGTH_SHORT).show()
+					SupabaseSyncWorker.schedulePeriodic(requireContext())
+					checkFirstLoginMerge()
+					refreshState()
+				} else {
+					Snackbar.make(v, R.string.sign_in_failed, Snackbar.LENGTH_LONG).show()
 				}
 			}
 		}
@@ -219,8 +237,7 @@ class SyncSettingsFragment : BasePreferenceFragment(R.string.sync_settings) {
 				true
 			}
 			"supabase_sign_in_google" -> {
-				val intent = SupabaseGoogleAuthHelper.createIntent(requireContext())
-				googleSignInLauncher?.launch(intent)
+				promptSignIn()
 				true
 			}
 			"supabase_continue_guest" -> {

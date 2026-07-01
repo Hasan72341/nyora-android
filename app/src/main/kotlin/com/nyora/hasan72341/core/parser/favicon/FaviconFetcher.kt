@@ -33,7 +33,6 @@ import com.nyora.hasan72341.core.util.ext.toMimeTypeOrNull
 import com.nyora.hasan72341.local.data.FaviconCache
 import com.nyora.hasan72341.local.data.LocalMangaRepository
 import com.nyora.hasan72341.local.data.LocalStorageCache
-import com.nyora.hasan72341.js.NyoraJsMangaRepository
 import com.nyora.hasan72341.mihon.MihonMangaRepository
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -68,7 +67,6 @@ class FaviconFetcher(
 
 			is LocalMangaRepository -> imageLoader.fetch(R.drawable.ic_storage, options)
 			is MihonMangaRepository -> fetchMihonIcon(repo)
-			is NyoraJsMangaRepository -> fetchJsFavicon(repo)
 
 			else -> throw IllegalArgumentException("Unsupported repo ${repo.javaClass.simpleName}")
 		}
@@ -111,56 +109,6 @@ class FaviconFetcher(
 			} catch (e: IOException) {
 				lastError = e
 				favicons -= icon
-			}
-		}
-		throwNSEE(lastError)
-	}
-
-	private suspend fun fetchJsFavicon(repository: NyoraJsMangaRepository): FetchResult {
-		val sizePx = maxOf(
-			options.size.width.pxOrElse { FALLBACK_SIZE },
-			options.size.height.pxOrElse { FALLBACK_SIZE },
-			256,
-		)
-		val cacheKey = options.diskCacheKey ?: "${repository.source.name}_$sizePx"
-		if (options.diskCachePolicy.readEnabled) {
-			localStorageCache[cacheKey]?.let { file ->
-				return SourceFetchResult(
-					source = ImageSource(file.toOkioPath(), FileSystem.SYSTEM),
-					mimeType = MimeTypes.probeMimeType(file)?.toString(),
-					dataSource = DataSource.DISK,
-				)
-			}
-		}
-		val domain = repository.source.domain
-			.trim()
-			.removePrefix("https://")
-			.removePrefix("http://")
-			.trimEnd('/')
-		val candidates = if (domain.isEmpty()) {
-			emptyList()
-		} else {
-			// Google's favicon service resolves through Cloudflare-protected hosts that block a
-			// direct /favicon.ico request; fall back to the site icon if it is unavailable.
-			listOf(
-				"https://www.google.com/s2/favicons?sz=$sizePx&domain=$domain",
-				"https://$domain/favicon.ico",
-			)
-		}
-		var lastError: Exception? = null
-		for (url in candidates) {
-			currentCoroutineContext().ensureActive()
-			try {
-				val result = imageLoader.fetch(url, options)
-				if (result != null) {
-					return if (options.diskCachePolicy.writeEnabled) {
-						writeToCache(cacheKey, result)
-					} else {
-						result
-					}
-				}
-			} catch (e: IOException) {
-				lastError = e
 			}
 		}
 		throwNSEE(lastError)

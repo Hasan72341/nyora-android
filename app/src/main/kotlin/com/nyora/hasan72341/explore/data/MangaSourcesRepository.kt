@@ -15,7 +15,6 @@ import com.nyora.hasan72341.core.prefs.AppSettings
 import com.nyora.hasan72341.core.prefs.observeAsFlow
 import com.nyora.hasan72341.core.ui.util.ReversibleHandle
 import com.nyora.hasan72341.core.util.ext.flattenLatest
-import com.nyora.hasan72341.js.NyoraJsMangaSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -23,6 +22,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import com.nyora.hasan72341.mihon.parsers.model.ContentType
+import com.nyora.hasan72341.mihon.parsers.model.MangaParserSource
 import com.nyora.hasan72341.mihon.parsers.model.MangaSource
 import com.nyora.hasan72341.mihon.parsers.network.CloudFlareHelper
 import com.nyora.hasan72341.mihon.parsers.util.mapToSet
@@ -36,17 +36,16 @@ class MangaSourcesRepository @Inject constructor(
     @LocalizedAppContext private val context: Context,
     private val db: MangaDatabase,
     private val settings: AppSettings,
-    private val nyoraJsSourcesManager: com.nyora.hasan72341.js.NyoraJsSourcesManager,
 ) {
 
 	private val isNewSourcesAssimilated = AtomicBoolean(false)
 	private val dao: MangaSourcesDao
 		get() = db.getSourcesDao()
 
-	// JS parsers are the only first-class source family in the app. Native Nyora/Mihon
-	// sources are intentionally not surfaced through the app source catalog.
-	val allMangaSources: Set<NyoraJsMangaSource>
-		get() = nyoraJsSourcesManager.getJsMangaSources().toSet()
+	// Source catalog = the native kotatsu-parsers-redo sources
+	// (the full MangaParserSource enum, minus entries flagged broken).
+	val allMangaSources: Set<MangaSource>
+		get() = MangaParserSource.entries.filterNotTo(HashSet()) { it.isBroken }
 
 	suspend fun getEnabledSources(): List<MangaSource> {
 		assimilateNewSources()
@@ -106,7 +105,7 @@ class MangaSourcesRepository @Inject constructor(
 		}
 
 		if (locale != null) {
-			sources.retainAll { it is NyoraJsMangaSource && it.locale == locale }
+			sources.retainAll { it is MangaParserSource && it.locale == locale }
 		}
 		if (types.isNotEmpty()) {
 			sources.retainAll { it.getContentTypeOrNull() in types }
@@ -281,7 +280,7 @@ class MangaSourcesRepository @Inject constructor(
 	private suspend fun getNewSources(): MutableSet<out MangaSource> {
 		val entities = dao.findAll()
 		val result = HashSet<MangaSource>()
-		result.addAll(nyoraJsSourcesManager.getJsMangaSources())
+		result.addAll(MangaParserSource.entries.filterNot { it.isBroken })
 		for (e in entities) {
 			result.remove(e.source.toMangaSourceOrNull() ?: continue)
 		}
@@ -311,7 +310,7 @@ class MangaSourcesRepository @Inject constructor(
 			if (skipNsfwSources && source.isNsfw()) {
 				continue
 			}
-			if (source.name.startsWith("JS_")) {
+			if (source is MangaParserSource) {
 				result.add(
 					MangaSourceInfo(
 						mangaSource = source,
@@ -340,13 +339,11 @@ class MangaSourcesRepository @Inject constructor(
 	}
 
 	private fun String.toMangaSourceOrNull(): MangaSource? {
-		if (startsWith("JS_")) {
-			return nyoraJsSourcesManager.getByName(this)
-		}
 		if (startsWith("content:")) {
 			return com.nyora.hasan72341.core.model.MangaSource(this)
 		}
-		return null
+		// native kotatsu-parsers-redo sources are keyed by their enum name
+		return MangaParserSource.entries.firstOrNull { it.name == this }
 	}
 }
 

@@ -5,7 +5,6 @@ import com.nyora.hasan72341.core.model.MangaSource
 import com.nyora.hasan72341.core.parser.MangaLoaderContextImpl
 import com.nyora.hasan72341.core.parser.MangaRepository
 import com.nyora.hasan72341.core.parser.ParserMangaRepository
-import com.nyora.hasan72341.js.NyoraJsMangaRepository
 import com.nyora.hasan72341.core.util.ext.printStackTraceDebug
 import okhttp3.Headers
 import okhttp3.Interceptor
@@ -44,10 +43,9 @@ class CommonHeadersInterceptor @Inject constructor(
 			headersBuilder[CommonHeaders.USER_AGENT] = mangaLoaderContextLazy.get().getDefaultUserAgent()
 		}
 		if (headersBuilder[CommonHeaders.REFERER] == null) {
-			// Derive a Referer from the source domain — native parser sources expose it directly,
-			// JS sources via their NyoraJsMangaSource. Manganato et al. gate cover/page images on it.
+			// Derive a Referer from the native parser source domain. Manganato et al. gate
+			// cover/page images on it.
 			val domain = parserRepository?.domain
-				?: (repository as? NyoraJsMangaRepository)?.source?.domain?.takeUnless { it.isBlank() }
 			if (domain != null) {
 				headersBuilder.trySet(CommonHeaders.REFERER, "https://${IDN.toASCII(domain)}/")
 			}

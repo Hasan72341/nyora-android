@@ -13,6 +13,7 @@ import com.nyora.hasan72341.core.ui.util.ReversibleAction
 import com.nyora.hasan72341.core.util.ext.MutableEventFlow
 import com.nyora.hasan72341.core.util.ext.call
 import com.nyora.hasan72341.core.model.getContentTypeOrNull
+import com.nyora.hasan72341.core.model.localeCode
 import com.nyora.hasan72341.explore.data.MangaSourcesRepository
 import com.nyora.hasan72341.explore.data.SourcesSortOrder
 import com.nyora.hasan72341.list.ui.model.ListModel
@@ -39,7 +40,7 @@ class SourcesCatalogViewModel @Inject constructor(
 
 	val onActionDone = MutableEventFlow<ReversibleAction>()
 	val locales: Set<String?> = buildSet {
-		repository.allMangaSources.forEach { add(it.locale) }
+		repository.allMangaSources.forEach { add(it.localeCode().takeIf(String::isNotEmpty)) }
 		add(null)
 	}
 

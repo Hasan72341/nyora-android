@@ -10,7 +10,6 @@ import com.nyora.hasan72341.core.parser.MangaDataRepository
 import com.nyora.hasan72341.core.parser.MangaRepository
 import com.nyora.hasan72341.core.parser.ParserMangaRepository
 import com.nyora.hasan72341.core.prefs.AppSettings
-import com.nyora.hasan72341.js.NyoraJsMangaRepository
 import com.nyora.hasan72341.core.prefs.ListMode
 import com.nyora.hasan72341.core.util.ext.MutableEventFlow
 import com.nyora.hasan72341.core.util.ext.call
@@ -76,7 +75,6 @@ open class RemoteListViewModel @Inject constructor(
 	fun getSourceUrl(): String? {
 		val domain = when (val repo = repository) {
 			is ParserMangaRepository -> repo.domain
-			is NyoraJsMangaRepository -> repo.source.domain.takeUnless { it.isBlank() }
 			else -> null
 		}
 		return domain?.let { "https://$it/" }
