@@ -66,6 +66,9 @@ open class BaseApp : Application(), Configuration.Provider {
 	@Inject
 	lateinit var supabaseConfig: SupabaseConfig
 
+	@Inject
+	lateinit var remoteSourceGate: RemoteSourceGate
+
 	override val workManagerConfiguration: Configuration
 		get() = Configuration.Builder()
 			.setWorkerFactory(workerFactory)
@@ -93,6 +96,11 @@ open class BaseApp : Application(), Configuration.Provider {
 			url = "https://stream.hasanraza.tech",
 			anonKey = "self-hosted"
 		)
+		// Remote master switch: fetch + verify the signed config and unlock/lock
+		// sources accordingly (ships locked for Store review; enabled remotely).
+		processLifecycleScope.launch(Dispatchers.IO) {
+			remoteSourceGate.refresh()
+		}
 	}
 
 	override fun attachBaseContext(base: Context) {

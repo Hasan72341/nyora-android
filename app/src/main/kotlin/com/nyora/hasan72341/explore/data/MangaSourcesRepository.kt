@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import com.nyora.hasan72341.mihon.parsers.model.ContentType
@@ -48,12 +49,14 @@ class MangaSourcesRepository @Inject constructor(
 		get() = MangaParserSource.entries.filterNotTo(HashSet()) { it.isBroken }
 
 	suspend fun getEnabledSources(): List<MangaSource> {
+		if (!settings.isSourcesUnlocked) return emptyList()
 		assimilateNewSources()
 		val order = settings.sourcesSortOrder
 		return dao.findAll(!settings.isAllSourcesEnabled, order).toSources(settings.isNsfwContentDisabled, order)
 	}
 
 	suspend fun getPinnedSources(): Set<MangaSource> {
+		if (!settings.isSourcesUnlocked) return emptySet()
 		assimilateNewSources()
 		val skipNsfw = settings.isNsfwContentDisabled
 		return dao.findAllPinned()
@@ -62,6 +65,7 @@ class MangaSourcesRepository @Inject constructor(
 	}
 
 	suspend fun getTopSources(limit: Int): List<MangaSource> {
+		if (!settings.isSourcesUnlocked) return emptyList()
 		assimilateNewSources()
 		return dao.findLastUsed(limit).toSources(settings.isNsfwContentDisabled, null)
 	}
@@ -89,6 +93,7 @@ class MangaSourcesRepository @Inject constructor(
 		locale: String?,
 		sortOrder: SourcesSortOrder?,
 	): List<MangaSource> {
+		if (!settings.isSourcesUnlocked) return emptyList()
 		assimilateNewSources()
 		val entities = dao.findAll().toMutableList()
 		if (isDisabledOnly && !settings.isAllSourcesEnabled) {
@@ -124,12 +129,13 @@ class MangaSourcesRepository @Inject constructor(
 
 	fun observeEnabledSourcesCount(): Flow<Int> {
 		return combine(
+			observeSourcesUnlocked(),
 			observeIsNsfwDisabled(),
 			observeAllEnabled().flatMapLatest { isAllSourcesEnabled ->
 				dao.observeAll(!isAllSourcesEnabled, SourcesSortOrder.MANUAL)
 			},
-		) { skipNsfw, sources ->
-			sources.count {
+		) { unlocked, skipNsfw, sources ->
+			if (!unlocked) 0 else sources.count {
 				it.source.toMangaSourceOrNull()?.let { s -> !skipNsfw || !s.isNsfw() } == true
 			}
 		}.distinctUntilChanged().onStart { assimilateNewSources() }
@@ -153,10 +159,16 @@ class MangaSourcesRepository @Inject constructor(
 		observeIsNsfwDisabled(),
 		observeAllEnabled(),
 		observeSortOrder(),
-	) { skipNsfw, allEnabled, order ->
-		dao.observeAll(!allEnabled, order).map {
-			it.toSources(skipNsfw, order)
+		observeSourcesUnlocked(),
+	) { skipNsfw, allEnabled, order, unlocked ->
+		val sourcesFlow: Flow<List<MangaSourceInfo>> = if (!unlocked) {
+			flowOf(emptyList())
+		} else {
+			dao.observeAll(!allEnabled, order).map {
+				it.toSources(skipNsfw, order)
+			}
 		}
+		sourcesFlow
 	}.flattenLatest()
 		.onStart { assimilateNewSources() }
 
@@ -336,6 +348,12 @@ class MangaSourcesRepository @Inject constructor(
 
 	private fun observeAllEnabled() = settings.observeAsFlow(AppSettings.KEY_SOURCES_ENABLED_ALL) {
 		isAllSourcesEnabled
+	}
+
+	// Remote master switch — when locked, the app exposes NO sources (see the
+	// gated methods above). Flipped by a signed remote config on launch.
+	private fun observeSourcesUnlocked() = settings.observeAsFlow(AppSettings.KEY_SOURCES_UNLOCKED) {
+		isSourcesUnlocked
 	}
 
 	private fun String.toMangaSourceOrNull(): MangaSource? {
