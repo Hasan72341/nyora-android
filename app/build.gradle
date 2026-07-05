@@ -53,7 +53,7 @@ android {
 		minSdk = 23
 		targetSdk = 36
 		versionCode project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : 10000
-        versionName project.hasProperty('versionName') ? project.property('versionName') : '1.0'
+        versionName project.hasProperty('versionName') ? project.property('versionName') : '2.0'
         generatedDensities = []
 		testInstrumentationRunner 'com.nyora.android.HiltTestRunner'
 		buildConfigField "String", "SUPABASE_URL", "\"${supabaseEnv('SUPABASE_URL')}\""
