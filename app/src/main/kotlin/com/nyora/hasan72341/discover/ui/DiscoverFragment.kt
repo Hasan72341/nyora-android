@@ -83,14 +83,14 @@ class DiscoverFragment :
 			DiscoverViewModel.RAIL_CONTINUE_READING -> router.openHistory()
 			DiscoverViewModel.RAIL_UPDATES -> router.openMangaUpdates()
 			DiscoverViewModel.RAIL_TRENDING,
-			DiscoverViewModel.RAIL_ALL_TIME_POPULAR,
 			DiscoverViewModel.RAIL_TOP_RATED,
-			DiscoverViewModel.RAIL_SEASONAL,
-			DiscoverViewModel.RAIL_NEW_RELEASES,
+			DiscoverViewModel.RAIL_MANHWA,
 			-> router.openSearch(item.getText(requireContext())?.toString().orEmpty())
 
 			DiscoverViewModel.RAIL_GENRE_ACTION -> router.openSearch(getString(R.string.genre_action))
 			DiscoverViewModel.RAIL_GENRE_ROMANCE -> router.openSearch(getString(R.string.genre_romance))
+			DiscoverViewModel.RAIL_GENRE_FANTASY -> router.openSearch(getString(R.string.genre_fantasy))
+			DiscoverViewModel.RAIL_GENRE_COMEDY -> router.openSearch(getString(R.string.genre_comedy))
 			DiscoverViewModel.RAIL_POPULAR_SOURCE -> viewModel.lastPopularSource
 				?.let { router.openList(it, MangaListFilter.EMPTY, SortOrder.POPULARITY) }
 				?: router.openSearch(item.getText(requireContext())?.toString().orEmpty())

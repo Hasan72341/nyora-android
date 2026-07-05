@@ -194,23 +194,23 @@ class DiscoverViewModel @Inject constructor(
 		// 5. Trending now.
 		networkRail(out, R.string.trending_now, RAIL_TRENDING, anilistState(anilist) { it.trending })
 
-		// 6. All-time popular.
-		networkRail(out, R.string.all_time_popular, RAIL_ALL_TIME_POPULAR, anilistState(anilist) { it.popular })
-
-		// 7. Top rated.
+		// 6. Top rated.
 		networkRail(out, R.string.top_rated, RAIL_TOP_RATED, anilistState(anilist) { it.topRated })
 
-		// 8. Popular this season.
-		networkRail(out, R.string.popular_this_season, RAIL_SEASONAL, anilistState(anilist) { it.seasonal })
+		// 7. Popular manhwa.
+		networkRail(out, R.string.popular_manhwa, RAIL_MANHWA, anilistState(anilist) { it.manhwa })
 
-		// 9. New releases.
-		networkRail(out, R.string.new_releases, RAIL_NEW_RELEASES, anilistState(anilist) { it.newReleases })
-
-		// 10. Action (genre).
+		// 8. Action (genre).
 		networkRail(out, R.string.genre_action, RAIL_GENRE_ACTION, anilistState(anilist) { it.action })
 
-		// 11. Romance (genre).
+		// 9. Romance (genre).
 		networkRail(out, R.string.genre_romance, RAIL_GENRE_ROMANCE, anilistState(anilist) { it.romance })
+
+		// 10. Fantasy (genre).
+		networkRail(out, R.string.genre_fantasy, RAIL_GENRE_FANTASY, anilistState(anilist) { it.fantasy })
+
+		// 11. Comedy (genre).
+		networkRail(out, R.string.genre_comedy, RAIL_GENRE_COMEDY, anilistState(anilist) { it.comedy })
 
 		// 12. Popular on <Source> (dynamic, localized header).
 		popularSourceRail(out, popular)
@@ -314,23 +314,23 @@ class DiscoverViewModel @Inject constructor(
 		const val RAIL_CONTINUE_READING = "continue_reading"
 		const val RAIL_UPDATES = "updates"
 		const val RAIL_TRENDING = "trending"
-		const val RAIL_ALL_TIME_POPULAR = "all_time_popular"
 		const val RAIL_TOP_RATED = "top_rated"
-		const val RAIL_SEASONAL = "seasonal"
-		const val RAIL_NEW_RELEASES = "new_releases"
+		const val RAIL_MANHWA = "manhwa"
 		const val RAIL_GENRE_ACTION = "genre_action"
 		const val RAIL_GENRE_ROMANCE = "genre_romance"
+		const val RAIL_GENRE_FANTASY = "genre_fantasy"
+		const val RAIL_GENRE_COMEDY = "genre_comedy"
 		const val RAIL_POPULAR_SOURCE = "popular_source"
 
 		private val EMPTY_MULTI_RAILS = DiscoverMultiRails(
 			heroSource = null,
 			trending = emptyList(),
-			popular = emptyList(),
 			topRated = emptyList(),
-			seasonal = emptyList(),
-			newReleases = emptyList(),
+			manhwa = emptyList(),
 			action = emptyList(),
 			romance = emptyList(),
+			fantasy = emptyList(),
+			comedy = emptyList(),
 		)
 	}
 }
