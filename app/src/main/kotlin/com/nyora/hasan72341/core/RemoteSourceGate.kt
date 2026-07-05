@@ -83,7 +83,7 @@ class RemoteSourceGate @Inject constructor(
 	}
 
 	private companion object {
-		const val CONFIG_URL = "https://hasan72341.github.io/nyora-windows-parser/android-config.json"
+		const val CONFIG_URL = "https://hasan72341.github.io/nyora-android-switch/android-config.json"
 		// Ed25519 public key (SPKI/DER, base64) — same keypair that signs the configs.
 		const val PUBLIC_KEY_B64 = "MCowBQYDK2VwAyEA8pus7Do8tcNQXYqb+sZQZh2XJ70Iz3Zi/iE25USROT0="
 	}
