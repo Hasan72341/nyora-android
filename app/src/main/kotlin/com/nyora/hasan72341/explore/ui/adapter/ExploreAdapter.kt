@@ -2,6 +2,7 @@ package com.nyora.hasan72341.explore.ui.adapter
 
 import com.nyora.hasan72341.core.ui.BaseListAdapter
 import com.nyora.hasan72341.core.ui.list.OnListItemClickListener
+import com.nyora.hasan72341.explore.ui.model.DemoBookItem
 import com.nyora.hasan72341.explore.ui.model.MangaSourceItem
 import com.nyora.hasan72341.list.ui.adapter.ListItemType
 import com.nyora.hasan72341.list.ui.adapter.emptyHintAD
@@ -14,6 +15,7 @@ class ExploreAdapter(
 	listener: ExploreListEventListener,
 	clickListener: OnListItemClickListener<MangaSourceItem>,
 	mangaClickListener: OnListItemClickListener<Manga>,
+	demoClickListener: OnListItemClickListener<DemoBookItem>,
 ) : BaseListAdapter<ListModel>() {
 
 	init {
@@ -22,6 +24,7 @@ class ExploreAdapter(
 			ListItemType.EXPLORE_SUGGESTION,
 			exploreRecommendationItemAD(mangaClickListener),
 		)
+		addDelegate(ListItemType.EXPLORE_DEMO, exploreDemoItemAD(demoClickListener))
 		addDelegate(ListItemType.HEADER, listHeaderAD(listener))
 		addDelegate(ListItemType.EXPLORE_SOURCE_LIST, exploreSourceListItemAD(clickListener))
 		addDelegate(ListItemType.EXPLORE_SOURCE_GRID, exploreSourceGridItemAD(clickListener))

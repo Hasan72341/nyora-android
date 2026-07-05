@@ -1,5 +1,7 @@
 package com.nyora.hasan72341.explore.ui.adapter
 
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.text.bold
@@ -17,10 +19,12 @@ import com.nyora.hasan72341.core.util.ext.setProgressIcon
 import com.nyora.hasan72341.core.util.ext.setTooltipCompat
 import com.nyora.hasan72341.core.util.ext.textAndVisible
 import com.nyora.hasan72341.databinding.ItemExploreButtonsBinding
+import com.nyora.hasan72341.databinding.ItemExploreDemoBinding
 import com.nyora.hasan72341.databinding.ItemExploreSourceGridBinding
 import com.nyora.hasan72341.databinding.ItemExploreSourceListBinding
 import com.nyora.hasan72341.databinding.ItemRecommendationBinding
 import com.nyora.hasan72341.databinding.ItemRecommendationMangaBinding
+import com.nyora.hasan72341.explore.ui.model.DemoBookItem
 import com.nyora.hasan72341.explore.ui.model.ExploreButtons
 import com.nyora.hasan72341.explore.ui.model.MangaSourceItem
 import com.nyora.hasan72341.explore.ui.model.RecommendationsItem
@@ -141,5 +145,32 @@ fun exploreSourceGridItemAD(
 		binding.textViewTitle.text = title
 		binding.textViewTitle.drawableStart = if (item.source.isPinned) iconPinned else null
 		binding.imageViewIcon.setImageAsync(item.source)
+	}
+}
+
+fun exploreDemoItemAD(
+	listener: OnListItemClickListener<DemoBookItem>,
+) = adapterDelegateViewBinding<DemoBookItem, ListModel, ItemExploreDemoBinding>(
+	{ layoutInflater, parent -> ItemExploreDemoBinding.inflate(layoutInflater, parent, false) },
+) {
+
+	AdapterDelegateClickListenerAdapter(this, listener).attach(itemView)
+
+	bind {
+		binding.textViewTitle.text = item.title
+		binding.textViewSubtitle.text = item.subtitle
+		binding.textViewGlyph.text = item.glyph
+		val accent = item.accentColor
+		val darker = Color.rgb(
+			(Color.red(accent) * 0.6f).toInt(),
+			(Color.green(accent) * 0.6f).toInt(),
+			(Color.blue(accent) * 0.6f).toInt(),
+		)
+		binding.textViewGlyph.background = GradientDrawable(
+			GradientDrawable.Orientation.TL_BR,
+			intArrayOf(accent, darker),
+		).apply {
+			cornerRadius = context.resources.displayMetrics.density * 12f
+		}
 	}
 }

@@ -25,6 +25,7 @@ import com.nyora.hasan72341.core.util.ext.call
 import com.nyora.hasan72341.core.util.ext.combine
 import com.nyora.hasan72341.explore.data.MangaSourcesRepository
 import com.nyora.hasan72341.explore.domain.ExploreRepository
+import com.nyora.hasan72341.explore.ui.model.DemoBookItem
 import com.nyora.hasan72341.explore.ui.model.ExploreButtons
 import com.nyora.hasan72341.explore.ui.model.MangaSourceItem
 import com.nyora.hasan72341.explore.ui.model.RecommendationsItem
@@ -63,6 +64,11 @@ class ExploreViewModel @Inject constructor(
 	private val isSuggestionsEnabled = settings.observeAsFlow(
 		key = AppSettings.KEY_SUGGESTIONS,
 		valueProducer = { isSuggestionsEnabled },
+	)
+
+	private val isSourcesUnlocked = settings.observeAsFlow(
+		key = AppSettings.KEY_SOURCES_UNLOCKED,
+		valueProducer = { isSourcesUnlocked },
 	)
 
 	val onOpenManga = MutableEventFlow<Manga>()
@@ -134,8 +140,9 @@ class ExploreViewModel @Inject constructor(
 		isRandomLoading,
 		isAllSourcesEnabled,
 		sourcesRepository.observeHasNewSourcesForBadge(),
-	) { content, suggestions, grid, randomLoading, allSourcesEnabled, newSources ->
-		buildList(content, suggestions, grid, randomLoading, allSourcesEnabled, newSources)
+		isSourcesUnlocked,
+	) { content, suggestions, grid, randomLoading, allSourcesEnabled, newSources, unlocked ->
+		buildList(content, suggestions, grid, randomLoading, allSourcesEnabled, newSources, locked = !unlocked)
 	}.withErrorHandling()
 
 	private fun buildList(
@@ -145,6 +152,7 @@ class ExploreViewModel @Inject constructor(
 		randomLoading: Boolean,
 		allSourcesEnabled: Boolean,
 		hasNewSources: Boolean,
+		locked: Boolean,
 	): List<ListModel> {
 		val result = ArrayList<ListModel>(sources.size + 3)
 		result += ExploreButtons(randomLoading)
@@ -159,6 +167,31 @@ class ExploreViewModel @Inject constructor(
 				badge = if (!allSourcesEnabled && hasNewSources) "" else null,
 			)
 			sources.mapTo(result) { MangaSourceItem(it, isGrid) }
+		} else if (locked) {
+			result += ListHeader(
+				text = "Featured",
+			)
+			result += DemoBookItem(
+				index = 0,
+				title = "Welcome to Nyora",
+				subtitle = "A quick tour",
+				glyph = "破",
+				accentColor = 0xFF6A5ACD.toInt(),
+			)
+			result += DemoBookItem(
+				index = 1,
+				title = "Reader Features",
+				subtitle = "Guide",
+				glyph = "読",
+				accentColor = 0xFF2E8B8B.toInt(),
+			)
+			result += DemoBookItem(
+				index = 2,
+				title = "Add Your Sources",
+				subtitle = "Guide",
+				glyph = "源",
+				accentColor = 0xFFB05A7A.toInt(),
+			)
 		} else {
 			result += EmptyHint(
 				icon = R.drawable.ic_empty_common,
