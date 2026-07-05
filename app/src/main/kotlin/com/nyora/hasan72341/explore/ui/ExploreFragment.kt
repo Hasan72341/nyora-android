@@ -41,6 +41,7 @@ import com.nyora.hasan72341.core.util.ext.systemBarsInsets
 import com.nyora.hasan72341.databinding.FragmentExploreBinding
 import com.nyora.hasan72341.explore.ui.adapter.ExploreAdapter
 import com.nyora.hasan72341.explore.ui.adapter.ExploreListEventListener
+import com.nyora.hasan72341.explore.ui.demo.DemoReaderActivity
 import com.nyora.hasan72341.explore.ui.model.MangaSourceItem
 import com.nyora.hasan72341.list.ui.adapter.TypedListSpacingDecoration
 import com.nyora.hasan72341.list.ui.model.ListHeader
@@ -67,9 +68,16 @@ class ExploreFragment :
 
 	override fun onViewBindingCreated(binding: FragmentExploreBinding, savedInstanceState: Bundle?) {
 		super.onViewBindingCreated(binding, savedInstanceState)
-		exploreAdapter = ExploreAdapter(this, this) { manga, view ->
-			router.openDetails(manga)
-		}
+		exploreAdapter = ExploreAdapter(
+			listener = this,
+			clickListener = this,
+			mangaClickListener = { manga, _ ->
+				router.openDetails(manga)
+			},
+			demoClickListener = { item, _ ->
+				startActivity(DemoReaderActivity.newIntent(requireContext(), item.index))
+			},
+		)
 		sourceSelectionController = ListSelectionController(
 			appCompatDelegate = checkNotNull(findAppCompatDelegate()),
 			decoration = SourceSelectionDecoration(binding.root.context),

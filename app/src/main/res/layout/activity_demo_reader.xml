@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/root"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="?attr/colorSurface"
+	android:orientation="vertical">
+
+	<com.google.android.material.appbar.MaterialToolbar
+		android:id="@+id/toolbar"
+		android:layout_width="match_parent"
+		android:layout_height="?attr/actionBarSize"
+		app:navigationIcon="?attr/homeAsUpIndicator"
+		app:title="@string/app_name">
+
+		<com.google.android.material.chip.Chip
+			android:id="@+id/chip_demo"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="end|center_vertical"
+			android:layout_marginEnd="12dp"
+			android:clickable="false"
+			android:text="DEMO"
+			android:textSize="12sp"
+			app:chipMinHeight="28dp" />
+
+	</com.google.android.material.appbar.MaterialToolbar>
+
+	<androidx.core.widget.NestedScrollView
+		android:id="@+id/scrollView"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:fillViewport="true">
+
+		<LinearLayout
+			android:id="@+id/container_pages"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:paddingStart="16dp"
+			android:paddingTop="8dp"
+			android:paddingEnd="16dp"
+			android:paddingBottom="32dp"
+			tools:ignore="UselessParent" />
+
+	</androidx.core.widget.NestedScrollView>
+
+</LinearLayout>
