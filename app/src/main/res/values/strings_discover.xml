@@ -5,6 +5,7 @@
 	<string name="discover_rail_error">Couldn’t load</string>
 	<string name="all_time_popular">All-time popular</string>
 	<string name="top_rated">Top rated</string>
+	<string name="popular_manhwa">Popular manhwa</string>
 	<string name="popular_this_season">Ongoing now</string>
 	<string name="new_releases">New releases</string>
 	<string name="popular_on_source">Popular on %s</string>

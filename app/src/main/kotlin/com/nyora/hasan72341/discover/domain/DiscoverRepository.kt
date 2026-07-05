@@ -5,7 +5,7 @@ import com.nyora.hasan72341.core.parser.MangaRepository
 import com.nyora.hasan72341.explore.data.MangaSourcesRepository
 import com.nyora.hasan72341.discover.ui.model.DiscoverRailCard
 import com.nyora.hasan72341.suggestions.data.AnilistMedia
-import com.nyora.hasan72341.suggestions.data.AnilistRepository
+import com.nyora.hasan72341.suggestions.data.MangaBakaRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.nyora.hasan72341.mihon.parsers.model.MangaListFilter
@@ -16,8 +16,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * All AniList-backed network rails for the Discover page, fetched in ONE aliased GraphQL
- * request (see [AnilistRepository.getMultiRails]) to stay well under the rate limit.
+ * All MangaBaka-backed network rails for the Discover page (see
+ * [MangaBakaRepository.getMultiRails]). MangaBaka is search-first with no sort endpoint,
+ * so each rail is a broad/genre search ranked client-side by popularity or rating.
  *
  * [heroSource] is the raw first trending media (it carries genres, which [DiscoverRailCard]
  * does not) so the VM can build the featured hero from it. Every list is already mapped
@@ -26,12 +27,12 @@ import javax.inject.Singleton
 data class DiscoverMultiRails(
 	val heroSource: AnilistMedia?,
 	val trending: List<DiscoverRailCard>,
-	val popular: List<DiscoverRailCard>,
 	val topRated: List<DiscoverRailCard>,
-	val seasonal: List<DiscoverRailCard>,
-	val newReleases: List<DiscoverRailCard>,
+	val manhwa: List<DiscoverRailCard>,
 	val action: List<DiscoverRailCard>,
 	val romance: List<DiscoverRailCard>,
+	val fantasy: List<DiscoverRailCard>,
+	val comedy: List<DiscoverRailCard>,
 )
 
 /**
@@ -46,8 +47,8 @@ data class DiscoverPopularSource(
 
 /**
  * Aggregates the always-populated network rails for the Discover landing page:
- *  - AniList rails (trending / all-time popular / top rated / seasonal / new releases /
- *    genre rails) via a single multi-alias request, plus the hero source.
+ *  - MangaBaka rails (trending / top rated / popular manhwa / genre rails) fetched as
+ *    parallel searches and ranked client-side, plus the hero source.
  *  - "Popular on <Source>" from a sensible installed/pinned source.
  *
  * Every public method runs its network work on [Dispatchers.IO] and never throws:
@@ -56,7 +57,7 @@ data class DiscoverPopularSource(
  */
 @Singleton
 class DiscoverRepository @Inject constructor(
-	private val anilistRepository: AnilistRepository,
+	private val mangaBakaRepository: MangaBakaRepository,
 	private val sourcesRepository: MangaSourcesRepository,
 	private val mangaRepositoryFactory: MangaRepository.Factory,
 ) {
@@ -81,25 +82,25 @@ class DiscoverRepository @Inject constructor(
 	)
 
 	/**
-	 * All AniList rails in a single aliased GraphQL request. Graceful: on any failure
-	 * (network/decode) every list is empty and [heroSource] is null, so the VM renders
-	 * each rail as Error/hidden rather than crashing.
+	 * All MangaBaka rails via parallel searches. Graceful: on any failure (network/decode)
+	 * every list is empty and [heroSource] is null, so the VM renders each rail as
+	 * Error/hidden rather than crashing.
 	 */
 	suspend fun getMultiRails(limit: Int = 20): DiscoverMultiRails = withContext(Dispatchers.IO) {
 		val cached = cachedMultiRails
 		if (cached != null && cached.trending.isNotEmpty()) {
 			return@withContext cached
 		}
-		val response = runCatchingCancellable { anilistRepository.getMultiRails(limit) }.getOrNull()
+		val response = runCatchingCancellable { mangaBakaRepository.getMultiRails(limit) }.getOrNull()
 		val result = DiscoverMultiRails(
-			heroSource = response?.trending?.media?.firstOrNull(),
-			trending = response?.trending?.media?.map(::toCard).orEmpty(),
-			popular = response?.popular?.media?.map(::toCard).orEmpty(),
-			topRated = response?.topRated?.media?.map(::toCard).orEmpty(),
-			seasonal = response?.seasonal?.media?.map(::toCard).orEmpty(),
-			newReleases = response?.newReleases?.media?.map(::toCard).orEmpty(),
-			action = response?.action?.media?.map(::toCard).orEmpty(),
-			romance = response?.romance?.media?.map(::toCard).orEmpty(),
+			heroSource = response?.trending?.firstOrNull(),
+			trending = response?.trending?.map(::toCard).orEmpty(),
+			topRated = response?.topRated?.map(::toCard).orEmpty(),
+			manhwa = response?.manhwa?.map(::toCard).orEmpty(),
+			action = response?.action?.map(::toCard).orEmpty(),
+			romance = response?.romance?.map(::toCard).orEmpty(),
+			fantasy = response?.fantasy?.map(::toCard).orEmpty(),
+			comedy = response?.comedy?.map(::toCard).orEmpty(),
 		)
 		if (result.trending.isNotEmpty()) {
 			cachedMultiRails = result

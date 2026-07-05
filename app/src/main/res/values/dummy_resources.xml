@@ -8,6 +8,8 @@
     <string name="top_sources">Top Sources</string>
     <string name="genre_action">Action</string>
     <string name="genre_romance">Romance</string>
+    <string name="genre_fantasy">Fantasy</string>
+    <string name="genre_comedy">Comedy</string>
     <string name="continue_reading">Continue Reading</string>
 
     <!-- Dummy styles to fix build errors -->
