@@ -80,3 +80,8 @@
 -dontwarn eu.kanade.tachiyomi.**
 -dontwarn kotlinx.serialization.**
 -dontwarn kotlin.reflect.**
+
+# Ed25519 signature verification (remote source config) uses Tink's raw verifier.
+-keep class com.google.crypto.tink.subtle.Ed25519Verify { *; }
+-keep class com.google.crypto.tink.subtle.Ed25519 { *; }
+-keep class com.google.crypto.tink.subtle.Field25519 { *; }

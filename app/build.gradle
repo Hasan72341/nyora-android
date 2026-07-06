@@ -177,6 +177,9 @@ dependencies {
     androidTestImplementation composeBom
 
 	coreLibraryDesugaring libs.desugar.jdk.libs
+	// Ed25519 signature verification for the remote source-config (Android has no
+	// JCA provider that parses an Ed25519 X.509 key; already present transitively).
+	implementation("com.google.crypto.tink:tink-android:1.8.0")
 	implementation libs.kotlin.stdlib
 	implementation libs.kotlinx.coroutines.android
 	implementation libs.kotlinx.coroutines.guava

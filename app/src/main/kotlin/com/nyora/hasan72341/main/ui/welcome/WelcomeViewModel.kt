@@ -61,12 +61,9 @@ class WelcomeViewModel @Inject constructor(
 				availableItems = contentTypes,
 				isLoading = false,
 			)
-			val languages = localesGroups.keys.associateBy { x -> x.language }
-			val selectedLocales = HashSet<Locale>(2)
-			ConfigurationCompat.getLocales(context.resources.configuration).toList()
-				.firstNotNullOfOrNull { lc -> languages[lc.language] }
-				?.let { selectedLocales += it }
-			selectedLocales += Locale.ROOT
+			// Default to ALL languages so every (non-NSFW) source is installed by
+			// default; the user can narrow the selection during onboarding.
+			val selectedLocales = HashSet(localesGroups.keys).apply { add(Locale.ROOT) }
 			locales.value = locales.value.copy(
 				availableItems = localesGroups.keys.sortedWithSafe(LocaleComparator()),
 				selectedItems = selectedLocales,
