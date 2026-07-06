@@ -387,6 +387,13 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		get() = prefs.getBoolean(KEY_SOURCES_UNLOCKED, false)
 		set(value) = prefs.edit { putBoolean(KEY_SOURCES_UNLOCKED, value) }
 
+	// Set when the user unlocks sources themselves by pasting a valid repository
+	// link. The launch-time remote refresh respects this (never re-locks a manual
+	// unlock), so a user-activated device stays unlocked regardless of the switch.
+	var isSourcesManuallyUnlocked: Boolean
+		get() = prefs.getBoolean(KEY_SOURCES_MANUAL_UNLOCK, false)
+		set(value) = prefs.edit { putBoolean(KEY_SOURCES_MANUAL_UNLOCK, value) }
+
 	val isPagesNumbersEnabled: Boolean
 		get() = prefs.getBoolean(KEY_PAGES_NUMBERS, false)
 
@@ -871,6 +878,7 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_SOURCES_VERSION = "sources_version"
 		const val KEY_SOURCES_ENABLED_ALL = "sources_enabled_all"
 		const val KEY_SOURCES_UNLOCKED = "sources_unlocked"
+		const val KEY_SOURCES_MANUAL_UNLOCK = "sources_manual_unlock"
 		const val KEY_QUICK_FILTER = "quick_filter"
 		const val KEY_COLLAPSE_DESCRIPTION = "description_collapse"
 		const val KEY_BACKUP_TG_ENABLED = "backup_periodic_tg_enabled"

@@ -4,6 +4,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:title="@string/remote_sources">
 
+    <EditTextPreference
+        android:key="source_repository_url"
+        android:persistent="false"
+        android:title="Add source repository"
+        android:summary="Paste a repository link to load sources"
+        android:dialogTitle="Repository link"
+        android:inputType="textUri"
+        app:allowDividerBelow="true" />
+
     <ListPreference
         android:key="sources_sort_order"
         android:title="@string/sort_order"
