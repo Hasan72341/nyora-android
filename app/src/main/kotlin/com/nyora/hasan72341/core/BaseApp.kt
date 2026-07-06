@@ -98,8 +98,14 @@ open class BaseApp : Application(), Configuration.Provider {
 		)
 		// Remote master switch: fetch + verify the signed config and unlock/lock
 		// sources accordingly (ships locked for Store review; enabled remotely).
-		processLifecycleScope.launch(Dispatchers.IO) {
-			remoteSourceGate.refresh()
+		// Debug builds bypass the gate so the app is fully testable offline,
+		// independent of the remote config. Release builds honour the switch.
+		if (BuildConfig.DEBUG) {
+			settings.isSourcesUnlocked = true
+		} else {
+			processLifecycleScope.launch(Dispatchers.IO) {
+				remoteSourceGate.refresh()
+			}
 		}
 	}
 
