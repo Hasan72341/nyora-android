@@ -11,10 +11,6 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.conscrypt.Conscrypt
-import java.security.KeyFactory
-import java.security.Signature
-import java.security.spec.X509EncodedKeySpec
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -79,27 +75,18 @@ class RemoteSourceGate @Inject constructor(
 		return payload["enabled"]?.jsonPrimitive?.booleanOrNull ?: false
 	}
 
-	private fun verify(data: ByteArray, sig: ByteArray): Boolean {
-		val keySpec = X509EncodedKeySpec(Base64.decode(PUBLIC_KEY_B64, Base64.DEFAULT))
-		// Ed25519 in the platform JCA is API 33+; the bundled Conscrypt provides it
-		// on older devices. Try Conscrypt first, then fall back to the platform.
-		runCatching { Conscrypt.newProvider() }.getOrNull()?.let { provider ->
-			runCatching {
-				val pub = KeyFactory.getInstance("Ed25519", provider).generatePublic(keySpec)
-				val s = Signature.getInstance("Ed25519", provider)
-				s.initVerify(pub)
-				s.update(data)
-				return s.verify(sig)
-			}
-		}
-		return runCatching {
-			val pub = KeyFactory.getInstance("Ed25519").generatePublic(keySpec)
-			val s = Signature.getInstance("Ed25519")
-			s.initVerify(pub)
-			s.update(data)
-			s.verify(sig)
-		}.getOrDefault(false)
-	}
+	// Android has no reliable JCA provider for parsing an Ed25519 X.509 key
+	// (Conscrypt has no Ed25519 KeyFactory; the platform name resolves to the
+	// AndroidKeyStore). Use Tink's raw Ed25519 verifier instead — it's already on
+	// the classpath and takes the 32-byte key directly.
+	private fun verify(data: ByteArray, sig: ByteArray): Boolean = runCatching {
+		val spki = Base64.decode(PUBLIC_KEY_B64, Base64.DEFAULT)
+		// The Ed25519 SubjectPublicKeyInfo is a 12-byte header + the 32-byte key.
+		val rawKey = spki.copyOfRange(spki.size - 32, spki.size)
+		// verify() throws GeneralSecurityException on an invalid/forged signature.
+		com.google.crypto.tink.subtle.Ed25519Verify(rawKey).verify(sig, data)
+		true
+	}.getOrDefault(false)
 
 	private companion object {
 		const val CONFIG_URL = "https://hasan72341.github.io/nyora-android-switch/android-config.json"
