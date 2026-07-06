@@ -36,16 +36,35 @@ class RemoteSourceGate @Inject constructor(
 ) {
 
 	suspend fun refresh() = withContext(Dispatchers.IO) {
-		val enabled = runCatching { fetchVerifiedEnabled() }.getOrNull() ?: return@withContext
-		if (settings.isSourcesUnlocked != enabled) {
-			settings.isSourcesUnlocked = enabled
+		val enabled = runCatching { fetchVerifiedEnabled(CONFIG_URL) }.getOrNull() ?: return@withContext
+		// A manual unlock is sticky — the remote switch can enable, but never
+		// re-locks a device the user activated themselves.
+		val effective = enabled || settings.isSourcesManuallyUnlocked
+		if (settings.isSourcesUnlocked != effective) {
+			settings.isSourcesUnlocked = effective
+		}
+	}
+
+	/**
+	 * Manual unlock: verify a user-pasted repository link and, if its signed payload
+	 * says enabled, unlock sources. Returns true on success. Lets a user activate
+	 * sources themselves without waiting on the built-in remote switch.
+	 */
+	suspend fun activateFromUrl(url: String): Boolean = withContext(Dispatchers.IO) {
+		val enabled = runCatching { fetchVerifiedEnabled(url.trim()) }.getOrNull()
+		if (enabled == true) {
+			settings.isSourcesManuallyUnlocked = true
+			settings.isSourcesUnlocked = true
+			true
+		} else {
+			false
 		}
 	}
 
 	/** @return the verified `enabled` value, or null if unreachable / invalid / unsigned. */
-	private fun fetchVerifiedEnabled(): Boolean? {
+	private fun fetchVerifiedEnabled(url: String): Boolean? {
 		val body = okHttpClient.newCall(
-			Request.Builder().url(CONFIG_URL).header("Accept", "application/json").build(),
+			Request.Builder().url(url).header("Accept", "application/json").build(),
 		).execute().use { resp ->
 			if (!resp.isSuccessful) return null
 			resp.body?.string() ?: return null
