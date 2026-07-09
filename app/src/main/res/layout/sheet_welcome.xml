@@ -106,22 +106,21 @@
 						android:textAppearance="?attr/textAppearanceBodyMedium"
 						android:textColor="?attr/colorOnSurfaceVariant" />
 
-					<com.google.android.material.button.MaterialButton
-						android:id="@+id/button_google_sign_in"
-						style="@style/Widget.Nyora.Button"
-						android:layout_width="match_parent"
-						android:layout_height="56dp"
-						android:layout_marginTop="@dimen/margin_normal"
-						android:backgroundTint="?attr/colorSurfaceContainerLowest"
-						android:text="@string/sign_in_with_google"
-						android:textColor="?attr/colorOnSurface"
-						app:cornerRadius="18dp"
-						app:icon="@drawable/ic_google_g"
-						app:iconGravity="textStart"
-						app:iconPadding="12dp"
-						app:iconTint="@null"
-						app:strokeColor="?attr/colorOutline"
-						app:strokeWidth="1dp" />
+						<com.google.android.material.button.MaterialButton
+							android:id="@+id/button_sync_sign_in"
+							style="@style/Widget.Nyora.Button"
+							android:layout_width="match_parent"
+							android:layout_height="56dp"
+							android:layout_marginTop="@dimen/margin_normal"
+							android:backgroundTint="?attr/colorSurfaceContainerLowest"
+							android:text="@string/sign_in_with_google"
+							android:textColor="?attr/colorOnSurface"
+							app:cornerRadius="18dp"
+							app:icon="@drawable/ic_sync"
+							app:iconGravity="textStart"
+							app:iconPadding="12dp"
+							app:strokeColor="?attr/colorOutline"
+							app:strokeWidth="1dp" />
 
 					<LinearLayout
 						android:id="@+id/layout_loading"

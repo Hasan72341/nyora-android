@@ -22,8 +22,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-private const val RC_GOOGLE_SIGN_IN = 9001
-
 @AndroidEntryPoint
 class SyncSettingsFragment : BasePreferenceFragment(R.string.sync_settings) {
 
@@ -207,7 +205,7 @@ class SyncSettingsFragment : BasePreferenceFragment(R.string.sync_settings) {
 			"supabase_sync_now" -> {
 				val v = view
 				if (v != null && config.isAuthenticated) {
-					Snackbar.make(v, "Starting Supabase Sync...", Snackbar.LENGTH_SHORT).show()
+					Snackbar.make(v, "Syncing your library…", Snackbar.LENGTH_SHORT).show()
 					lifecycleScope.launch(Dispatchers.IO) {
 						try {
 							supabaseSync.syncNow()
@@ -236,10 +234,10 @@ class SyncSettingsFragment : BasePreferenceFragment(R.string.sync_settings) {
 				refreshState()
 				true
 			}
-			"supabase_sign_in_google" -> {
-				promptSignIn()
-				true
-			}
+				"supabase_sign_in" -> {
+					promptSignIn()
+					true
+				}
 			"supabase_continue_guest" -> {
 				view?.let { Snackbar.make(it, "Continuing as guest", Snackbar.LENGTH_SHORT).show() }
 				true

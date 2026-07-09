@@ -335,12 +335,6 @@
     <string name="import_completed_hint">You can delete the original file from storage to save space</string>
     <string name="import_will_start_soon">Import will start soon</string>
     <string name="discover">Discover</string>
-    <string name="parser_bundle">Parser bundle</string>
-    <string name="bundled">Bundled</string>
-    <string name="checking_for_updates">Checking for updates…</string>
-    <string name="parsers_already_current">Parsers are already up to date</string>
-    <string name="parsers_updated_restart">Parsers updated. Please restart the app to apply changes</string>
-    <string name="error_checking_updates">Error checking for updates</string>
     <string name="feed">Feed</string>
     <string name="manga_error_description_pattern">Error details:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Try to &lt;a href="%2$s"&gt;open manga in a web browser&lt;/a&gt; to ensure it is available on its source&lt;br&gt;2. Make sure you are using the &lt;a href="nyora://about"&gt;latest version of Nyora&lt;/a&gt;&lt;br&gt;3. If it is available, send an error report to the developers.</string>
     <string name="history_shortcuts">Show recent manga shortcuts</string>
@@ -398,7 +392,7 @@
     <string name="sync_auth_hint">You can sign in into an existing account or create a new one</string>
     <string name="find_similar">Find similar</string>
     <string name="sync_settings">Synchronization settings</string>
-    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="sign_in_with_google">Sign in or create account</string>
     <string name="signed_in">Signed in</string>
     <string name="sign_in_failed">Sign-in failed</string>
     <string name="signing_in_syncing">Signing in and syncing library...</string>
@@ -408,7 +402,6 @@
     <string name="last_synced">Last synced</string>
     <string name="continue_as_guest">Continue as guest</string>
     <string name="account_and_sync">Account &amp; Sync</string>
-    <string name="server_client_id" translatable="false">181067068545-4jkfesn716ucqbuhcbtvdtlqfg3ar38u.apps.googleusercontent.com</string>
     <string name="server_address">Server address</string>
     <string name="sync_host_description">You can use a self-hosted synchronization server or a default one. Don\'t change this if you\'re not sure what you\'re doing.</string>
     <string name="ignore_ssl_errors">Ignore SSL errors</string>
@@ -542,8 +535,8 @@
     <string name="content_type_other">Other</string>
     <string name="source_summary_pattern" translatable="false">%1$s, %2$s</string>
     <string name="sources_catalog">Sources catalog</string>
-    <string name="extensions_manager">Extensions manager</string>
-    <string name="extensions_manager_summary">Manage, install and uninstall Tachiyomi extensions from keiyoushi repository</string>
+    <string name="extensions_manager">Source manager</string>
+    <string name="extensions_manager_summary">Manage optional reading sources</string>
     <string name="source_enabled">Source enabled</string>
     <string name="no_manga_sources_catalog_text">There are no sources available in this section, or all of it might have been already added.\nStay tuned</string>
     <string name="no_manga_sources_found">No available manga sources found by your query</string>
@@ -578,7 +571,7 @@
     <string name="welcome_account_note">Your data stays tied to your account. You can also continue as a guest and sync later.</string>
     <string name="welcome_sources_title">Pick your reading sources</string>
     <string name="welcome_sources_text">Enable the languages and content types you want. You can change this anytime in Settings.</string>
-    <string name="sync_auth">Sign in with Google</string>
+    <string name="sync_auth">Nyora Sync</string>
     <string name="restore">Restore</string>
     <string name="backup_date_">Backup date: %s</string>
     <string name="state_upcoming">Upcoming</string>
@@ -991,12 +984,6 @@
     <string name="available_pattern">%1$s available</string>
     <string name="crash_reporting">Crash Reporting</string>
     <string name="crash_reporting_summary">Send anonymous crash logs to help improve the app. Takes effect after restart.</string>
-    <string name="github_mirror_title">GitHub mirror</string>
-    <string name="github_mirror_native">Native</string>
-    <string name="github_mirror_keiyoushi">Keiyoushi</string>
-    <string name="github_mirror_kkgithub">KKGitHub (raw.kkgithub.com)</string>
-    <string name="github_mirror_ghproxy">GHProxy (mirror.ghproxy.com)</string>
-    <string name="github_mirror_ghproxy_net">GHProxy.net (ghproxy.net)</string>
     <string name="enable_source_manga">Enable manga source</string>
     <string name="domain_manga">Manga source domain</string>
     <string name="download_option_whole_manga_manga">Whole manga</string>
@@ -1005,8 +992,8 @@
     <string name="install">Install</string>
     <string name="uninstall">Uninstall</string>
     <string name="translate">Translate</string>
-    <string name="translate_summary">AI screen translation, engine configuration</string>
-    <string name="account_sync_summary">Cloud sync, Supabase account settings</string>
+    <string name="translate_summary">Read foreign pages in your language with AI translation</string>
+    <string name="account_sync_summary">Back up and sync your library across your devices</string>
     <string name="translate_page">Translate Page</string>
     <string name="ai_translate_enabled_title">Enable page translation</string>
     <string name="ai_auto_translate_title">Instant translation</string>

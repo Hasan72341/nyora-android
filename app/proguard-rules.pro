@@ -16,12 +16,12 @@
 -dontwarn com.google.j2objc.annotations.**
 -dontwarn coil3.PlatformContext
 
--keep class com.nyora.android.settings.NotificationSettingsLegacyFragment
--keep class com.nyora.android.settings.about.changelog.ChangelogFragment
+-keep class com.nyora.hasan72341.settings.NotificationSettingsLegacyFragment
+-keep class com.nyora.hasan72341.settings.about.changelog.ChangelogFragment
 
--keep class com.nyora.android.core.exceptions.* { *; }
--keep class com.nyora.android.core.prefs.ScreenshotsPolicy { *; }
--keep class com.nyora.android.backups.ui.periodical.PeriodicalBackupSettingsFragment { *; }
+-keep class com.nyora.hasan72341.core.exceptions.* { *; }
+-keep class com.nyora.hasan72341.core.prefs.ScreenshotsPolicy { *; }
+-keep class com.nyora.hasan72341.backups.ui.periodical.PeriodicalBackupSettingsFragment { *; }
 -keep class org.jsoup.parser.Tag
 -keep class org.jsoup.internal.StringUtil
 
@@ -37,11 +37,11 @@
 -keeppackagenames uy.kohesive.injekt.**
 -keepclassmembers class uy.kohesive.injekt.** { *; }
 
--keep class com.nyora.android.mihon.** { *; }
--keeppackagenames com.nyora.android.mihon.**
+-keep class com.nyora.hasan72341.mihon.** { *; }
+-keeppackagenames com.nyora.hasan72341.mihon.**
 
 # Keep everything related to dynamic loading
--keep class com.nyora.android.mihon.ChildFirstPathClassLoader { *; }
+-keep class com.nyora.hasan72341.mihon.ChildFirstPathClassLoader { *; }
 -keep public class * extends dalvik.system.PathClassLoader { *; }
 -keep public class * extends dalvik.system.BaseDexClassLoader { *; }
 

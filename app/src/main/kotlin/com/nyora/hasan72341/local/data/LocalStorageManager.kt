@@ -80,13 +80,18 @@ class LocalStorageManager @Inject constructor(
 	}
 
 	suspend fun getWriteableDirs(): List<File> = runInterruptible(Dispatchers.IO) {
-		getConfiguredStorageDirs()
+		// Only offer app-specific data folders (…/Android/data/<pkg>/files/manga and
+		// internal files/manga). These need no storage permission and are always
+		// writeable, so downloads never target an inaccessible public folder. We
+		// deliberately skip user-specified (public) directories here.
+		getAvailableStorageDirs()
 			.filter { it.isWriteable() }
 	}
 
 	suspend fun getDefaultWriteableDir(): File? = runInterruptible(Dispatchers.IO) {
-		val preferredDir = settings.mangaStorageDir?.takeIfWriteable()
-		preferredDir ?: getFallbackStorageDir()?.takeIfWriteable()
+		// Always download into the app data folder (getExternalFilesDir), regardless of
+		// any previously-configured public directory — no All-Files-Access needed.
+		getFallbackStorageDir()?.takeIfWriteable()
 	}
 
 	suspend fun getApplicationStorageDirs(): Set<File> = runInterruptible(Dispatchers.IO) {

@@ -14,9 +14,9 @@
 		android:key="supabase_guest_category"
 		android:title="@string/guest">
 
-		<Preference
-			android:key="supabase_sign_in_google"
-			android:title="@string/sign_in" />
+			<Preference
+				android:key="supabase_sign_in"
+				android:title="@string/sign_in" />
 
 		<Preference
 			android:key="supabase_continue_guest"

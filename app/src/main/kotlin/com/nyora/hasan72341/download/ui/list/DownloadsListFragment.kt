@@ -18,6 +18,7 @@ import com.nyora.hasan72341.R
 import com.nyora.hasan72341.core.nav.router
 import com.nyora.hasan72341.core.ui.BaseActivity
 import com.nyora.hasan72341.core.ui.BaseFragment
+import com.nyora.hasan72341.core.ui.list.FitHeightLinearLayoutManager
 import com.nyora.hasan72341.core.ui.list.ListSelectionController
 import com.nyora.hasan72341.core.ui.list.RecyclerScrollKeeper
 import com.nyora.hasan72341.core.ui.util.MenuInvalidator
@@ -67,6 +68,16 @@ class DownloadsListFragment : BaseFragment<FragmentListBinding>(),
 		)
 		with(binding.recyclerView) {
 			setHasFixedSize(true)
+			// fragment_list.xml only declares tools:layoutManager (design-time), so the
+			// RecyclerView has NO runtime LayoutManager unless we set one — without it
+			// the list renders blank even when the adapter has items. MangaListFragment
+			// sets this for the other tabs via its base class; this fragment must do it
+			// itself.
+			layoutManager = FitHeightLinearLayoutManager(context)
+			// This list lives inside the Favourites ViewPager2 tab; without this
+			// workaround the nested RecyclerView never lays out its items (renders
+			// blank), matching FavouritesListFragment.
+			isVP2BugWorkaroundEnabled = true
 			addItemDecoration(decoration)
 			adapter = downloadsAdapter
 			selectionController.attachToRecyclerView(this)
