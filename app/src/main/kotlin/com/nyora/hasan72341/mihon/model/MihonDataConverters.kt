@@ -161,7 +161,11 @@ fun Content.toMihonManga(): SManga {
 /**
  * Convert Mihon SChapter to App ContentChapter.
  */
-fun SChapter.toContentChapter(source: ContentSource, overrideNumber: Float? = null): ContentChapter {
+fun SChapter.toContentChapter(
+    source: ContentSource,
+    overrideNumber: Float? = null,
+    overrideTitle: String? = null,
+): ContentChapter {
     val chapterId = generateChapterId(url, source.name)
     val finalNumber = overrideNumber ?: (if (chapter_number >= 0) chapter_number else 0f)
     
@@ -169,7 +173,7 @@ fun SChapter.toContentChapter(source: ContentSource, overrideNumber: Float? = nu
     
     return ContentChapter(
         id = chapterId,
-        title = name.takeIf { it.isNotBlank() },
+        title = overrideTitle ?: name.takeIf { it.isNotBlank() },
         number = finalNumber,
         volume = 0, // Mihon doesn't have volume numbers in SChapter
         url = url,

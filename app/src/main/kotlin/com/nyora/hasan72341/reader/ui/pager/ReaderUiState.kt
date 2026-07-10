@@ -16,9 +16,9 @@ data class ReaderUiState(
 ) {
 
 	val chapterNumber: Int
-		get() = chapterIndex + 1
+		get() = if (chapterIndex >= 0) chapterIndex + 1 else 0
 
-	fun hasNextChapter(): Boolean = chapterNumber < chaptersTotal
+	fun hasNextChapter(): Boolean = chapterIndex >= 0 && chapterIndex < chaptersTotal - 1
 
 	fun hasPreviousChapter(): Boolean = chapterIndex > 0
 

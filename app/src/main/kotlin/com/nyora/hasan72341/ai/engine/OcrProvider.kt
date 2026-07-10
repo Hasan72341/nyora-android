@@ -22,17 +22,21 @@ class OcrProvider @Inject constructor() {
 	private val enRec = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
 	suspend fun runEnsembleOcr(image: InputImage): TextResult = coroutineScope {
-		val ja = async { jaRec.process(image).await() }
-		val zh = async { zhRec.process(image).await() }
-		val ko = async { koRec.process(image).await() }
-		val en = async { enRec.process(image).await() }
+		val ja = async { runCatching { jaRec.process(image).await() } }
+		val zh = async { runCatching { zhRec.process(image).await() } }
+		val ko = async { runCatching { koRec.process(image).await() } }
+		val en = async { runCatching { enRec.process(image).await() } }
 
 		val results = listOf(ja.await(), zh.await(), ko.await(), en.await())
+			.mapNotNull { it.getOrNull() }
+		if (results.isEmpty()) {
+			return@coroutineScope TextResult(emptyList(), "en")
+		}
 		
 		// Pick the engine that found the most meaningful CJK content
 		val best = results.maxByOrNull { result ->
 			calculateTextScore(result.text)
-		} ?: results[0]
+		} ?: results.first()
 
 		TextResult(
 			blocks = best.textBlocks.map { it.toMangaBlock() },

@@ -6,6 +6,7 @@ import com.nyora.hasan72341.tachiyomi.source.online.HttpSource
 import com.nyora.hasan72341.core.cache.MemoryContentCache
 import com.nyora.hasan72341.core.exceptions.CloudFlareException
 import com.nyora.hasan72341.core.exceptions.InteractiveActionRequiredException
+import com.nyora.hasan72341.core.model.toChronologicalChapterOrder
 import com.nyora.hasan72341.core.parser.CachingMangaRepository
 import com.nyora.hasan72341.mihon.model.MihonMangaSource
 import com.nyora.hasan72341.mihon.parsers.model.MangaSource
@@ -47,28 +48,6 @@ class MihonMangaRepository(
 
     companion object {
         private const val TAG = "MihonMangaRepository"
-        
-        private fun extractChapterNumber(name: String): Float {
-            // Try Chinese format: 第X话
-            val chineseRegex = Regex("""第\s*(\d+(?:\.\d+)?)\s*话""")
-            chineseRegex.find(name)?.let {
-                return it.groupValues[1].toFloatOrNull() ?: -1f
-            }
-            
-            // Try English format: Chapter X, Ch. X
-            val englishRegex = Regex("""(?:Chapter|Ch\.?)\s*(\d+(?:\.\d+)?)""", RegexOption.IGNORE_CASE)
-            englishRegex.find(name)?.let {
-                return it.groupValues[1].toFloatOrNull() ?: -1f
-            }
-            
-            // Try pure number
-            val numberRegex = Regex("""(\d+(?:\.\d+)?)""")
-            numberRegex.find(name)?.let {
-                return it.groupValues[1].toFloatOrNull() ?: -1f
-            }
-            
-            return -1f
-        }
     }
 
     private var lastOffset = -1
@@ -182,43 +161,44 @@ class MihonMangaRepository(
             }
         }
         
-        val chapters = rawChapters.asReversed()
-            .mapIndexed { index, sChapter ->
-                val chapterNumber = if (sChapter.chapter_number > 0) {
-                    sChapter.chapter_number
-                } else {
-                    (index + 1).toFloat()
-                }
-                sChapter.toContentChapter(mihonMangaSource, chapterNumber)
-            }
-            .sortedBy { it.number }
-        
-        // Copy missing fields from original manga to details
+        val chapters = rawChapters.map { sChapter ->
+            val normalized = MihonChapterNormalizer.normalize(
+                name = sChapter.name,
+                url = sChapter.url,
+                sourceNumber = sChapter.chapter_number,
+            )
+            sChapter.toContentChapter(
+                source = mihonMangaSource,
+                overrideNumber = normalized.number,
+                overrideTitle = normalized.title,
+            )
+        }
+
+        // Copy missing fields from original manga to details.
         details.url = sContent.url
-        
-        // Title fallback
+
         val detailsTitle = try { details.title } catch (e: Exception) { "" }
         if (detailsTitle.isBlank()) {
             details.title = sContent.title
         }
-        
-        // Thumbnail fallback
+
         val detailsThumb = try { details.thumbnail_url } catch (e: Exception) { null }
         val searchThumb = try { sContent.thumbnail_url } catch (e: Exception) { null }
-        
         if (detailsThumb.isNullOrBlank() || detailsThumb == details.url || detailsThumb == sContent.url) {
             if (!searchThumb.isNullOrBlank()) {
                 details.thumbnail_url = searchThumb
             }
         }
-        
+
         val publicUrl = (mihonSource as? HttpSource)?.getPublicContentUrl(details) ?: ""
-        
+
         details.toDomainContent(
             source = mihonMangaSource,
             chapters = chapters,
             publicUrl = publicUrl,
-        ).copy(id = manga.id).toManga()
+        ).copy(id = manga.id).toManga().let {
+            it.copy(chapters = it.chapters.toChronologicalChapterOrder())
+        }
     }
     
     override suspend fun getPagesImpl(chapter: MangaChapter): List<MangaPage> = withContext(Dispatchers.IO) {

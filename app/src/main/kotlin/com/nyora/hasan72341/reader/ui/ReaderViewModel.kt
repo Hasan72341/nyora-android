@@ -63,10 +63,11 @@ import com.nyora.hasan72341.mihon.parsers.model.Manga
 import com.nyora.hasan72341.mihon.parsers.model.MangaPage
 import com.nyora.hasan72341.mihon.parsers.util.ifNullOrEmpty
 import com.nyora.hasan72341.mihon.parsers.util.runCatchingCancellable
-import com.nyora.hasan72341.mihon.parsers.util.sizeOrZero
 import com.nyora.hasan72341.reader.domain.ChaptersLoader
 import com.nyora.hasan72341.reader.domain.DetectReaderModeUseCase
 import com.nyora.hasan72341.reader.domain.PageLoader
+import com.nyora.hasan72341.reader.domain.readerChapters
+import com.nyora.hasan72341.reader.domain.readerChaptersFor
 import com.nyora.hasan72341.reader.ui.config.ReaderSettings
 import com.nyora.hasan72341.reader.ui.pager.ReaderUiState
 import com.nyora.hasan72341.scrobbling.discord.ui.DiscordRpc
@@ -320,7 +321,7 @@ class ReaderViewModel @Inject constructor(
             prevJob?.cancelAndJoin()
             val prevState = readingState.requireValue()
             val newChapterId = if (delta != 0) {
-                val allChapters = mangaDetails.requireValue().allChapters
+                val allChapters = mangaDetails.requireValue().readerChaptersFor(prevState.chapterId)
                 var index = allChapters.indexOfFirst { x -> x.id == prevState.chapterId }
                 if (index < 0) {
                     return@launchLoadingJob
@@ -535,12 +536,13 @@ class ReaderViewModel @Inject constructor(
         val state = getCurrentState() ?: return
         val chapter = chaptersLoader.peekChapter(state.chapterId.toLong()) ?: return
         val m = mangaDetails.value ?: return
-        val chapterIndex = m.chapters[chapter.branch]?.indexOfFirst { it.id == chapter.id } ?: -1
+        val orderedChapters = m.readerChapters(chapter.branch)
+        val chapterIndex = orderedChapters.indexOfFirst { it.id == chapter.id }
         val newState = ReaderUiState(
             mangaName = m.toManga().title,
             chapter = chapter,
             chapterIndex = chapterIndex,
-            chaptersTotal = m.chapters[chapter.branch].sizeOrZero(),
+            chaptersTotal = orderedChapters.size,
             totalPages = chaptersLoader.getPagesCount(chapter.id.toLong()),
             currentPage = state.page,
             percent = computePercent(state.chapterId, state.page),
@@ -555,11 +557,11 @@ class ReaderViewModel @Inject constructor(
 
     private fun computePercent(chapterId: String, pageIndex: Int): Float {
         val branch = chaptersLoader.peekChapter(chapterId.toLong())?.branch
-        val chapters = mangaDetails.value?.chapters?.get(branch) ?: return PROGRESS_NONE
+        val chapters = mangaDetails.value?.readerChapters(branch) ?: return PROGRESS_NONE
         val chaptersCount = chapters.size
         val chapterIndex = chapters.indexOfFirst { x -> x.id == chapterId }
         val pagesCount = chaptersLoader.getPagesCount(chapterId.toLong())
-        if (chaptersCount == 0 || pagesCount == 0) {
+        if (chaptersCount == 0 || chapterIndex < 0 || pagesCount == 0) {
             return PROGRESS_NONE
         }
         val pagePercent = (pageIndex + 1) / pagesCount.toFloat()
@@ -655,7 +657,7 @@ class ReaderViewModel @Inject constructor(
         pretranslationJob = viewModelScope.launch(Dispatchers.IO) {
             prevJob?.cancel()
             
-            val allChapters = mangaDetails.value?.allChapters ?: return@launch
+            val allChapters = mangaDetails.value?.readerChaptersFor(currentChapterId) ?: return@launch
             val currentIndex = allChapters.indexOfFirst { it.id == currentChapterId }
             if (currentIndex == -1) return@launch
             

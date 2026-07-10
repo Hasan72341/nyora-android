@@ -99,7 +99,7 @@ class SupabaseConfig @Inject constructor(
 	fun parseUserIdFromJwt(token: String): String = runCatching {
 		val payload = token.split(".")[1]
 		val padded = payload + "=".repeat((4 - payload.length % 4) % 4)
-		val decoded = String(java.util.Base64.getUrlDecoder().decode(padded))
+		val decoded = String(android.util.Base64.decode(padded, android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP))
 		Regex(""""sub"\s*:\s*"([^"]+)""").find(decoded)?.groupValues?.get(1) ?: ""
 	}.getOrDefault("")
 
@@ -107,7 +107,7 @@ class SupabaseConfig @Inject constructor(
 		if (accessToken.isBlank()) return@runCatching ""
 		val payload = accessToken.split(".")[1]
 		val padded = payload + "=".repeat((4 - payload.length % 4) % 4)
-		val decoded = String(java.util.Base64.getUrlDecoder().decode(padded))
+		val decoded = String(android.util.Base64.decode(padded, android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP))
 		Regex(""""email"\s*:\s*"([^"]+)""").find(decoded)?.groupValues?.get(1) ?: ""
 	}.getOrDefault("")
 }

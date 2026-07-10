@@ -24,9 +24,11 @@ abstract class ContentLoaderContext {
 
 	fun newLinkResolver(link: String): LinkResolver = newLinkResolver(link.toHttpUrl())
 
-	open fun encodeBase64(data: ByteArray): String = Base64.getEncoder().encodeToString(data)
+	open fun encodeBase64(data: ByteArray): String =
+		android.util.Base64.encodeToString(data, android.util.Base64.NO_WRAP)
 
-	open fun decodeBase64(data: String): ByteArray = Base64.getDecoder().decode(data)
+	open fun decodeBase64(data: String): ByteArray =
+		android.util.Base64.decode(data, android.util.Base64.DEFAULT)
 
 	open fun getPreferredLocales(): List<Locale> = listOf(Locale.getDefault())
 

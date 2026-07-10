@@ -96,7 +96,6 @@ class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
 			}
 
 			AppSettings.KEY_SYNC -> {
-				// Simply open the SyncSettingsFragment which now handles Supabase
 				true
 			}
 
@@ -141,8 +140,7 @@ class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
 	}
 
 	private fun bindSyncSummary() {
-		// Summary can just be a static string or reflect Supabase auth state if desired.
-		findPreference<Preference>(AppSettings.KEY_SYNC)?.summary = "Supabase Sync"
+		findPreference<Preference>(AppSettings.KEY_SYNC)?.summary = "Back up and sync your library across your devices"
 		findPreference<Preference>(AppSettings.KEY_SYNC_SETTINGS)?.isEnabled = true
 	}
 

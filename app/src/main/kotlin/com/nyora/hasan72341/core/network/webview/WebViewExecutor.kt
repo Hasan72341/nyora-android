@@ -134,12 +134,11 @@ class WebViewExecutor @Inject constructor(
                         }
                     }
 
-                    val headers = mapOf("Accept-Language" to "en-EN,en;q=0.9")
-                    if (preserveCookies) {
-                        webView.loadDataWithBaseURL(baseUrl, " ", "text/html", null, null)
-                    } else {
-                        webView.loadUrl(baseUrl, headers)
-                    }
+                    val headers = mapOf("Accept-Language" to "en-US,en;q=0.9")
+                    // Always load the real URL. The previous preserveCookies branch used
+                    // loadDataWithBaseURL(), which creates a blank document and never gives
+                    // Cloudflare's challenge script a chance to run.
+                    webView.loadUrl(baseUrl, headers)
 
                     handler.postDelayed(contentPoller, 1000)
 

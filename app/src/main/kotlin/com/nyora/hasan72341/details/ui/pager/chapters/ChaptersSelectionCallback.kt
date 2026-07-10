@@ -61,7 +61,10 @@ class ChaptersSelectionCallback(
 	override fun onActionItemClicked(controller: ListSelectionController, mode: ActionMode?, item: MenuItem): Boolean {
 		return when (item.itemId) {
 			R.id.action_save -> {
-				val snapshot = controller.snapshot()
+				// Defensive copy: controller.snapshot() returns the live selection set,
+				// and mode.finish() clears it — without the copy the set would be empty
+				// by the time we read it below and no download would ever be scheduled.
+				val snapshot = HashSet(controller.snapshot())
 				mode?.finish()
 				if (snapshot.isNotEmpty()) {
 					router.askForDownloadOverMeteredNetwork {

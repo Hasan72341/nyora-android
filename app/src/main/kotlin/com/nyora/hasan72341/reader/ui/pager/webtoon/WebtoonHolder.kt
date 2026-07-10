@@ -17,7 +17,9 @@ import com.nyora.hasan72341.reader.domain.PageLoader
 import com.nyora.hasan72341.reader.ui.config.ReaderSettings
 import com.nyora.hasan72341.reader.ui.pager.BasePageHolder
 import com.nyora.hasan72341.reader.ui.pager.vm.PageState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class WebtoonHolder(
@@ -83,15 +85,17 @@ class WebtoonHolder(
 
 	override fun translatePage() {
 		val data = boundData ?: return
-		val bitmap = getBitmap()
-		if (bitmap == null) {
-			return
-		}
-		
 		translationJob?.cancel()
 		translationJob = lifecycleScope.launch {
-			translator.translatePage(data.chapterId, data.index, bitmap).collect { blocks ->
-				binding.translationOverlay.setBlocks(blocks)
+			val bitmap = withContext(Dispatchers.IO) { getBitmap() } ?: return@launch
+			try {
+				translator.translatePage(data.chapterId, data.index, bitmap).collect { blocks ->
+					binding.translationOverlay.setBlocks(blocks)
+				}
+			} finally {
+				if (!bitmap.isRecycled) {
+					bitmap.recycle()
+				}
 			}
 		}
 	}

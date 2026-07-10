@@ -36,9 +36,10 @@ class ChaptersLoader @Inject constructor(
 	}
 
 	suspend fun loadPrevNextChapter(manga: MangaDetails, currentId: Long, isNext: Boolean): Boolean {
-		val chapters = manga.allChapters
 		val predicate: (MangaChapter) -> Boolean = { it.id.toLongOrNull() == currentId }
-		val index = if (isNext) chapters.indexOfFirst(predicate) else chapters.indexOfLast(predicate)
+		val currentChapter = manga.allChapters.find(predicate) ?: return false
+		val chapters = manga.readerChapters(currentChapter.branch)
+		val index = chapters.indexOfFirst(predicate)
 		if (index == -1) return false
 		val newChapter = chapters.getOrNull(if (isNext) index + 1 else index - 1) ?: return false
 		val newPages = loadChapter(newChapter.id.toLongOrNull() ?: 0L)

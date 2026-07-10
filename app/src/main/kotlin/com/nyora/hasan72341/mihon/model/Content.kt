@@ -9,6 +9,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.strikeThrough
 import com.nyora.hasan72341.R
+import com.nyora.hasan72341.core.model.formatLocalizedChapterTitle
 import com.nyora.hasan72341.core.ui.model.MangaOverride
 import com.nyora.hasan72341.core.util.ext.iterator
 import com.nyora.hasan72341.details.ui.model.ChapterListItem
@@ -196,24 +197,13 @@ private fun SpannableStringBuilder.appendTagsSummary(filter: ContentListFilter) 
 }
 
 fun ContentChapter.getLocalizedTitle(resources: Resources, index: Int = -1): String {
-	title?.let {
-		if (it.isNotBlank()) {
-			return it
-		}
-	}
-	val num = numberString()
-	val vol = volumeString()
-	return when {
-		num != null && vol != null -> resources.getString(R.string.chapter_volume_number, vol, num)
-		num != null -> resources.getString(R.string.chapter_number, num)
-		index > 0 -> resources.getString(
-			R.string.chapters_time_pattern,
-			resources.getString(R.string.unnamed_chapter),
-			index.toString(),
-		)
-
-		else -> resources.getString(R.string.unnamed_chapter)
-	}
+	return formatLocalizedChapterTitle(
+		resources = resources,
+		title = title,
+		number = numberString(),
+		volume = volumeString(),
+		index = index,
+	)
 }
 
 fun Content.withOverride(override: ContentOverride?) = if (override != null) {

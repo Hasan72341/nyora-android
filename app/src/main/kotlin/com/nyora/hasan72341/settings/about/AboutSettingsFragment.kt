@@ -13,10 +13,5 @@ class AboutSettingsFragment : BasePreferenceFragment(R.string.about) {
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 		addPreferencesFromResource(R.xml.pref_about)
 		findPreference<Preference>("about_app_info")?.summary = "v${BuildConfig.VERSION_NAME}"
-		// Parsers are now compiled in natively (kotatsu-parsers-redo); no OTA bundle.
-		findPreference<Preference>("about_parser_info")?.apply {
-			summary = getString(R.string.bundled)
-			isSelectable = false
-		}
 	}
 }

@@ -15,6 +15,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import com.nyora.hasan72341.mihon.parsers.model.MangaSource
+import kotlinx.coroutines.runBlocking
 import java.io.IOException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -107,21 +108,22 @@ class MihonNetworkHelper(
                         .firstOrNull { it.name == "cf_clearance" }
                         ?.value
 
-                    tryFetchWithWebView(request)?.let { browserResponse ->
-                        val browserProtection = CloudFlareHelper.checkResponseForProtection(browserResponse)
-                        if (browserProtection == CloudFlareHelper.PROTECTION_NOT_DETECTED) {
+                    if (tryResolveWithWebView(challengeUrl)) {
+                        response.close()
+                        val retriedResponse = chain.proceed(request)
+                        val retriedProtection = CloudFlareHelper.checkResponseForProtection(retriedResponse)
+                        if (retriedProtection == CloudFlareHelper.PROTECTION_NOT_DETECTED) {
                             Log.i(
                                 "MihonNetwork",
-                                "WebView fallback succeeded for host=$host, status=${browserResponse.code}",
+                                "WebView Cloudflare resolve succeeded for host=$host, status=${retriedResponse.code}",
                             )
-                            response.close()
-                            return@addInterceptor browserResponse
+                            return@addInterceptor retriedResponse
                         }
                         Log.w(
                             "MihonNetwork",
-                            "WebView fallback still protected for host=$host, status=${browserResponse.code}",
+                            "WebView Cloudflare resolve still protected for host=$host, status=${retriedResponse.code}",
                         )
-                        browserResponse.close()
+                        retriedResponse.close()
                     }
 
                     if (shouldSkipInteractiveAction(host, clearance)) {
@@ -287,25 +289,19 @@ class MihonNetworkHelper(
         return if (value.length <= 8) "***" else "${value.take(4)}...${value.takeLast(4)}"
     }
 
-    private fun tryFetchWithWebView(request: Request): Response? {
-        if (request.method != "GET") {
-            Log.d("MihonNetwork", "WebView fallback skipped: non-GET ${request.method}")
-            return null
-        }
+    private fun tryResolveWithWebView(challengeUrl: String): Boolean {
         val executor = webViewExecutor
         if (executor == null) {
-            Log.w("MihonNetwork", "WebView fallback skipped: WebViewExecutor is null")
-            return null
+            Log.w("MihonNetwork", "WebView Cloudflare resolve skipped: WebViewExecutor is null")
+            return false
         }
-        val cookies = cookieJar.loadForRequest(request.url)
-        val hasCfClearance = cookies.any { it.name == "cf_clearance" }
-        if (!hasCfClearance) {
-            Log.d("MihonNetwork", "WebView fallback skipped: no cf_clearance for host=${request.url.host}")
-            return null
-        }
-        
-        Log.i("MihonNetwork", "WebView fallback is disabled due to missing implementation for WebViewExecutor.fetchWithBrowserContext")
-        return null
+        return runCatching {
+            runBlocking {
+                executor.resolveCloudflare(challengeUrl, timeoutMs = WEBVIEW_CF_TIMEOUT_MS)
+            }
+        }.onFailure {
+            Log.w("MihonNetwork", "WebView Cloudflare resolve failed for url=$challengeUrl", it)
+        }.getOrDefault(false)
     }
 
     private fun shouldSkipInteractiveAction(host: String, clearance: String?): Boolean {
@@ -336,6 +332,7 @@ class MihonNetworkHelper(
 
     companion object {
         private const val INTERACTIVE_RETRY_WINDOW_MS = 10 * 60 * 1000L
+        private const val WEBVIEW_CF_TIMEOUT_MS = 45_000L
         private val recentChallengeAttempts = ConcurrentHashMap<String, ChallengeAttempt>()
     }
 }

@@ -232,8 +232,6 @@ class TranslationOverlayView @JvmOverloads constructor(
 		return StaticLayout.Builder.obtain(text, 0, text.length, textPaint, width)
 			.setAlignment(Layout.Alignment.ALIGN_CENTER)
 			.setLineSpacing(0f, 1.25f)
-			.setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE)
-			.setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NONE)
 			.build()
 	}
 

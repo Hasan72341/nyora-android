@@ -205,24 +205,13 @@ private fun SpannableStringBuilder.appendTagsSummary(filter: MangaListFilter) {
 }
 
 fun MangaChapter.getLocalizedTitle(resources: Resources, index: Int = -1): String {
-	title?.let {
-		if (it.isNotBlank()) {
-			return it
-		}
-	}
-	val num = numberString()
-	val vol = volumeString()
-	return when {
-		num != null && vol != null -> resources.getString(R.string.chapter_volume_number, vol, num)
-		num != null -> resources.getString(R.string.chapter_number, num)
-		index > 0 -> resources.getString(
-			R.string.chapters_time_pattern,
-			resources.getString(R.string.unnamed_chapter),
-			index.toString(),
-		)
-
-		else -> resources.getString(R.string.unnamed_chapter)
-	}
+	return formatLocalizedChapterTitle(
+		resources = resources,
+		title = title,
+		number = numberString(),
+		volume = volumeString(),
+		index = index,
+	)
 }
 
 fun MangaChapter.numberString(): String? = if (number > 0f) {

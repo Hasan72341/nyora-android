@@ -19,8 +19,8 @@ object FrameRateManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             boostApi30(window)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            boostApi34(window)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            boostApi35(window)
         }
     }
 
@@ -55,8 +55,8 @@ object FrameRateManager {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private fun boostApi34(window: Window) {
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private fun boostApi35(window: Window) {
         try {
             window.setFrameRateBoostOnTouchEnabled(true)
         } catch (_: Exception) {

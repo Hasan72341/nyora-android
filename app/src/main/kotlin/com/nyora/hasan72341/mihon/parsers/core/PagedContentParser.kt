@@ -1,6 +1,5 @@
 package com.nyora.hasan72341.mihon.parsers.core
 
-import androidx.annotation.VisibleForTesting
 import com.nyora.hasan72341.mihon.parsers.ContentLoaderContext
 import com.nyora.hasan72341.mihon.parsers.InternalParsersApi
 import com.nyora.hasan72341.mihon.parsers.model.Content
@@ -13,7 +12,7 @@ import com.nyora.hasan72341.mihon.parsers.util.Paginator
 public abstract class PagedContentParser(
 	context: ContentLoaderContext,
 	source: ContentSource,
-	@VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) @JvmField public val pageSize: Int,
+	@JvmField public val pageSize: Int,
 	searchPageSize: Int = pageSize,
 ) : AbstractContentParser(context, source) {
 
@@ -55,4 +54,3 @@ public abstract class PagedContentParser(
 		return list
 	}
 }
-

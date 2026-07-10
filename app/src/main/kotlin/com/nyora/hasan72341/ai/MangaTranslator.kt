@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.TranslatorOptions
@@ -69,6 +71,7 @@ class MangaTranslator @Inject constructor(
 	private companion object {
 		const val BATCH_DEBOUNCE_MS = 1200L
 		const val MAX_BATCH_DIALOGUES = 12
+		const val MAX_OCR_PIXELS = 10_000_000.0
 	}
 
 	private val chapterCache = ConcurrentHashMap<Long, ConcurrentHashMap<String, String>>()
@@ -164,11 +167,14 @@ class MangaTranslator @Inject constructor(
 			}
 
 			val processedForOcr = preprocessBitmapForOcr(bitmap, OCR_SCALE_FACTOR)
-			val image = InputImage.fromBitmap(processedForOcr, 0)
+			val image = InputImage.fromBitmap(processedForOcr.bitmap, 0)
 			
 			// Google-level Vision: Ensemble OCR with script-aware selection
-			val ocrResult = ocrProvider.runEnsembleOcr(image)
-			processedForOcr.recycle()
+			val ocrResult = try {
+				ocrProvider.runEnsembleOcr(image)
+			} finally {
+				processedForOcr.bitmap.recycle()
+			}
 			
 			if (ocrResult.blocks.isEmpty()) {
 				send(emptyList()); return@channelFlow
@@ -178,10 +184,10 @@ class MangaTranslator @Inject constructor(
 			val scaledBlocks = ocrResult.blocks.map { block ->
 				block.copy(
 					boundingBox = Rect(
-						(block.boundingBox.left / OCR_SCALE_FACTOR).toInt(),
-						(block.boundingBox.top / OCR_SCALE_FACTOR).toInt(),
-						(block.boundingBox.right / OCR_SCALE_FACTOR).toInt(),
-						(block.boundingBox.bottom / OCR_SCALE_FACTOR).toInt()
+						(block.boundingBox.left / processedForOcr.scale).toInt(),
+						(block.boundingBox.top / processedForOcr.scale).toInt(),
+						(block.boundingBox.right / processedForOcr.scale).toInt(),
+						(block.boundingBox.bottom / processedForOcr.scale).toInt()
 					)
 				)
 			}
@@ -310,7 +316,9 @@ class MangaTranslator @Inject constructor(
 						}
 					}
 	
-					translatePageDialoguesAtOnce(chapterId, pageIndex, currentBlocksState.value)
+					if (isAiRefinementConfigured()) {
+						translatePageDialoguesAtOnce(chapterId, pageIndex, currentBlocksState.value)
+					}
 				} catch (e: Exception) {
 					android.util.Log.e("MangaTranslator", "MT failed for page $pageIndex", e)
 					// Keep pipeline moving: use OCR text as draft so LLM refinement can still run.
@@ -326,7 +334,9 @@ class MangaTranslator @Inject constructor(
 							}
 						}
 					}
-					translatePageDialoguesAtOnce(chapterId, pageIndex, currentBlocksState.value)
+					if (isAiRefinementConfigured()) {
+						translatePageDialoguesAtOnce(chapterId, pageIndex, currentBlocksState.value)
+					}
 				}
 			}
 			
@@ -342,48 +352,57 @@ class MangaTranslator @Inject constructor(
 
 	suspend fun translateChapter(chapterId: Long, uris: List<Uri>) = withContext(Dispatchers.Default) {
 		val allDialogues = mutableListOf<DialogueBlock>()
+		val detectedLanguages = mutableListOf<String>()
 		val chapterMap = chapterCache.getOrPut(chapterId) { ConcurrentHashMap() }
 
 		// Parallel OCR pass
 		uris.forEachIndexed { pIndex, uri ->
 			val bitmap = decodeUriToBitmap(uri) ?: return@forEachIndexed
-			val processedForOcr = preprocessBitmapForOcr(bitmap, OCR_SCALE_FACTOR)
-			val image = InputImage.fromBitmap(processedForOcr, 0)
-			val result = ocrProvider.runEnsembleOcr(image)
-			processedForOcr.recycle()
+			try {
+				val processedForOcr = preprocessBitmapForOcr(bitmap, OCR_SCALE_FACTOR)
+				val image = InputImage.fromBitmap(processedForOcr.bitmap, 0)
+				val result = try {
+					ocrProvider.runEnsembleOcr(image)
+				} finally {
+					processedForOcr.bitmap.recycle()
+				}
+				detectedLanguages += result.language
 			
-			// Scale bounding boxes back down to original image dimensions
-			val scaledBlocks = result.blocks.map { block ->
-				block.copy(
-					boundingBox = Rect(
-						(block.boundingBox.left / OCR_SCALE_FACTOR).toInt(),
-						(block.boundingBox.top / OCR_SCALE_FACTOR).toInt(),
-						(block.boundingBox.right / OCR_SCALE_FACTOR).toInt(),
-						(block.boundingBox.bottom / OCR_SCALE_FACTOR).toInt()
+				// Scale bounding boxes back down to original image dimensions
+				val scaledBlocks = result.blocks.map { block ->
+					block.copy(
+						boundingBox = Rect(
+							(block.boundingBox.left / processedForOcr.scale).toInt(),
+							(block.boundingBox.top / processedForOcr.scale).toInt(),
+							(block.boundingBox.right / processedForOcr.scale).toInt(),
+							(block.boundingBox.bottom / processedForOcr.scale).toInt()
+						)
 					)
-				)
-			}
+				}
 			
-			val bubbles = mergeBlocksIntoBubbles(scaledBlocks)
+				val bubbles = mergeBlocksIntoBubbles(scaledBlocks)
 			
-			bubbles.forEachIndexed { bIndex, bubble ->
-				allDialogues.add(
-					DialogueBlock(
-						id = "p${pIndex}_b${bIndex}",
-						original = bubble.text,
-						mt_draft = bubble.text,
-					),
-				)
+				bubbles.forEachIndexed { bIndex, bubble ->
+					allDialogues.add(
+						DialogueBlock(
+							id = "p${pIndex}_b${bIndex}",
+							original = bubble.text,
+							mt_draft = bubble.text,
+						),
+					)
+				}
+			} finally {
+				bitmap.recycle()
 			}
-			bitmap.recycle()
 		}
 
 		if (allDialogues.isEmpty()) return@withContext
+		val sourceLang = resolveSourceLanguage(detectedLanguages)
 
 		// Run Fast MT Pass to populate mt_draft
 		try {
 			if (settings.isAiTranslateOffline) {
-				val sourceCode = getMlKitLanguageCode(settings.aiSourceLang)
+				val sourceCode = getMlKitLanguageCode(sourceLang)
 				val targetCode = getMlKitLanguageCode(settings.aiTargetLang)
 				val options = TranslatorOptions.Builder()
 					.setSourceLanguage(sourceCode)
@@ -434,19 +453,23 @@ class MangaTranslator @Inject constructor(
 			android.util.Log.e("MangaTranslator", "Preload MT draft failed, falling back to OCR text", e)
 		}
 
+		if (!isAiRefinementConfigured()) {
+			return@withContext
+		}
+
 		// Split all dialogues into chunks of 12 for fast, robust sequential completion
 		val chunks = allDialogues.chunked(12)
 		chunks.forEachIndexed { chunkIndex, chunk ->
 			try {
 				val request = ChapterTranslationRequest(
-					source_lang = settings.aiSourceLang,
+					source_lang = sourceLang,
 					target_lang = settings.aiTargetLang,
 					dialogues = chunk
 				)
 
 				val prompt = """
 					<instructions>
-					You are an elite, award-winning manga localizer. Your task is to translate an entire manga chapter from ${settings.aiSourceLang} to ${settings.aiTargetLang}.
+					You are an elite, award-winning manga localizer. Your task is to translate an entire manga chapter from $sourceLang to ${settings.aiTargetLang}.
 					
 					1. You MUST read the <context> carefully. Preserve character personalities, genders, and consistent naming.
 					2. CJK languages often split sentences across multiple bubbles. You must intelligently reassemble fragmented sentences across the provided IDs to ensure natural, idiomatic flow in ${settings.aiTargetLang}.
@@ -595,19 +618,42 @@ class MangaTranslator @Inject constructor(
 		return "${settings.aiSourceLang}|${settings.aiTargetLang}|${settings.aiModel}|${original.trim()}|${draft.trim()}"
 	}
 
+	private fun isAiRefinementConfigured(): Boolean {
+		return settings.aiEndpoint.isNotBlank() &&
+			settings.aiApiKey.isNotBlank() &&
+			settings.aiModel.isNotBlank()
+	}
+
+	private fun resolveSourceLanguage(detectedLanguages: List<String>): String {
+		val configured = settings.aiSourceLang
+		if (!configured.equals("AUTO", ignoreCase = true)) {
+			return configured
+		}
+		return detectedLanguages.firstOrNull { it != "en" }
+			?: detectedLanguages.firstOrNull()
+			?: "en"
+	}
+
 	// --- Heuristics and Utilities ---
 
-	private fun preprocessBitmapForOcr(original: Bitmap, scaleFactor: Float): Bitmap {
+	private fun preprocessBitmapForOcr(original: Bitmap, scaleFactor: Float): OcrBitmap {
 		// Hardware bitmaps cannot be drawn on a software canvas. We must copy it to a software bitmap first.
-		val softwareBitmap = if (original.config == Bitmap.Config.HARDWARE) {
+		val softwareBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && original.isHardwareBitmap()) {
 			original.copy(Bitmap.Config.ARGB_8888, false) ?: original
 		} else {
 			original
 		}
 
-		val targetWidth = (softwareBitmap.width * scaleFactor).toInt()
-		val targetHeight = (softwareBitmap.height * scaleFactor).toInt()
-		val scaledBitmap = Bitmap.createScaledBitmap(softwareBitmap, targetWidth, targetHeight, true)
+		val sourcePixels = softwareBitmap.width.toDouble() * softwareBitmap.height.toDouble()
+		val maxScaleByPixels = kotlin.math.sqrt(MAX_OCR_PIXELS / sourcePixels).toFloat()
+		val actualScale = scaleFactor.coerceAtMost(maxScaleByPixels).coerceAtLeast(0.35f)
+		val targetWidth = (softwareBitmap.width * actualScale).toInt().coerceAtLeast(1)
+		val targetHeight = (softwareBitmap.height * actualScale).toInt().coerceAtLeast(1)
+		val scaledBitmap = if (targetWidth == softwareBitmap.width && targetHeight == softwareBitmap.height) {
+			softwareBitmap
+		} else {
+			Bitmap.createScaledBitmap(softwareBitmap, targetWidth, targetHeight, true)
+		}
 
 		val processedBitmap = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888)
 		val canvas = android.graphics.Canvas(processedBitmap)
@@ -634,10 +680,15 @@ class MangaTranslator @Inject constructor(
 		if (softwareBitmap != original) {
 			softwareBitmap.recycle()
 		}
-		scaledBitmap.recycle()
+		if (scaledBitmap !== softwareBitmap) {
+			scaledBitmap.recycle()
+		}
 		
-		return processedBitmap
+		return OcrBitmap(processedBitmap, actualScale)
 	}
+
+	@RequiresApi(Build.VERSION_CODES.O)
+	private fun Bitmap.isHardwareBitmap(): Boolean = config == Bitmap.Config.HARDWARE
 
 	private fun mergeBlocksIntoBubbles(blocks: List<OcrProvider.MangaBlock>): List<MangaBubble> {
 		val clustered = mutableListOf<MangaBubble>()
@@ -794,4 +845,6 @@ class MangaTranslator @Inject constructor(
 	}
 
 	private data class MangaBubble(val text: String, val box: Rect)
+
+	private data class OcrBitmap(val bitmap: Bitmap, val scale: Float)
 }

@@ -108,7 +108,7 @@ class SupabaseSync @Inject constructor(
         val exp = runCatching {
             val payload = token.split(".")[1]
             val padded = payload + "=".repeat((4 - payload.length % 4) % 4)
-            val decoded = String(java.util.Base64.getUrlDecoder().decode(padded))
+            val decoded = String(android.util.Base64.decode(padded, android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP))
             JSONObject(decoded).optLong("exp", 0L)
         }.getOrDefault(0L)
         if (exp > 0L && exp * 1000 < System.currentTimeMillis() + 60_000) {

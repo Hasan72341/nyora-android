@@ -11,12 +11,6 @@
 		android:persistent="false" />
 
 	<Preference
-		android:key="about_parser_info"
-		android:title="@string/parser_bundle"
-		android:summary="@string/checking_for_updates"
-		android:persistent="false" />
-
-	<Preference
 		android:title="Official website"
 		android:summary="nyora.pages.dev"
 		android:persistent="false">
