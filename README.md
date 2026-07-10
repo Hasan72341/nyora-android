@@ -44,7 +44,7 @@ Nyora is a polished, privacy-first manga reader for Android — a fork of [Kotat
 ## Why You'll Love It
 
 - **Read raws in your language, instantly.** Translation isn't a side feature — it's the headline. Tap once and the *whole page* is detected, translated and typeset back over the original art. No copy-paste, no cropping, no waiting on a scanlation that may never land.
-- **Your library, everywhere, for free.** One free Google sign-in keeps your library, categories, history, bookmarks and exact reading progress in lockstep across Android, iOS, macOS, Windows, Linux and the Web. Switch devices mid-chapter; never lose your place.
+- **Your library, everywhere, for free.** One free Nyora Cloud account (email + password) keeps your library, categories, history, bookmarks and exact reading progress in lockstep across Android, iOS, macOS, Windows, Linux and the Web. Switch devices mid-chapter; never lose your place.
 - **Works on the train, on a flight, off-grid.** Download chapters with a tap, open CBZ archives you already own, and an on-device translation fallback keeps working with no connection.
 - **Nothing watching you.** No ads, no trackers, no telemetry, no account to read. Sign-in exists *only* for optional sync. Because every line is open-source, you can verify exactly that.
 - **Native, fast, and yours.** Built with Jetpack Compose and Material You, with AMOLED dark mode, app-lock and incognito reading. Your library is stored on your device and is yours to keep, export and move.
@@ -56,7 +56,7 @@ Nyora is a polished, privacy-first manga reader for Android — a fork of [Kotat
 | Translate | Detects every bubble and caption, translates the whole page, and typesets it back over the original artwork — with an on-device offline ML fallback. |
 | Download | Save chapters with a tap for offline reading; open and read local CBZ archives too. |
 | Sources | 1100+ built-in sources for manga, manhwa & manhua, plus native Tachiyomi / Mihon / Keiyoushi extension support. |
-| Sync | Free Google cloud sync of library, categories, history, bookmarks and exact reading progress across every platform. |
+| Sync | Free Nyora Cloud sync of library, categories, history, bookmarks and exact reading progress across every platform. |
 | Open Source | 100% free, ad-free, no tracking, no sign-up to read. Android app under GPLv3; rest of the ecosystem Apache-2.0. |
 
 ## Table of Contents
@@ -109,7 +109,7 @@ Browse, search and filter across **1100+ built-in sources** spanning **manga, ma
 
 ### Cloud Sync
 
-Sign in with **Google** and your world follows you. Your **library, custom categories, reading history, bookmarks and exact reading progress** stay in lockstep across **Android, iOS, macOS, Windows, Linux and the Web**. Switch devices mid-chapter and you never lose your place. Sync is **opt-in and account-based** — it exists only to carry your own reading state between your own devices — and it is completely **free**, with no subscription and no premium tier gating it. Prefer to stay local? Never sign in and Nyora works fully offline.
+Create a free **Nyora Cloud** account with just an **email and password** and your world follows you. Sync runs on Nyora's own **self-hosted backend** (no Google account, no third-party sign-in). Your **library, custom categories, reading history, bookmarks and exact reading progress** stay in lockstep across **Android, iOS, macOS, Windows, Linux and the Web**. Switch devices mid-chapter and you never lose your place. Sync is **opt-in and account-based** — it exists only to carry your own reading state between your own devices — and it is completely **free**, with no subscription and no premium tier gating it. Prefer to stay local? Never sign in and Nyora works fully offline.
 
 ### Reader
 
@@ -142,7 +142,7 @@ A quick, honest snapshot of what the Android app does today.
 | Standard + webtoon reader | Yes |
 | LTR / RTL / vertical, double-page | Yes |
 | Per-title reader settings | Yes |
-| Free cloud sync (Google) | Yes |
+| Free cloud sync (Nyora Cloud account) | Yes |
 | Trackers (AniList / MAL / Shikimori / Kitsu) | Yes |
 | App-lock (PIN / fingerprint) | Yes |
 | Incognito mode | Yes |
@@ -188,7 +188,7 @@ That's it — no sign-up, no onboarding wall. Start reading immediately; sign in
 
 **Updating**
 
-Newer releases are published on the same Releases page. Download and install the new APK over your existing install — your library, downloads and settings are preserved, and if you use cloud sync your library is also restored on a fresh install once you sign in with Google.
+Newer releases are published on the same Releases page. Download and install the new APK over your existing install — your library, downloads and settings are preserved, and if you use cloud sync your library is also restored on a fresh install once you sign in to your Nyora Cloud account.
 
 **Troubleshooting**
 
@@ -238,7 +238,7 @@ Nyora for Android is a fork of [Kotatsu](https://github.com/KotatsuApp/Kotatsu),
 - **Reader engine** — a tuned image reader handles standard and webtoon modes, multiple orientations, zoom, double-page layout and live colour correction, with per-title settings persisted locally.
 - **Translation pipeline** — whole-page detection, translation and typesetting render translated text back over the original artwork, with an **on-device offline ML fallback** so the feature works without a network connection.
 - **Offline & local files** — a download manager queues and stores chapters for offline reading, and the same reader opens local **CBZ** archives.
-- **Cloud sync** — signing in with **Google** synchronises library, categories, history, bookmarks and reading progress across all Nyora platforms, so state is consistent on every device.
+- **Cloud sync** — signing in to a **Nyora Cloud** account (email + password) synchronises library, categories, history, bookmarks and reading progress across all Nyora platforms, so state is consistent on every device. Sync talks to Nyora's self-hosted backend at `https://stream.hasanraza.tech` (OAuth2 password flow + JWT), not any third-party service.
 - **Privacy surfaces** — app-lock (PIN/fingerprint) and incognito mode are built in; no tracking is performed and no account is required for local-only reading.
 
 ## Nyora on Every Platform
@@ -252,7 +252,7 @@ Nyora for Android is a fork of [Kotatsu](https://github.com/KotatsuApp/Kotatsu),
 | iOS / iPadOS | [nyora-ios](https://github.com/Hasan72341/nyora-ios) | [sideload IPA](https://github.com/Hasan72341/nyora-ios/releases/latest) |
 | Web | — | [nyoraweb.pages.dev](https://nyoraweb.pages.dev) |
 
-All platforms share one synced library, categories, history, bookmarks and exact reading progress through the same free Google sign-in.
+All platforms share one synced library, categories, history, bookmarks and exact reading progress through the same free Nyora Cloud account.
 
 ## Roadmap
 
@@ -270,13 +270,13 @@ Yes, it is 100% free and completely ad-free. There is no premium tier, no subscr
 Nyora is distributed as a **signed APK** outside the Play Store, so the first time you install it Android asks you to allow installs from your browser or file manager. That prompt — and any Play Protect warning — is **standard for every non-Store app**; it is not specific to Nyora and does not mean anything is wrong. Because Nyora is fully open-source, you (or anyone) can read every line and even build the APK yourself to confirm it matches the release. Choose **Install anyway** when prompted.
 
 **Do I need an account?**
-No account is required to read. Signing in with Google is only for optional cloud sync of your library and progress.
+No account is required to read. A free Nyora Cloud account (email + password) is only for optional cloud sync of your library and progress.
 
 **Will my data be private?**
-Yes. There are no ads and no tracking, and reading never requires an account. Your library, history and downloads live on your device. If you opt into sync, it carries only your own reading state (library, categories, history, bookmarks, progress) between your own devices via your Google sign-in — nothing more.
+Yes. There are no ads and no tracking, and reading never requires an account. Your library, history and downloads live on your device. If you opt into sync, it carries only your own reading state (library, categories, history, bookmarks, progress) between your own devices via your Nyora Cloud account — nothing more.
 
 **How do I update?**
-Download the newest APK from the [Releases page](https://github.com/Hasan72341/nyora-android/releases/latest) and install it over your existing version. Your library, downloads and settings are preserved, and cloud sync restores your library after a fresh install once you sign back in.
+Download the newest APK from the [Releases page](https://github.com/Hasan72341/nyora-android/releases/latest) and install it over your existing version. Your library, downloads and settings are preserved, and cloud sync restores your library after a fresh install once you sign back in to your Nyora Cloud account.
 
 **Where does the content come from?**
 Nyora hosts no manga. It accesses 1100+ built-in sources and is compatible with Tachiyomi / Mihon / Keiyoushi extensions — it is a reader, not a host, and is not affiliated with any of the sources it can access.
@@ -285,7 +285,7 @@ Nyora hosts no manga. It accesses 1100+ built-in sources and is compatible with 
 Yes. Nyora supports Tachiyomi / Mihon / Keiyoushi extensions natively, so the extension packages you already use plug straight in without conversion.
 
 **Does cloud sync need an account, and is it private?**
-Sync is opt-in and tied to your own Google sign-in. It carries only your library, categories, history, bookmarks and reading progress between your own devices. Reading itself never requires an account — you only sign in if you want sync.
+Sync is opt-in and tied to your own free Nyora Cloud account (email + password), running on Nyora's self-hosted backend rather than any third-party service. It carries only your library, categories, history, bookmarks and reading progress between your own devices. Reading itself never requires an account — you only sign in if you want sync.
 
 **Can I read offline?**
 Yes. Download chapters in-app for offline reading, and open local CBZ archives you already own. An on-device offline ML translation fallback also works without a connection.
