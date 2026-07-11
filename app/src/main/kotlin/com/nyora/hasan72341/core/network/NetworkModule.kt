@@ -97,6 +97,9 @@ interface NetworkModule {
         ): OkHttpClient = baseClient.newBuilder().apply {
             addNetworkInterceptor(CacheLimitInterceptor())
             addInterceptor(commonHeadersInterceptor)
+            // Restore the *Lib family (api.cdnlibs.org): supply Origin/Referer and
+            // flatten the new ProseMirror `summary` object back to a string.
+            addInterceptor(LibApiHeadersInterceptor())
         }.build()
 
         @Provides
