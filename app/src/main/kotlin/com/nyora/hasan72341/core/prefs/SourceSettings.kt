@@ -3,6 +3,7 @@ package com.nyora.hasan72341.core.prefs
 import android.content.Context
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import androidx.core.content.edit
+import com.nyora.hasan72341.core.SourcePatches
 import com.nyora.hasan72341.core.util.ext.getEnumValue
 import com.nyora.hasan72341.core.util.ext.putEnumValue
 import com.nyora.hasan72341.core.util.ext.sanitizeHeaderValue
@@ -16,7 +17,7 @@ import com.nyora.hasan72341.mihon.parsers.util.nullIfEmpty
 import com.nyora.hasan72341.settings.utils.validation.DomainValidator
 import java.io.File
 
-class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig {
+class SourceSettings(context: Context, private val source: MangaSource) : MangaSourceConfig {
 
     private val prefs = context.getSharedPreferences(
         source.name.replace(File.separatorChar, '$'),
@@ -40,10 +41,16 @@ class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig 
 				.ifNullOrEmpty { key.defaultValue }
 				.sanitizeHeaderValue()
 
-			is ConfigKey.Domain -> prefs.getString(key.key, key.defaultValue)
-				?.trim()
-				?.takeIf { DomainValidator.isValidDomain(it) }
-				?: key.defaultValue
+			// For a relocated source whose baked-in domain is dead, SourcePatches.DOMAIN_OVERRIDES
+			// supplies the current live domain; it is the effective default (a user-set domain pref
+			// still wins). Mirrors the helper's OverrideSourceConfig — without this the override was inert.
+			is ConfigKey.Domain -> {
+				val fallback = SourcePatches.DOMAIN_OVERRIDES[source.name] ?: key.defaultValue
+				prefs.getString(key.key, fallback)
+					?.trim()
+					?.takeIf { DomainValidator.isValidDomain(it) }
+					?: fallback
+			}
 
 			is ConfigKey.ShowSuspiciousContent -> prefs.getBoolean(key.key, key.defaultValue)
 			is ConfigKey.SplitByTranslations -> prefs.getBoolean(key.key, key.defaultValue)
