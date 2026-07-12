@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.annotation.AnyThread
 import androidx.collection.ArrayMap
 import dagger.hilt.android.qualifiers.ApplicationContext
+import okhttp3.OkHttpClient
 import com.nyora.hasan72341.core.cache.MemoryContentCache
+import com.nyora.hasan72341.core.network.MangaHttpClient
 import com.nyora.hasan72341.core.model.LocalMangaSource
 import com.nyora.hasan72341.core.model.MangaSourceInfo
 import com.nyora.hasan72341.core.model.TestMangaSource
@@ -58,6 +60,7 @@ interface MangaRepository {
 		private val loaderContext: MangaLoaderContext,
 		private val contentCache: MemoryContentCache,
 		private val mirrorSwitcher: MirrorSwitcher,
+		@MangaHttpClient private val okHttpClient: OkHttpClient,
 	) {
 
 		private val cache = ArrayMap<MangaSource, WeakReference<MangaRepository>>()
@@ -85,6 +88,15 @@ interface MangaRepository {
 		private fun createRepository(source: MangaSource): MangaRepository? = when (source) {
 			TestMangaSource -> TestMangaRepository(
 				loaderContext = loaderContext,
+				cache = contentCache,
+			)
+
+			// MangaFire moved to a new JSON API the bundled kotatsu parser can't read; back the
+			// MANGAFIRE_* enum entries with the native repository instead. Must precede the
+			// generic MangaParserSource branch below.
+			is MangaParserSource if source.name.startsWith("MANGAFIRE") -> MangaFireMangaRepository(
+				source = source,
+				okHttpClient = okHttpClient,
 				cache = contentCache,
 			)
 
