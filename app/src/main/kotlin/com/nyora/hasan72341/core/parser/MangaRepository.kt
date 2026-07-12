@@ -100,6 +100,13 @@ interface MangaRepository {
 				cache = contentCache,
 			)
 
+			// Toonily.me → toondex.io (MangaBuddy JSON API); kotatsu Madtheme parser no longer matches.
+			is MangaParserSource if source.name == "TOONILY_ME" -> ToonDexMangaRepository(
+				source = source,
+				okHttpClient = okHttpClient,
+				cache = contentCache,
+			)
+
 			is MangaParserSource -> ParserMangaRepository(
 				parser = loaderContext.newParserInstance(source),
 				mirrorSwitcher = mirrorSwitcher,
