@@ -93,7 +93,7 @@ open class BaseApp : Application(), Configuration.Provider {
 		// Self-hosted Nyora sync server (OAuth2/JWT — replaces Supabase + Google).
 		// anonKey is unused by this server but kept non-blank so isConfigured stays true.
 		supabaseConfig.configure(
-			url = "https://stream.hasanraza.tech",
+			url = "https://sync.nyora.xyz",
 			anonKey = "self-hosted"
 		)
 		// Remote master switch: fetch + verify the signed config and unlock/lock

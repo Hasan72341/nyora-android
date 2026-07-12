@@ -238,7 +238,7 @@ Nyora for Android is a fork of [Kotatsu](https://github.com/KotatsuApp/Kotatsu),
 - **Reader engine** — a tuned image reader handles standard and webtoon modes, multiple orientations, zoom, double-page layout and live colour correction, with per-title settings persisted locally.
 - **Translation pipeline** — whole-page detection, translation and typesetting render translated text back over the original artwork, with an **on-device offline ML fallback** so the feature works without a network connection.
 - **Offline & local files** — a download manager queues and stores chapters for offline reading, and the same reader opens local **CBZ** archives.
-- **Cloud sync** — signing in to a **Nyora Cloud** account (email + password) synchronises library, categories, history, bookmarks and reading progress across all Nyora platforms, so state is consistent on every device. Sync talks to Nyora's self-hosted backend at `https://stream.hasanraza.tech` (OAuth2 password flow + JWT), not any third-party service.
+- **Cloud sync** — signing in to a **Nyora Cloud** account (email + password) synchronises library, categories, history, bookmarks and reading progress across all Nyora platforms, so state is consistent on every device. Sync talks to Nyora's self-hosted backend at `https://sync.nyora.xyz` (OAuth2 password flow + JWT), not any third-party service.
 - **Privacy surfaces** — app-lock (PIN/fingerprint) and incognito mode are built in; no tracking is performed and no account is required for local-only reading.
 
 ## Nyora on Every Platform
