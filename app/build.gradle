@@ -173,6 +173,15 @@ dependencies {
 		exclude group: 'org.json', module: 'json'
 	}
 
+	// Data-driven engine runtime: 35 generic engines + EngineRegistry that render
+	// runtime-fetched SourceDefs (no per-source scrapers baked into the APK). org.json
+	// is provided by the Android platform, so the library's copy is excluded to avoid a
+	// duplicate-class clash. Resolved from the local composite build if present, else JitPack.
+	//noinspection UseTomlInstead
+	implementation("com.github.Nyora-Manga:nyora-data-driven:0.1.0") {
+		exclude group: 'org.json', module: 'json'
+	}
+
     def composeBom = platform(libs.compose.bom)
     implementation composeBom
     androidTestImplementation composeBom

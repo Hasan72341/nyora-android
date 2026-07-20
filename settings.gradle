@@ -29,6 +29,15 @@ dependencyResolutionManagement {
 	}
 }
 
+// Data-driven engine runtime (Nyora-Manga/nyora-data-driven): the 35 generic engines
+// + EngineRegistry that render repo-supplied SourceDefs at runtime. Consumed locally as
+// a composite build for fast iteration; CI/release resolve the same coordinate from
+// JitPack (com.github.Nyora-Manga:nyora-data-driven). Gradle substitutes the dependency
+// with this build when the path is present.
+if (file('../../nyora-data-driven').exists()) {
+	includeBuild('../../nyora-data-driven')
+}
+
 include ':app'
 include ':translator'
 rootProject.name = "Nyora"
