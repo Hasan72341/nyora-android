@@ -33,7 +33,6 @@ import java.util.concurrent.ConcurrentHashMap
 class AndroidEngineContext(
     private val client: OkHttpClient,
     private val source: MangaSource,
-    private val userAgent: String = DEFAULT_UA,
 ) : EngineContext {
 
     override val prefs: SourcePrefs = InMemoryPrefs()
@@ -46,8 +45,11 @@ class AndroidEngineContext(
             // jar are keyed by source) — exactly how the native parser requests are handled.
             .tag(MangaSource::class.java, source)
 
+        // Deliberately DON'T set User-Agent here: Cloudflare binds cf_clearance to the exact UA that
+        // solved the challenge (the app's WebView UA), so CommonHeadersInterceptor must be the one to
+        // supply it. A hardcoded UA here would mismatch cf_clearance and re-trigger the challenge on
+        // every retry after a solve. Only headers the engine itself sets are passed through.
         val headers = LinkedHashMap<String, String>()
-        headers["User-Agent"] = userAgent
         headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
         headers["Accept-Language"] = "en-US,en;q=0.9"
         headers.putAll(request.headers)
@@ -101,12 +103,6 @@ class AndroidEngineContext(
         override fun putString(key: String, value: String?) {
             if (value == null) map.remove(key) else map[key] = value
         }
-    }
-
-    companion object {
-        const val DEFAULT_UA =
-            "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 " +
-                "(KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
     }
 }
 
