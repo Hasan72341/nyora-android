@@ -182,16 +182,12 @@ class MangaSourcesRepository @Inject constructor(
 		observeIsNsfwDisabled(),
 		observeAllEnabled(),
 		observeSortOrder(),
-		observeSourcesUnlocked(),
-	) { skipNsfw, allEnabled, order, unlocked ->
-		val sourcesFlow: Flow<List<MangaSourceInfo>> = if (!unlocked) {
-			flowOf(emptyList())
-		} else {
-			dao.observeAll(!allEnabled, order).map {
-				it.toSources(skipNsfw, order)
-			}
+	) { skipNsfw, allEnabled, order ->
+		// No unlock gate: P5 removed the baked-in scrapers, so the RemoteSourceGate is obsolete and
+		// data-driven sources are always visible.
+		dao.observeAll(!allEnabled, order).map {
+			it.toSources(skipNsfw, order)
 		}
-		sourcesFlow
 	}.flattenLatest()
 		.onStart { assimilateNewSources() }
 
@@ -275,6 +271,13 @@ class MangaSourcesRepository @Inject constructor(
 		settings.sourcesVersion = BuildConfig.VERSION_CODE
 	}
 
+	/**
+	 * Insert any not-yet-known sources into the DB. Call after the runtime catalogue has been
+	 * fetched so the observing source list (whose `onStart` assimilate fired before the catalogue
+	 * arrived) picks up the new data-driven sources without a relaunch.
+	 */
+	suspend fun assimilateFromCatalogue(): Boolean = assimilateNewSources()
+
 	private suspend fun assimilateNewSources(): Boolean {
 		val size = allMangaSources.size
 		if (size == lastAssimilatedSize) {
@@ -335,12 +338,9 @@ class MangaSourcesRepository @Inject constructor(
 
 	private suspend fun getNewSources(): MutableSet<out MangaSource> {
 		val entities = dao.findAll()
-		val result = HashSet<MangaSource>()
-		result.addAll(
-			MangaParserSource.entries.filterNot {
-				it.isBroken || it.name in com.nyora.hasan72341.core.SourcePatches.DEAD_SOURCES
-			},
-		)
+		// Use the full catalogue (native + runtime data-driven), not just the compiled
+		// MangaParserSource enum — otherwise data-driven sources are never assimilated into the DB.
+		val result = HashSet<MangaSource>(allMangaSources)
 		for (e in entities) {
 			result.remove(e.source.toMangaSourceOrNull() ?: continue)
 		}
@@ -370,15 +370,15 @@ class MangaSourcesRepository @Inject constructor(
 			if (skipNsfwSources && source.isNsfw()) {
 				continue
 			}
-			if (source is MangaParserSource) {
-				result.add(
-					MangaSourceInfo(
-						mangaSource = source,
-						isEnabled = entity.isEnabled || isAllEnabled,
-						isPinned = entity.isPinned,
-					),
-				)
-			}
+			// Add every resolved source, not only native MangaParserSource ones — otherwise
+			// data-driven sources are silently dropped from the list.
+			result.add(
+				MangaSourceInfo(
+					mangaSource = source,
+					isEnabled = entity.isEnabled || isAllEnabled,
+					isPinned = entity.isPinned,
+				),
+			)
 		}
 		if (sortOrder == SourcesSortOrder.ALPHABETIC) {
 			result.sortWith(compareBy<MangaSourceInfo> { !it.isPinned }.thenBy { it.getTitle(context) })
@@ -404,13 +404,12 @@ class MangaSourcesRepository @Inject constructor(
 		isSourcesUnlocked
 	}
 
-	private fun String.toMangaSourceOrNull(): MangaSource? {
-		if (startsWith("content:")) {
-			return com.nyora.hasan72341.core.model.MangaSource(this)
-		}
-		// native kotatsu-parsers-redo sources are keyed by their enum name
-		return MangaParserSource.entries.firstOrNull { it.name == this }
-	}
+	private fun String.toMangaSourceOrNull(): MangaSource? =
+		// Route through the central resolver so ALL kinds resolve — content:, native enum, and
+		// (crucially) DD_-prefixed data-driven sources via their catalogue registry. Resolving only
+		// the enum here silently dropped every data-driven source from the list.
+		com.nyora.hasan72341.core.model.MangaSource(this)
+			.takeUnless { it == com.nyora.hasan72341.core.model.UnknownMangaSource }
 }
 
 private fun org.koitharu.kotatsu.parsers.model.ContentType.toNyoraContentType(): ContentType = when (this) {

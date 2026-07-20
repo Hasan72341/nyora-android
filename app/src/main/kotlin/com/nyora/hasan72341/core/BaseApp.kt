@@ -72,6 +72,9 @@ open class BaseApp : Application(), Configuration.Provider {
 	@Inject
 	lateinit var dataDrivenCatalogue: com.nyora.hasan72341.core.parser.datadriven.DataDrivenCatalogueRepository
 
+	@Inject
+	lateinit var mangaSourcesRepository: com.nyora.hasan72341.explore.data.MangaSourcesRepository
+
 	override val workManagerConfiguration: Configuration
 		get() = Configuration.Builder()
 			.setWorkerFactory(workerFactory)
@@ -117,6 +120,9 @@ open class BaseApp : Application(), Configuration.Provider {
 		// non-fatal — the disk cache from a previous launch keeps the catalogue usable offline.
 		processLifecycleScope.launch(Dispatchers.IO) {
 			dataDrivenCatalogue.refresh()
+			// Assimilate the freshly-fetched catalogue so the observing source list updates without
+			// a relaunch (its onStart assimilate fired before the async fetch landed).
+			mangaSourcesRepository.assimilateFromCatalogue()
 		}
 	}
 
