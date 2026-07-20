@@ -7,8 +7,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.OkHttpClient
 import com.nyora.hasan72341.core.cache.MemoryContentCache
 import com.nyora.hasan72341.core.network.MangaHttpClient
+import com.nyora.hasan72341.core.model.DataDrivenMangaSource
 import com.nyora.hasan72341.core.model.LocalMangaSource
 import com.nyora.hasan72341.core.model.MangaSourceInfo
+import com.nyora.hasan72341.core.parser.datadriven.AndroidEngineContext
 import com.nyora.hasan72341.core.model.TestMangaSource
 import com.nyora.hasan72341.core.model.UnknownMangaSource
 import com.nyora.hasan72341.local.data.LocalMangaRepository
@@ -111,6 +113,13 @@ interface MangaRepository {
 				parser = loaderContext.newParserInstance(source),
 				mirrorSwitcher = mirrorSwitcher,
 				cache = contentCache,
+			)
+
+			// Data-driven source: rendered at runtime by a bundled generic engine from
+			// fetched SourceDef data, with no per-source parser in the APK.
+			is DataDrivenMangaSource -> DataDrivenMangaRepository(
+				ddSource = source,
+				context = AndroidEngineContext(okHttpClient),
 			)
 
 			else -> null
