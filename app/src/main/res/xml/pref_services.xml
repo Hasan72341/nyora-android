@@ -32,12 +32,6 @@
 			app:icon="@drawable/ic_anilist" />
 
 		<Preference
-			android:key="kitsu"
-			android:summary="@string/loading_"
-			android:title="@string/kitsu"
-			app:icon="@drawable/ic_kitsu" />
-
-		<Preference
 			android:key="mal"
 			android:summary="@string/loading_"
 			android:title="@string/mal"
