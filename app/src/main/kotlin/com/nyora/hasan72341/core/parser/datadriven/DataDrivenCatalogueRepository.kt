@@ -95,9 +95,13 @@ class DataDrivenCatalogueRepository @Inject constructor(
         val rows = json.parseToJsonElement(text).jsonObject["sources"]?.jsonArray.orEmpty()
         return rows.asSequence()
             .mapNotNull { runCatching { json.decodeFromJsonElement<SourceRowDto>(it) }.getOrNull() }
-            .filterNot { it.broken }
+            // Drop only DEAD sources (a brokenReason is set on genuinely-unavailable ones: domain
+            // doesn't resolve, sold/parked, dead upstream). A bare `broken` flag with no reason is the
+            // kotatsu extraction's @Broken marker — it means the NATIVE kotatsu parser was broken,
+            // which is irrelevant here since data-driven sources use our own engines, so those are kept.
+            .filterNot { it.broken && !it.brokenReason.isNullOrBlank() }
             // Drop rows that can't yield a usable source: no id/domain, or an engine this build
-            // doesn't bundle. Filtering here keeps a single bad row from surfacing a broken source.
+            // doesn't bundle.
             .filter { it.id.isNotBlank() && it.domain.isNotBlank() && EngineRegistry.supports(it.engine) }
             .map { row ->
                 val config = row.config.toValueMap().toMutableMap()
@@ -126,6 +130,7 @@ class DataDrivenCatalogueRepository @Inject constructor(
         val engine: String,
         val domain: String,
         val broken: Boolean = false,
+        val brokenReason: String? = null,
         val pageSize: Int? = null,
         val config: JsonObject = JsonObject(emptyMap()),
     )
