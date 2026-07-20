@@ -25,6 +25,9 @@ import app.nyora.core.model.MangaPage as DdPage
 import app.nyora.core.model.ContentRating as DdRating
 import app.nyora.core.model.MangaState as DdState
 import app.nyora.core.model.SortOrder as DdSort
+import app.nyora.core.model.MangaTag as DdTag
+import app.nyora.core.model.MangaListFilter as DdFilter
+import org.koitharu.kotatsu.parsers.model.MangaTag as LibMangaTag
 
 /**
  * A [MangaRepository] backed by a bundled generic [SourceEngine] instead of a compiled per-source
@@ -45,6 +48,9 @@ class DataDrivenMangaRepository(
 
     private val referer: String = "https://${ddSource.domain}/"
 
+    // MangaSourceRef has no data-driven variant; Parser(name) is used because it round-trips
+    // correctly — the persisted "DD_<id>" name resolves back via MangaSource(name) -> the catalogue
+    // registry, so favourites/history restore to this repository regardless of the ref's label.
     private val sourceRef: MangaSourceRef = MangaSourceRef.Parser(ddSource.name)
 
     private val context: EngineContext = AndroidEngineContext(okHttpClient, ddSource)
@@ -61,13 +67,25 @@ class DataDrivenMangaRepository(
 
     override var defaultSortOrder: SortOrder = SortOrder.POPULARITY
 
-    override val filterCapabilities: MangaListFilterCapabilities = MangaListFilterCapabilities()
+    override val filterCapabilities: MangaListFilterCapabilities
+        get() = engine.capabilities.let {
+            MangaListFilterCapabilities(
+                isMultipleTagsSupported = it.multipleTags,
+                isTagsExclusionSupported = it.tagsExclusion,
+                isSearchSupported = it.search,
+                isSearchWithFiltersSupported = it.searchWithFilters,
+                isYearSupported = it.year,
+                isAuthorSearchSupported = it.authorSearch,
+            )
+        }
 
     override suspend fun getList(offset: Int, order: SortOrder?, filter: MangaListFilter?): List<Manga> {
         val page = if (pageSize > 0) offset / pageSize else offset
-        val query = filter?.query?.takeIf { it.isNotBlank() }
+        val ddFilter = filter?.toDd() ?: DdFilter.EMPTY
+        val hasConstraints = ddFilter.query != null || ddFilter.tags.isNotEmpty() ||
+            ddFilter.author != null || ddFilter.year > 0
         val ddList = when {
-            query != null -> engine.search(page, query)
+            hasConstraints -> engine.search(page, ddFilter.query, ddFilter)
             order == SortOrder.UPDATED || order == SortOrder.NEWEST -> engine.getLatest(page)
             else -> engine.getPopular(page)
         }
@@ -94,9 +112,24 @@ class DataDrivenMangaRepository(
         return engine.getPageImageUrl(ddPage)
     }
 
-    override suspend fun getFilterOptions(): MangaListFilterOptions = MangaListFilterOptions()
+    override suspend fun getFilterOptions(): MangaListFilterOptions = MangaListFilterOptions(
+        availableTags = engine.getAvailableTags()
+            .mapTo(LinkedHashSet()) { LibMangaTag(it.title, it.key, ddSource) },
+    )
 
+    // The engines expose no related-manga endpoint; the app degrades to a title search elsewhere.
     override suspend fun getRelated(seed: Manga): List<Manga> = emptyList()
+
+    // ---- model mapping ----
+
+    /** App filter (kotatsu model) -> data-driven engine filter. */
+    private fun MangaListFilter.toDd(): DdFilter = DdFilter(
+        query = query?.takeIf { it.isNotBlank() },
+        tags = tags.mapTo(HashSet()) { DdTag(title = it.title, key = it.key) },
+        tagsExclude = tagsExclude.mapTo(HashSet()) { DdTag(title = it.title, key = it.key) },
+        year = year.takeIf { it > 0 } ?: 0,
+        author = author,
+    )
 
     // ---- model mapping: data-driven -> app ----
 

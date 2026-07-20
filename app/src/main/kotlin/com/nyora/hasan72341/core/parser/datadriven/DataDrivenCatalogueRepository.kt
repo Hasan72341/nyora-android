@@ -4,6 +4,7 @@ import android.content.Context
 import app.nyora.data.engine.EngineRegistry
 import com.nyora.hasan72341.core.model.DataDrivenMangaSource
 import com.nyora.hasan72341.core.network.MangaHttpClient
+import com.nyora.hasan72341.core.util.ext.printStackTraceDebug
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -72,7 +73,7 @@ class DataDrivenCatalogueRepository @Inject constructor(
             runCatching { cacheFile.writeText(body) } // cache best-effort; a write failure isn't fatal
             publish(parsed)
             parsed.size
-        }
+        }.onFailure { it.printStackTraceDebug("DataDrivenCatalogueRepository") }
     }
 
     private fun loadFromDisk(): List<DataDrivenMangaSource> =
