@@ -82,7 +82,9 @@ class AndroidEngineContext(
             HttpResponse(
                 url = resp.request.url.toString(),
                 code = resp.code,
-                body = resp.body?.string().orEmpty(),
+                // Bounded read so a hostile or runaway source page can't OOM the app; a normal
+                // HTML/JSON listing is far smaller than this cap.
+                body = resp.peekBody(MAX_RESPONSE_BYTES).string(),
                 headers = resp.headers.toMultimap().mapValues { it.value.joinToString(", ") },
             )
         }
@@ -103,6 +105,11 @@ class AndroidEngineContext(
         override fun putString(key: String, value: String?) {
             if (value == null) map.remove(key) else map[key] = value
         }
+    }
+
+    private companion object {
+        // HTML/JSON listing pages are well under this; the cap only guards against abuse.
+        private const val MAX_RESPONSE_BYTES = 16L * 1024 * 1024 // 16 MiB
     }
 }
 

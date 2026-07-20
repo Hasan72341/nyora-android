@@ -61,23 +61,28 @@ class DataDrivenMangaRepository(
 
     private val pageSize: Int = (ddSource.config["pageSize"] as? Number)?.toInt() ?: 20
 
+    // These are read while rendering the source LIST, so they must never throw even if a source's
+    // engine can't be constructed (bad config) — a failure there would break the whole list rather
+    // than just that one source. Browse calls (getList/getDetails/…) still surface errors per-source.
     override val sortOrders: Set<SortOrder>
-        get() = engine.availableSortOrders.mapNotNull { it.toFork() }.toSet()
-            .ifEmpty { setOf(SortOrder.POPULARITY) }
+        get() = runCatching { engine.availableSortOrders.mapNotNull { it.toFork() }.toSet() }
+            .getOrNull()?.takeIf { it.isNotEmpty() } ?: setOf(SortOrder.POPULARITY)
 
     override var defaultSortOrder: SortOrder = SortOrder.POPULARITY
 
     override val filterCapabilities: MangaListFilterCapabilities
-        get() = engine.capabilities.let {
-            MangaListFilterCapabilities(
-                isMultipleTagsSupported = it.multipleTags,
-                isTagsExclusionSupported = it.tagsExclusion,
-                isSearchSupported = it.search,
-                isSearchWithFiltersSupported = it.searchWithFilters,
-                isYearSupported = it.year,
-                isAuthorSearchSupported = it.authorSearch,
-            )
-        }
+        get() = runCatching {
+            engine.capabilities.let {
+                MangaListFilterCapabilities(
+                    isMultipleTagsSupported = it.multipleTags,
+                    isTagsExclusionSupported = it.tagsExclusion,
+                    isSearchSupported = it.search,
+                    isSearchWithFiltersSupported = it.searchWithFilters,
+                    isYearSupported = it.year,
+                    isAuthorSearchSupported = it.authorSearch,
+                )
+            }
+        }.getOrDefault(MangaListFilterCapabilities())
 
     override suspend fun getList(offset: Int, order: SortOrder?, filter: MangaListFilter?): List<Manga> {
         val page = if (pageSize > 0) offset / pageSize else offset

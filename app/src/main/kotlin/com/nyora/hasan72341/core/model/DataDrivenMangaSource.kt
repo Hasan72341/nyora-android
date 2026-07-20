@@ -32,15 +32,20 @@ data class DataDrivenMangaSource(
         // resolving "DD_<id>" back to the full source needs the fetched catalogue. This registry is
         // populated by the catalogue repository and consulted by MangaSource(name) — mirroring how
         // the native path resolves a name against the compiled MangaParserSource enum.
-        private val registry = java.util.concurrent.ConcurrentHashMap<String, DataDrivenMangaSource>()
+        //
+        // Held as a single @Volatile reference to an immutable snapshot, swapped atomically on
+        // [register]. A concurrent [resolve] therefore always sees a complete map (the old or the new
+        // catalogue) and never a transiently-empty one, which a clear()+repopulate would expose while
+        // a refresh runs mid-scroll.
+        @Volatile
+        private var registry: Map<String, DataDrivenMangaSource> = emptyMap()
 
         /** True if a persisted source name refers to a data-driven source. */
         fun isDataDriven(name: String): Boolean = name.startsWith(PREFIX)
 
-        /** Replace the known catalogue used for name resolution. */
+        /** Replace the known catalogue used for name resolution (atomic snapshot swap). */
         fun register(sources: List<DataDrivenMangaSource>) {
-            registry.clear()
-            sources.forEach { registry[it.name] = it }
+            registry = sources.associateByTo(HashMap(sources.size)) { it.name }
         }
 
         /** Resolve a persisted "DD_<id>" name to its source, or null if not in the current catalogue. */

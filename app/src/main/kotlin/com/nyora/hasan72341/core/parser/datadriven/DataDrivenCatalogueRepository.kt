@@ -67,7 +67,10 @@ class DataDrivenCatalogueRepository @Inject constructor(
             val request = Request.Builder().url(CATALOGUE_URL).build()
             val body = okHttpClient.newCall(request).execute().use { resp ->
                 require(resp.isSuccessful) { "catalogue fetch failed: HTTP ${resp.code}" }
-                resp.body?.string().orEmpty()
+                // Bounded read: never buffer an unexpectedly huge/hostile response into memory. The
+                // real catalogue is well under this; a larger body is truncated and fails to parse
+                // (caught below) rather than risking an OOM.
+                resp.peekBody(MAX_CATALOGUE_BYTES).string()
             }
             val parsed = parse(body)
             runCatching { cacheFile.writeText(body) } // cache best-effort; a write failure isn't fatal
@@ -93,7 +96,9 @@ class DataDrivenCatalogueRepository @Inject constructor(
         return rows.asSequence()
             .mapNotNull { runCatching { json.decodeFromJsonElement<SourceRowDto>(it) }.getOrNull() }
             .filterNot { it.broken }
-            .filter { EngineRegistry.supports(it.engine) }
+            // Drop rows that can't yield a usable source: no id/domain, or an engine this build
+            // doesn't bundle. Filtering here keeps a single bad row from surfacing a broken source.
+            .filter { it.id.isNotBlank() && it.domain.isNotBlank() && EngineRegistry.supports(it.engine) }
             .map { row ->
                 val config = row.config.toValueMap().toMutableMap()
                 // Surface the row-level pageSize into the config the engine reads.
@@ -104,10 +109,11 @@ class DataDrivenCatalogueRepository @Inject constructor(
                     title = row.name.ifEmpty { row.id },
                     lang = row.lang,
                     nsfw = row.nsfw,
-                    domain = row.domain,
+                    domain = row.domain.sanitizeDomain(),
                     config = config,
                 )
             }
+            .filter { it.domain.isNotBlank() }
             .toList()
     }
 
@@ -139,8 +145,17 @@ class DataDrivenCatalogueRepository @Inject constructor(
         is JsonArray -> map { it.toValue() }
     }
 
+    // Reduce a catalogue `domain` to a bare host, so the engines' "https://{domain}/…" URL building
+    // can never be derailed by a stray scheme, path, query or whitespace in the data.
+    private fun String.sanitizeDomain(): String = trim()
+        .substringAfter("://")
+        .substringBefore('/')
+        .substringBefore('?')
+        .trim()
+
     companion object {
         private const val CACHE_FILE = "datadriven-catalogue.json"
+        private const val MAX_CATALOGUE_BYTES = 16L * 1024 * 1024 // 16 MiB; real catalogue is ~350 KiB
         const val CATALOGUE_URL =
             "https://raw.githubusercontent.com/Nyora-Manga/nyora-data-driven/main/catalogue.json"
     }
