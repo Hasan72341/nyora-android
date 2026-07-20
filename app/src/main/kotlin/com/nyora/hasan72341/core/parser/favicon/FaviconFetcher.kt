@@ -67,6 +67,7 @@ class FaviconFetcher(
 
 			is LocalMangaRepository -> imageLoader.fetch(R.drawable.ic_storage, options)
 			is MihonMangaRepository -> fetchMihonIcon(repo)
+			is com.nyora.hasan72341.core.parser.DataDrivenMangaRepository -> fetchDataDrivenIcon(repo)
 
 			else -> throw IllegalArgumentException("Unsupported repo ${repo.javaClass.simpleName}")
 		}
@@ -109,6 +110,53 @@ class FaviconFetcher(
 			} catch (e: IOException) {
 				lastError = e
 				favicons -= icon
+			}
+		}
+		throwNSEE(lastError)
+	}
+
+	private suspend fun fetchDataDrivenIcon(
+		repository: com.nyora.hasan72341.core.parser.DataDrivenMangaRepository,
+	): FetchResult {
+		val sizePx = maxOf(
+			options.size.width.pxOrElse { FALLBACK_SIZE },
+			options.size.height.pxOrElse { FALLBACK_SIZE },
+			64,
+		)
+		val cacheKey = options.diskCacheKey ?: "${repository.source.name}_$sizePx"
+		if (options.diskCachePolicy.readEnabled) {
+			localStorageCache[cacheKey]?.let { file ->
+				return SourceFetchResult(
+					source = ImageSource(file.toOkioPath(), FileSystem.SYSTEM),
+					mimeType = MimeTypes.probeMimeType(file)?.toString(),
+					dataSource = DataSource.DISK,
+				)
+			}
+		}
+		// Data-driven sources carry no bundled icon; resolve the favicon from the source domain.
+		// Google's favicon cache reaches sites that block direct /favicon.ico requests (same source
+		// as the iOS app and the aidoku icon pipeline), with the site's own icon as a fallback.
+		val domain = repository.domain
+		val candidates = listOf(
+			"https://www.google.com/s2/favicons?sz=${sizePx.coerceAtMost(128)}&domain=$domain",
+			"https://$domain/favicon.ico",
+		)
+		var lastError: Exception? = null
+		for (url in candidates) {
+			currentCoroutineContext().ensureActive()
+			try {
+				val result = imageLoader.fetch(url, options)
+				if (result != null) {
+					return if (options.diskCachePolicy.writeEnabled) {
+						writeToCache(cacheKey, result)
+					} else {
+						result
+					}
+				}
+			} catch (e: CloudFlareProtectedException) {
+				throw e
+			} catch (e: IOException) {
+				lastError = e
 			}
 		}
 		throwNSEE(lastError)
