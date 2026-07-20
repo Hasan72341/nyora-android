@@ -28,7 +28,22 @@ data class DataDrivenMangaSource(
     companion object {
         const val PREFIX = "DD_"
 
+        // Persisted state (favourites, history, source order) stores a source by its String name, so
+        // resolving "DD_<id>" back to the full source needs the fetched catalogue. This registry is
+        // populated by the catalogue repository and consulted by MangaSource(name) — mirroring how
+        // the native path resolves a name against the compiled MangaParserSource enum.
+        private val registry = java.util.concurrent.ConcurrentHashMap<String, DataDrivenMangaSource>()
+
         /** True if a persisted source name refers to a data-driven source. */
         fun isDataDriven(name: String): Boolean = name.startsWith(PREFIX)
+
+        /** Replace the known catalogue used for name resolution. */
+        fun register(sources: List<DataDrivenMangaSource>) {
+            registry.clear()
+            sources.forEach { registry[it.name] = it }
+        }
+
+        /** Resolve a persisted "DD_<id>" name to its source, or null if not in the current catalogue. */
+        fun resolve(name: String): DataDrivenMangaSource? = registry[name]
     }
 }

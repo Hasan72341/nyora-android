@@ -69,6 +69,9 @@ open class BaseApp : Application(), Configuration.Provider {
 	@Inject
 	lateinit var remoteSourceGate: RemoteSourceGate
 
+	@Inject
+	lateinit var dataDrivenCatalogue: com.nyora.hasan72341.core.parser.datadriven.DataDrivenCatalogueRepository
+
 	override val workManagerConfiguration: Configuration
 		get() = Configuration.Builder()
 			.setWorkerFactory(workerFactory)
@@ -109,6 +112,11 @@ open class BaseApp : Application(), Configuration.Provider {
 			processLifecycleScope.launch(Dispatchers.IO) {
 				remoteSourceGate.refresh()
 			}
+		}
+		// Fetch the runtime source catalogue (data-driven sources) in the background; failures are
+		// non-fatal — the disk cache from a previous launch keeps the catalogue usable offline.
+		processLifecycleScope.launch(Dispatchers.IO) {
+			dataDrivenCatalogue.refresh()
 		}
 	}
 

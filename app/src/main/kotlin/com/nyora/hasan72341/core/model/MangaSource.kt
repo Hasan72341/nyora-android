@@ -43,6 +43,9 @@ fun MangaSource(name: String?): MangaSource {
 		val parts = name.substringAfter(':').splitTwoParts('/') ?: return UnknownMangaSource
 		return ExternalMangaSource(packageName = parts.first, authority = parts.second)
 	}
+	if (DataDrivenMangaSource.isDataDriven(name)) {
+		return DataDrivenMangaSource.resolve(name) ?: UnknownMangaSource
+	}
 	MangaParserSource.entries.forEach {
 		if (it.name == name) return it
 	}

@@ -49,6 +49,7 @@ class AppBackupAgent : BackupAgent() {
 					context = applicationContext,
 					db = MangaDatabase(context = applicationContext),
 					settings = AppSettings(applicationContext),
+					catalogue = com.nyora.hasan72341.core.parser.datadriven.DataDrivenCatalogueRepository(applicationContext, okhttp3.OkHttpClient()),
 				),
 				savedFiltersRepository = SavedFiltersRepository(
 					context = applicationContext,
@@ -82,6 +83,7 @@ class AppBackupAgent : BackupAgent() {
 						context = applicationContext,
 						db = MangaDatabase(context = applicationContext),
 						settings = AppSettings(applicationContext),
+						catalogue = com.nyora.hasan72341.core.parser.datadriven.DataDrivenCatalogueRepository(applicationContext, okhttp3.OkHttpClient()),
 					),
 					savedFiltersRepository = SavedFiltersRepository(
 						context = applicationContext,

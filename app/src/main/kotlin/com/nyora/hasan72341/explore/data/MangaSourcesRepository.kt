@@ -37,17 +37,23 @@ class MangaSourcesRepository @Inject constructor(
     @LocalizedAppContext private val context: Context,
     private val db: MangaDatabase,
     private val settings: AppSettings,
+    private val catalogue: com.nyora.hasan72341.core.parser.datadriven.DataDrivenCatalogueRepository,
 ) {
 
 	private val isNewSourcesAssimilated = AtomicBoolean(false)
 	private val dao: MangaSourcesDao
 		get() = db.getSourcesDao()
 
-	// Source catalog = the native kotatsu-parsers-redo sources
-	// (the full MangaParserSource enum, minus entries flagged broken).
+	// Source catalog = the runtime-fetched data-driven sources plus the native
+	// kotatsu-parsers-redo sources (the MangaParserSource enum, minus broken/dead).
+	// The data-driven sources are what let the catalogue be fetched rather than baked in.
 	val allMangaSources: Set<MangaSource>
-		get() = MangaParserSource.entries.filterNotTo(HashSet()) {
-			it.isBroken || it.name in com.nyora.hasan72341.core.SourcePatches.DEAD_SOURCES
+		get() {
+			val out = MangaParserSource.entries.filterNotTo(HashSet<MangaSource>()) {
+				it.isBroken || it.name in com.nyora.hasan72341.core.SourcePatches.DEAD_SOURCES
+			}
+			out.addAll(catalogue.sources)
+			return out
 		}
 
 	// Catalogue size for UI counts — 0 while sources are LOCKED, so no source count leaks before
