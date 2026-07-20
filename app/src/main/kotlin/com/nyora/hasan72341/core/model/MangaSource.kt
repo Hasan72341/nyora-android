@@ -61,6 +61,7 @@ fun ContentType.isHentai(): Boolean = this == ContentType.HENTAI_MANGA ||
 fun MangaSource.isNsfw(): Boolean = when (val source = unwrap()) {
 	is MangaSourceInfo -> source.mangaSource.isNsfw()
 	is MangaParserSource -> source.contentType.toNyoraContentType().isHentai()
+	is DataDrivenMangaSource -> source.nsfw
 	is com.nyora.hasan72341.mihon.parsers.model.ContentSource -> source.contentType.isHentai()
 	else -> false
 }
@@ -93,12 +94,14 @@ tailrec fun MangaSource.unwrap(): MangaSource = if (this is MangaSourceInfo) {
 
 fun MangaSource.getLocale(): Locale? = when (val source = unwrap()) {
 	is MangaParserSource -> source.locale.toLocaleOrNull()
+	is DataDrivenMangaSource -> source.lang.takeIf { it.isNotEmpty() && it != "all" }?.toLocaleOrNull()
 	is com.nyora.hasan72341.mihon.parsers.model.ContentSource -> source.locale.takeIf { it.isNotEmpty() }?.toLocaleOrNull()
 	else -> null
 }
 
 fun MangaSource.getContentTypeOrNull(): ContentType? = when (val source = unwrap()) {
 	is MangaParserSource -> source.contentType.toNyoraContentType()
+	is DataDrivenMangaSource -> if (source.nsfw) ContentType.HENTAI_MANGA else ContentType.MANGA
 	is com.nyora.hasan72341.mihon.parsers.model.ContentSource -> source.contentType
 	else -> null
 }
@@ -109,6 +112,7 @@ fun MangaSource.contentTypeOrManga(): ContentType = getContentTypeOrNull() ?: Co
 // MangaParserSource and JS/ContentSource sources, which don't share it on the base interface.
 fun MangaSource.localeCode(): String = when (val source = unwrap()) {
 	is MangaParserSource -> source.locale
+	is DataDrivenMangaSource -> source.lang
 	is com.nyora.hasan72341.mihon.parsers.model.ContentSource -> source.locale
 	else -> ""
 }
@@ -116,6 +120,7 @@ fun MangaSource.localeCode(): String = when (val source = unwrap()) {
 // Context-free source title for search/grouping (display title goes through getTitle(context)).
 fun MangaSource.titleOrName(): String = when (val source = unwrap()) {
 	is MangaParserSource -> com.nyora.hasan72341.core.SourcePatches.TITLE_OVERRIDES[source.name] ?: source.title
+	is DataDrivenMangaSource -> source.title
 	else -> name
 }
 
@@ -143,6 +148,7 @@ fun MangaSource.getTitle(context: Context): String = when (val source = unwrap()
 	LocalMangaSource -> context.getString(R.string.local_storage)
 	TestMangaSource -> context.getString(R.string.test_parser)
 	is ExternalMangaSource -> source.resolveName(context)
+	is DataDrivenMangaSource -> source.title
 	else -> context.getString(R.string.unknown)
 }
 

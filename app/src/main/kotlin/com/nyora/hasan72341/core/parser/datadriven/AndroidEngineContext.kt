@@ -7,6 +7,7 @@ import app.nyora.data.engine.HtmlDocument
 import app.nyora.data.engine.HttpRequest
 import app.nyora.data.engine.HttpResponse
 import app.nyora.data.engine.SourcePrefs
+import com.nyora.hasan72341.mihon.parsers.model.MangaSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
@@ -31,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class AndroidEngineContext(
     private val client: OkHttpClient,
+    private val source: MangaSource,
     private val userAgent: String = DEFAULT_UA,
 ) : EngineContext {
 
@@ -38,6 +40,11 @@ class AndroidEngineContext(
 
     override suspend fun http(request: HttpRequest): HttpResponse = withContext(Dispatchers.IO) {
         val builder = Request.Builder().url(request.url)
+            // Tag every request with its source so the shared client's CommonHeadersInterceptor
+            // attaches the source Referer/UA and the CloudFlareInterceptor can raise a solvable,
+            // source-scoped CloudFlareProtectedException (the WebView solver + cf_clearance cookie
+            // jar are keyed by source) — exactly how the native parser requests are handled.
+            .tag(MangaSource::class.java, source)
 
         val headers = LinkedHashMap<String, String>()
         headers["User-Agent"] = userAgent

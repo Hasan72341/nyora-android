@@ -4,7 +4,9 @@ import app.nyora.data.engine.EngineContext
 import app.nyora.data.engine.EngineRegistry
 import app.nyora.data.engine.SourceEngine
 import com.nyora.hasan72341.core.model.DataDrivenMangaSource
+import com.nyora.hasan72341.core.parser.datadriven.AndroidEngineContext
 import com.nyora.hasan72341.core.parser.datadriven.toSourceDef
+import okhttp3.OkHttpClient
 import com.nyora.hasan72341.mihon.parsers.model.ContentRating
 import com.nyora.hasan72341.mihon.parsers.model.Manga
 import com.nyora.hasan72341.mihon.parsers.model.MangaChapter
@@ -33,12 +35,19 @@ import app.nyora.core.model.SortOrder as DdSort
  */
 class DataDrivenMangaRepository(
     private val ddSource: DataDrivenMangaSource,
-    private val context: EngineContext,
+    okHttpClient: OkHttpClient,
 ) : MangaRepository {
 
     override val source: MangaSource get() = ddSource
 
+    /** Exposed so CommonHeadersInterceptor can attach the source Referer (hotlink-gated covers). */
+    val domain: String get() = ddSource.domain
+
+    private val referer: String = "https://${ddSource.domain}/"
+
     private val sourceRef: MangaSourceRef = MangaSourceRef.Parser(ddSource.name)
+
+    private val context: EngineContext = AndroidEngineContext(okHttpClient, ddSource)
 
     private val engine: SourceEngine by lazy {
         EngineRegistry.create(ddSource.engineKey, ddSource.toSourceDef(), context)
@@ -121,7 +130,9 @@ class DataDrivenMangaRepository(
         branch = branch,
     )
 
-    private fun DdPage.toFork(): MangaPage = MangaPage(url = url, id = id, preview = preview)
+    // Reader page images carry the source Referer so hotlink-protected CDNs serve them.
+    private fun DdPage.toFork(): MangaPage =
+        MangaPage(url = url, id = id, preview = preview, headers = mapOf("Referer" to referer))
 
     private fun DdState.toFork(): MangaState? = runCatching { MangaState.valueOf(name) }.getOrNull()
     private fun DdRating.toFork(): ContentRating? = runCatching { ContentRating.valueOf(name) }.getOrNull()

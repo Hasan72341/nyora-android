@@ -15,7 +15,10 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.longOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -75,8 +78,11 @@ class DataDrivenCatalogueRepository @Inject constructor(
     }
 
     private fun parse(text: String): List<DataDrivenMangaSource> {
-        val dto = json.decodeFromString<CatalogueDto>(text)
-        return dto.sources.asSequence()
+        // Decode each row independently so a single malformed/forward-incompatible entry is skipped
+        // rather than discarding the whole catalogue.
+        val rows = json.parseToJsonElement(text).jsonObject["sources"]?.jsonArray.orEmpty()
+        return rows.asSequence()
+            .mapNotNull { runCatching { json.decodeFromJsonElement<SourceRowDto>(it) }.getOrNull() }
             .filterNot { it.broken }
             .filter { EngineRegistry.supports(it.engine) }
             .map { row ->
@@ -95,9 +101,6 @@ class DataDrivenCatalogueRepository @Inject constructor(
             }
             .toList()
     }
-
-    @Serializable
-    private data class CatalogueDto(val sources: List<SourceRowDto> = emptyList())
 
     @Serializable
     private data class SourceRowDto(

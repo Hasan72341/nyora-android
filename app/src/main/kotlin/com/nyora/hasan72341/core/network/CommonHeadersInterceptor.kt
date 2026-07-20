@@ -43,9 +43,10 @@ class CommonHeadersInterceptor @Inject constructor(
 			headersBuilder[CommonHeaders.USER_AGENT] = mangaLoaderContextLazy.get().getDefaultUserAgent()
 		}
 		if (headersBuilder[CommonHeaders.REFERER] == null) {
-			// Derive a Referer from the native parser source domain. Manganato et al. gate
-			// cover/page images on it.
+			// Derive a Referer from the source domain — for native parser sources AND data-driven
+			// sources alike. Manganato et al. gate cover/page images on it.
 			val domain = parserRepository?.domain
+				?: (repository as? com.nyora.hasan72341.core.parser.DataDrivenMangaRepository)?.domain
 			if (domain != null) {
 				headersBuilder.trySet(CommonHeaders.REFERER, "https://${IDN.toASCII(domain)}/")
 			}
