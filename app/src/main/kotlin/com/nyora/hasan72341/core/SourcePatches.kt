@@ -14,6 +14,9 @@ package com.nyora.hasan72341.core
  */
 object SourcePatches {
     val DOMAIN_OVERRIDES: Map<String, String> = mapOf(
+        // AsuraComic relocated to asurascans.com (its baked-in asuracomic.net access-denies); the
+        // /browse -> a[href*=/comics/] structure still matches the AsuraScansParser.
+        "ASURASCANS" to "asurascans.com",
         "ALTAYSCANS" to "witchscans.com",
         "ASTRASCANS" to "astracomic.com",
         "FLOWERMANGA" to "flowermangas.net",
@@ -32,7 +35,20 @@ object SourcePatches {
         "LILYUMFANSUB" to "lilyumfansub.pro",
     )
 
+    /** Display-name overrides for sources that rebranded along with their domain move. */
+    val TITLE_OVERRIDES: Map<String, String> = mapOf(
+        "ASTRASCANS" to "Astra Comic",
+        "MANGATILKISI" to "Tilki Scans",
+        "ISEKAISCAN_EU" to "IsekaiScan",
+        "YUGEN_MANGAS_ES" to "Visual Ikigai",
+        "TOONILY_ME" to "ToonDex",
+    )
+
     val DEAD_SOURCES: Set<String> = setOf(
+        // Dead AsuraScans clones (asurascans.us 403 / .gg redirect); the live Asura is
+        // ASURASCANS -> asurascans.com (see DOMAIN_OVERRIDES).
+        "ASURASCANS_US",
+        "ASURASCANSGG",
         "ATEMPORAL",
         "AYATOON",
         "BANANA_MANGA",

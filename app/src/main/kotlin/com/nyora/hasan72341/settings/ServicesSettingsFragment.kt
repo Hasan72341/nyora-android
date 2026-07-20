@@ -56,10 +56,10 @@ class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
 
 	override fun onResume() {
 		super.onResume()
-		bindScrobblerSummary(AppSettings.KEY_SHIKIMORI, ScrobblerService.SHIKIMORI)
 		bindScrobblerSummary(AppSettings.KEY_ANILIST, ScrobblerService.ANILIST)
 		bindScrobblerSummary(AppSettings.KEY_MAL, ScrobblerService.MAL)
 		bindScrobblerSummary(AppSettings.KEY_KITSU, ScrobblerService.KITSU)
+		bindScrobblerSummary(AppSettings.KEY_MANGABAKA, ScrobblerService.MANGABAKA)
 		bindSyncSummary()
 		bindAiTranslateSummary()
 	}
@@ -75,11 +75,6 @@ class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
 
 	override fun onPreferenceTreeClick(preference: Preference): Boolean {
 		return when (preference.key) {
-			AppSettings.KEY_SHIKIMORI -> {
-				handleScrobblerClick(ScrobblerService.SHIKIMORI)
-				true
-			}
-
 			AppSettings.KEY_MAL -> {
 				handleScrobblerClick(ScrobblerService.MAL)
 				true
@@ -92,6 +87,11 @@ class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
 
 			AppSettings.KEY_KITSU -> {
 				handleScrobblerClick(ScrobblerService.KITSU)
+				true
+			}
+
+			AppSettings.KEY_MANGABAKA -> {
+				handleScrobblerClick(ScrobblerService.MANGABAKA)
 				true
 			}
 

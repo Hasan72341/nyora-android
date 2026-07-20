@@ -46,7 +46,14 @@ class MangaSourcesRepository @Inject constructor(
 	// Source catalog = the native kotatsu-parsers-redo sources
 	// (the full MangaParserSource enum, minus entries flagged broken).
 	val allMangaSources: Set<MangaSource>
-		get() = MangaParserSource.entries.filterNotTo(HashSet()) { it.isBroken }
+		get() = MangaParserSource.entries.filterNotTo(HashSet()) {
+			it.isBroken || it.name in com.nyora.hasan72341.core.SourcePatches.DEAD_SOURCES
+		}
+
+	// Catalogue size for UI counts — 0 while sources are LOCKED, so no source count leaks before
+	// the remote/manual unlock (the app must read as 100% source-free until unlocked).
+	val totalSourcesCountGated: Int
+		get() = if (settings.isSourcesUnlocked) allMangaSources.size else 0
 
 	suspend fun getEnabledSources(): List<MangaSource> {
 		if (!settings.isSourcesUnlocked) return emptyList()
@@ -71,6 +78,7 @@ class MangaSourcesRepository @Inject constructor(
 	}
 
 	suspend fun getDisabledSources(): Set<MangaSource> {
+		if (!settings.isSourcesUnlocked) return emptySet()
 		assimilateNewSources()
 		if (settings.isAllSourcesEnabled) {
 			return emptySet()
@@ -144,13 +152,18 @@ class MangaSourcesRepository @Inject constructor(
 	fun observeAvailableSourcesCount(): Flow<Int> {
 		return combine(
 			observeIsNsfwDisabled(),
+			observeSourcesUnlocked(),
 			observeAllEnabled().flatMapLatest { isAllSourcesEnabled ->
 				dao.observeAll(!isAllSourcesEnabled, SourcesSortOrder.MANUAL)
 			},
-		) { skipNsfw, enabledSources ->
-			val enabled = enabledSources.mapToSet { it.source }
-			allMangaSources.count { x ->
-				x.name !in enabled && (!skipNsfw || !x.isNsfw())
+		) { skipNsfw, unlocked, enabledSources ->
+			if (!unlocked) {
+				0
+			} else {
+				val enabled = enabledSources.mapToSet { it.source }
+				allMangaSources.count { x ->
+					x.name !in enabled && (!skipNsfw || !x.isNsfw())
+				}
 			}
 		}.distinctUntilChanged().onStart { assimilateNewSources() }
 	}
@@ -172,15 +185,22 @@ class MangaSourcesRepository @Inject constructor(
 	}.flattenLatest()
 		.onStart { assimilateNewSources() }
 
-	fun observeAll(): Flow<List<Pair<MangaSource, Boolean>>> = dao.observeAll().map { entities ->
-		val result = ArrayList<Pair<MangaSource, Boolean>>(entities.size)
-		for (entity in entities) {
-			val source = entity.source.toMangaSourceOrNull() ?: continue
-			if (source in allMangaSources) {
-				result.add(source to entity.isEnabled)
+	fun observeAll(): Flow<List<Pair<MangaSource, Boolean>>> = combine(
+		dao.observeAll(),
+		observeSourcesUnlocked(),
+	) { entities, unlocked ->
+		if (!unlocked) {
+			emptyList()
+		} else {
+			val result = ArrayList<Pair<MangaSource, Boolean>>(entities.size)
+			for (entity in entities) {
+				val source = entity.source.toMangaSourceOrNull() ?: continue
+				if (source in allMangaSources) {
+					result.add(source to entity.isEnabled)
+				}
 			}
+			result
 		}
-		result
 	}.onStart { assimilateNewSources() }
 
 	suspend fun setSourcesEnabled(sources: Collection<MangaSource>, isEnabled: Boolean): ReversibleHandle {
@@ -214,16 +234,26 @@ class MangaSourcesRepository @Inject constructor(
 		}
 	}
 
-	fun observeHasNewSources(): Flow<Boolean> = observeIsNsfwDisabled().map { skipNsfw ->
-		val sources = dao.findAllFromVersion(BuildConfig.VERSION_CODE).toSources(skipNsfw, null)
-		sources.isNotEmpty() && sources.size != allMangaSources.size
+	fun observeHasNewSources(): Flow<Boolean> = combine(
+		observeIsNsfwDisabled(),
+		observeSourcesUnlocked(),
+	) { skipNsfw, unlocked ->
+		if (!unlocked) {
+			false
+		} else {
+			val sources = dao.findAllFromVersion(BuildConfig.VERSION_CODE).toSources(skipNsfw, null)
+			sources.isNotEmpty() && sources.size != allMangaSources.size
+		}
 	}.onStart { assimilateNewSources() }
 
 	fun observeHasNewSourcesForBadge(): Flow<Boolean> = combine(
 		settings.observeAsFlow(AppSettings.KEY_SOURCES_VERSION) { sourcesVersion },
 		observeIsNsfwDisabled(),
-	) { version, skipNsfw ->
-		if (version < BuildConfig.VERSION_CODE) {
+		observeSourcesUnlocked(),
+	) { version, skipNsfw, unlocked ->
+		if (!unlocked) {
+			false
+		} else if (version < BuildConfig.VERSION_CODE) {
 			val sources = dao.findAllFromVersion(version).toSources(skipNsfw, null)
 			sources.isNotEmpty()
 		} else {
@@ -292,7 +322,11 @@ class MangaSourcesRepository @Inject constructor(
 	private suspend fun getNewSources(): MutableSet<out MangaSource> {
 		val entities = dao.findAll()
 		val result = HashSet<MangaSource>()
-		result.addAll(MangaParserSource.entries.filterNot { it.isBroken })
+		result.addAll(
+			MangaParserSource.entries.filterNot {
+				it.isBroken || it.name in com.nyora.hasan72341.core.SourcePatches.DEAD_SOURCES
+			},
+		)
 		for (e in entities) {
 			result.remove(e.source.toMangaSourceOrNull() ?: continue)
 		}

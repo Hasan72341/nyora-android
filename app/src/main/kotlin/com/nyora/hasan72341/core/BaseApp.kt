@@ -76,6 +76,9 @@ open class BaseApp : Application(), Configuration.Provider {
 
 	override fun onCreate() {
 		super.onCreate()
+		// Load the obfuscated-domain table before any parser resolves its domain (release builds
+		// have their domain constants rewritten to DomainVault.d(index); see buildSrc).
+		com.nyora.hasan72341.core.vault.DomainVault.init(this)
 		PlatformRegistry.applicationContext = this // TODO replace with OkHttp.initialize
 		AppCompatDelegate.setDefaultNightMode(settings.theme)
 		

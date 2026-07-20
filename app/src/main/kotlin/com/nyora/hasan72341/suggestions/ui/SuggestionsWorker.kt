@@ -247,6 +247,9 @@ class SuggestionsWorker @AssistedInject constructor(
 	}
 
 		private suspend fun getSources(): List<MangaSource> {
+			if (!appSettings.isSourcesUnlocked) {
+				return emptyList()
+			}
 			if (appSettings.isSuggestionsIncludeDisabledSources) {
 				val result = sourcesRepository.allMangaSources.toMutableList<MangaSource>()
 				result.shuffle()

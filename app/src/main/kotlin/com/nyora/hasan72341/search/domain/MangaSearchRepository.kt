@@ -118,6 +118,9 @@ class MangaSearchRepository @Inject constructor(
 		if (query.length < 3) {
 			return emptyList()
 		}
+		if (!settings.isSourcesUnlocked) {
+			return emptyList()
+		}
 		val skipNsfw = settings.isNsfwContentDisabled
 		val sources = sourcesRepository.allMangaSources
 			.filter { x ->

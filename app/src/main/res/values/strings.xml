@@ -237,6 +237,8 @@
     <string name="removal_completed">Removal completed</string>
     <string name="shikimori" translatable="false">Shikimori</string>
     <string name="anilist" translatable="false">AniList</string>
+    <string name="bangumi" translatable="false">Bangumi</string>
+    <string name="mangabaka" translatable="false">MangaBaka</string>
     <string name="download_slowdown">Download slowdown</string>
     <string name="download_slowdown_summary">Helps avoid blocking your IP address</string>
     <string name="local_manga_processing">Saved manga processing</string>

@@ -15,7 +15,7 @@ class RootSettingsViewModel @Inject constructor(
 	sourcesRepository: MangaSourcesRepository,
 ) : BaseViewModel() {
 
-	val totalSourcesCount = sourcesRepository.allMangaSources.size
+	val totalSourcesCount = sourcesRepository.totalSourcesCountGated
 
 	val enabledSourcesCount = sourcesRepository.observeEnabledSourcesCount()
 		.withErrorHandling()

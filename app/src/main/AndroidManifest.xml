@@ -246,10 +246,14 @@
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
 
+				<!-- Tracker OAuth callbacks: nyora://<host>-auth (kitsu-auth is the
+				     internal password-grant flow). -->
 				<data android:scheme="nyora" />
 				<data android:host="shikimori-auth" />
 				<data android:host="anilist-auth" />
-				<data android:host="mal-auth" />
+				<data android:host="myanimelist-auth" />
+				<data android:host="bangumi-auth" />
+				<data android:host="mangabaka-auth" />
 				<data android:host="kitsu-auth" />
 			</intent-filter>
 

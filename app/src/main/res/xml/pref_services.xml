@@ -44,10 +44,10 @@
 			app:icon="@drawable/ic_mal" />
 
 		<Preference
-			android:key="shikimori"
+			android:key="mangabaka"
 			android:summary="@string/loading_"
-			android:title="@string/shikimori"
-			app:icon="@drawable/ic_shikimori" />
+			android:title="@string/mangabaka"
+			app:icon="@drawable/ic_mangabaka" />
 
 	</PreferenceCategory>
 

@@ -112,7 +112,7 @@ fun MangaSource.localeCode(): String = when (val source = unwrap()) {
 
 // Context-free source title for search/grouping (display title goes through getTitle(context)).
 fun MangaSource.titleOrName(): String = when (val source = unwrap()) {
-	is MangaParserSource -> source.title
+	is MangaParserSource -> com.nyora.hasan72341.core.SourcePatches.TITLE_OVERRIDES[source.name] ?: source.title
 	else -> name
 }
 
@@ -136,7 +136,7 @@ fun MangaSource.getSummary(context: Context): String? = when (val source = unwra
 }
 
 fun MangaSource.getTitle(context: Context): String = when (val source = unwrap()) {
-	is MangaParserSource -> source.title
+	is MangaParserSource -> com.nyora.hasan72341.core.SourcePatches.TITLE_OVERRIDES[source.name] ?: source.title
 	LocalMangaSource -> context.getString(R.string.local_storage)
 	TestMangaSource -> context.getString(R.string.test_parser)
 	is ExternalMangaSource -> source.resolveName(context)

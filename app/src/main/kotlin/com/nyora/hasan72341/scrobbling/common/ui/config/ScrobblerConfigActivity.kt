@@ -93,7 +93,13 @@ class ScrobblerConfigActivity : BaseActivity<ActivityScrobblerConfigBinding>(),
 	private fun processIntent(intent: Intent) {
 		if (intent.action == Intent.ACTION_VIEW) {
 			val uri = intent.data ?: return
+			// Authorization-code services return `?code=...`; implicit services
+			// (AniList) return the token in the URL fragment `#access_token=...`.
 			val code = uri.getQueryParameter("code")
+				?: uri.fragment
+					?.split('&')
+					?.firstOrNull { it.startsWith("access_token=") }
+					?.substringAfter('=')
 			if (!code.isNullOrEmpty()) {
 				viewModel.onAuthCodeReceived(code)
 			}
@@ -126,7 +132,9 @@ class ScrobblerConfigActivity : BaseActivity<ActivityScrobblerConfigBinding>(),
 	companion object {
 		const val HOST_SHIKIMORI_AUTH = "shikimori-auth"
 		const val HOST_ANILIST_AUTH = "anilist-auth"
-		const val HOST_MAL_AUTH = "mal-auth"
+		const val HOST_MAL_AUTH = "myanimelist-auth"
 		const val HOST_KITSU_AUTH = "kitsu-auth"
+		const val HOST_BANGUMI_AUTH = "bangumi-auth"
+		const val HOST_MANGABAKA_AUTH = "mangabaka-auth"
 	}
 }

@@ -12,6 +12,7 @@ plugins {
 	// id 'dev.reformator.stacktracedecoroutinator'
     id 'io.sentry.android.gradle' version '6.1.0'
     alias(libs.plugins.compose.compiler)
+    id 'nyora.domain-obfuscation'
 }
 
 // Reads a key from .env.sync (repo root), env var taking precedence. Returns ''
@@ -52,8 +53,8 @@ android {
 		applicationId 'com.nyora.hasan72341'
 		minSdk = 23
 		targetSdk = 36
-		versionCode project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : 21006
-        versionName project.hasProperty('versionName') ? project.property('versionName') : '2.1.6'
+		versionCode project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : 22000
+        versionName project.hasProperty('versionName') ? project.property('versionName') : '2.2'
         generatedDensities = []
 		testInstrumentationRunner 'com.nyora.android.HiltTestRunner'
 		buildConfigField "String", "SUPABASE_URL", "\"${supabaseEnv('SUPABASE_URL')}\""

@@ -29,6 +29,12 @@ import com.nyora.hasan72341.scrobbling.mal.domain.MALScrobbler
 import com.nyora.hasan72341.scrobbling.shikimori.data.ShikimoriAuthenticator
 import com.nyora.hasan72341.scrobbling.shikimori.data.ShikimoriInterceptor
 import com.nyora.hasan72341.scrobbling.shikimori.domain.ShikimoriScrobbler
+import com.nyora.hasan72341.scrobbling.bangumi.data.BangumiAuthenticator
+import com.nyora.hasan72341.scrobbling.bangumi.data.BangumiInterceptor
+import com.nyora.hasan72341.scrobbling.bangumi.domain.BangumiScrobbler
+import com.nyora.hasan72341.scrobbling.mangabaka.data.MangaBakaAuthenticator
+import com.nyora.hasan72341.scrobbling.mangabaka.data.MangaBakaInterceptor
+import com.nyora.hasan72341.scrobbling.mangabaka.domain.MangaBakaScrobbler
 import javax.inject.Singleton
 
 @Module
@@ -69,6 +75,30 @@ object ScrobblingModule {
 	): OkHttpClient = baseHttpClient.newBuilder().apply {
 		authenticator(authenticator)
 		addInterceptor(AniListInterceptor(storage))
+	}.build()
+
+	@Provides
+	@Singleton
+	@ScrobblerType(ScrobblerService.BANGUMI)
+	fun provideBangumiHttpClient(
+		@BaseHttpClient baseHttpClient: OkHttpClient,
+		authenticator: BangumiAuthenticator,
+		@ScrobblerType(ScrobblerService.BANGUMI) storage: ScrobblerStorage,
+	): OkHttpClient = baseHttpClient.newBuilder().apply {
+		authenticator(authenticator)
+		addInterceptor(BangumiInterceptor(storage))
+	}.build()
+
+	@Provides
+	@Singleton
+	@ScrobblerType(ScrobblerService.MANGABAKA)
+	fun provideMangaBakaHttpClient(
+		@BaseHttpClient baseHttpClient: OkHttpClient,
+		authenticator: MangaBakaAuthenticator,
+		@ScrobblerType(ScrobblerService.MANGABAKA) storage: ScrobblerStorage,
+	): OkHttpClient = baseHttpClient.newBuilder().apply {
+		authenticator(authenticator)
+		addInterceptor(MangaBakaInterceptor(storage))
 	}.build()
 
 	@Provides
@@ -118,11 +148,29 @@ object ScrobblingModule {
 	): ScrobblerStorage = ScrobblerStorage(context, ScrobblerService.KITSU)
 
 	@Provides
+	@Singleton
+	@ScrobblerType(ScrobblerService.BANGUMI)
+	fun provideBangumiStorage(
+		@ApplicationContext context: Context,
+	): ScrobblerStorage = ScrobblerStorage(context, ScrobblerService.BANGUMI)
+
+	@Provides
+	@Singleton
+	@ScrobblerType(ScrobblerService.MANGABAKA)
+	fun provideMangaBakaStorage(
+		@ApplicationContext context: Context,
+	): ScrobblerStorage = ScrobblerStorage(context, ScrobblerService.MANGABAKA)
+
+	@Provides
 	@ElementsIntoSet
 	fun provideScrobblers(
 		shikimoriScrobbler: ShikimoriScrobbler,
 		aniListScrobbler: AniListScrobbler,
 		malScrobbler: MALScrobbler,
-		kitsuScrobbler: KitsuScrobbler
-	): Set<@JvmSuppressWildcards Scrobbler> = setOf(shikimoriScrobbler, aniListScrobbler, malScrobbler, kitsuScrobbler)
+		kitsuScrobbler: KitsuScrobbler,
+		bangumiScrobbler: BangumiScrobbler,
+		mangaBakaScrobbler: MangaBakaScrobbler,
+	): Set<@JvmSuppressWildcards Scrobbler> = setOf(
+		shikimoriScrobbler, aniListScrobbler, malScrobbler, kitsuScrobbler, bangumiScrobbler, mangaBakaScrobbler,
+	)
 }

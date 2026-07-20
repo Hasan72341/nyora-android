@@ -45,11 +45,10 @@ class AniListRepository @Inject constructor(
 ) : ScrobblerRepository {
 
 	private val clientId = context.getString(R.string.anilist_clientId)
-	private val clientSecret = context.getString(R.string.anilist_clientSecret)
 
 	override val oauthUrl: String
 		get() = "${BASE_URL}oauth/authorize?client_id=$clientId&" +
-			"redirect_uri=${REDIRECT_URI}&response_type=code"
+			"redirect_uri=${REDIRECT_URI}&response_type=token"
 
 	override val isAuthorized: Boolean
 		get() = storage.accessToken != null
@@ -57,23 +56,14 @@ class AniListRepository @Inject constructor(
 	private val shrinkRegex = Regex("\\t+")
 
 	override suspend fun authorize(code: String?) {
-		val body = FormBody.Builder()
-		body.add("client_id", clientId)
-		body.add("client_secret", clientSecret)
-		if (code != null) {
-			body.add("grant_type", "authorization_code")
-			body.add("redirect_uri", REDIRECT_URI)
-			body.add("code", code)
-		} else {
-			body.add("grant_type", "refresh_token")
-			body.add("refresh_token", checkNotNull(storage.refreshToken))
+		// AniList uses the implicit grant (Mihon's public client 16329 is
+		// implicit-only): the access token arrives directly in the redirect
+		// fragment, so `code` is the token itself. There is no refresh token, so a
+		// null code (refresh) cannot be honoured — the user re-authenticates.
+		val token = requireNotNull(code) {
+			"AniList uses the implicit grant and cannot refresh; sign in again"
 		}
-		val request = Request.Builder()
-			.post(body.build())
-			.url("${BASE_URL}oauth/token")
-		val response = okHttp.newCall(request.build()).await().parseJson()
-		storage.accessToken = response.getString("access_token")
-		storage.refreshToken = response.getString("refresh_token")
+		storage.accessToken = token
 	}
 
 	override suspend fun loadUser(): ScrobblerUser {

@@ -85,3 +85,6 @@
 -keep class com.google.crypto.tink.subtle.Ed25519Verify { *; }
 -keep class com.google.crypto.tink.subtle.Ed25519 { *; }
 -keep class com.google.crypto.tink.subtle.Field25519 { *; }
+
+# Domain obfuscation vault — instrumented classes call it by exact name; must not be renamed/removed.
+-keep class com.nyora.hasan72341.core.vault.DomainVault { *; }
