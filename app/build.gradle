@@ -168,8 +168,11 @@ dependencies {
 		// -DparsersVersionOverride=$(curl -s https://api.github.com/repos/kotatsu-redo/kotatsu-parsers-redo/commits/master -H "Accept: application/vnd.github.sha" | cut -c -10)
 		parsersVersion = System.getProperty('parsersVersionOverride')
 	}
+	// Scraper-stripped fork of kotatsu-parsers-redo (Play compliance): keeps the parser model +
+	// infrastructure the app is built on, but ships NO site scrapers (the MangaParserSource enum is
+	// a single @Broken STUB, filtered out). Real sources come from the runtime data-driven catalogue.
 	//noinspection UseTomlInstead
-	implementation("com.github.clquwu:kotatsu-parsers-redo:$parsersVersion") {
+	implementation("com.github.Nyora-Manga:kotatsu-parsers-stripped:1.0") {
 		exclude group: 'org.json', module: 'json'
 	}
 

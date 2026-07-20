@@ -380,11 +380,13 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		set(value) = prefs.edit { putBoolean(KEY_SOURCES_ENABLED_ALL, value) }
 
 	// Remote master switch: no sources are exposed until a signed remote config
-	// (verified on launch) sets this true. Ships false so a Store-review build
-	// shows no sources; flipped remotely (no app update) after approval. Persisted
-	// so a previously-unlocked device stays unlocked offline.
+	// Always unlocked since the migration to runtime data-driven sources: the app ships NO baked-in
+	// scrapers (kotatsu-parsers is the scraper-stripped fork; the source catalogue is fetched at
+	// runtime), so the RemoteSourceGate that used to hide compiled-in sources for Store review is
+	// obsolete — data-driven sources are always visible. The setter is kept so the remote switch
+	// still functions if a gated native/Mihon path is ever reintroduced.
 	var isSourcesUnlocked: Boolean
-		get() = prefs.getBoolean(KEY_SOURCES_UNLOCKED, false)
+		get() = true
 		set(value) = prefs.edit { putBoolean(KEY_SOURCES_UNLOCKED, value) }
 
 	// Set when the user unlocks sources themselves by pasting a valid repository
