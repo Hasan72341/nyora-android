@@ -48,9 +48,17 @@ class DataDrivenCatalogueRepository @Inject constructor(
     @Volatile
     private var cached: List<DataDrivenMangaSource>? = null
 
+    init {
+        // Load the disk cache eagerly so the source list has the catalogue synchronously at startup
+        // (before the async refresh), rather than only after a relaunch.
+        loadFromDisk().takeIf { it.isNotEmpty() }?.let { cached = it }
+    }
+
     /** The currently known data-driven sources (disk cache until a [refresh] lands). */
     val sources: List<DataDrivenMangaSource>
-        get() = cached ?: loadFromDisk().also { cached = it }
+        // Never cache an EMPTY disk read: on a first-ever launch the disk cache doesn't exist yet, and
+        // caching the empty result would pin it and starve the source list even after refresh() lands.
+        get() = cached ?: loadFromDisk().also { if (it.isNotEmpty()) cached = it }
 
     /** Fetch the latest catalogue, replacing the cache. Returns the parsed source count. */
     suspend fun refresh(): Result<Int> = withContext(Dispatchers.IO) {

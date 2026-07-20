@@ -40,7 +40,11 @@ class MangaSourcesRepository @Inject constructor(
     private val catalogue: com.nyora.hasan72341.core.parser.datadriven.DataDrivenCatalogueRepository,
 ) {
 
-	private val isNewSourcesAssimilated = AtomicBoolean(false)
+	// Tracks the source-set size we last assimilated. Re-runs when it changes so the runtime
+	// data-driven catalogue (which arrives asynchronously after launch) is picked up without needing
+	// a relaunch — a plain once-per-process guard would miss the catalogue landing mid-session.
+	@Volatile
+	private var lastAssimilatedSize = -1
 	private val dao: MangaSourcesDao
 		get() = db.getSourcesDao()
 
@@ -272,9 +276,11 @@ class MangaSourcesRepository @Inject constructor(
 	}
 
 	private suspend fun assimilateNewSources(): Boolean {
-		if (isNewSourcesAssimilated.getAndSet(true)) {
+		val size = allMangaSources.size
+		if (size == lastAssimilatedSize) {
 			return false
 		}
+		lastAssimilatedSize = size
 		val new = getNewSources()
 		if (new.isEmpty()) {
 			return false
@@ -283,8 +289,10 @@ class MangaSourcesRepository @Inject constructor(
 		val isAllEnabled = settings.isAllSourcesEnabled
 		val entities = new.map { x ->
 			MangaSourceEntity(
+				// Data-driven sources are the app's own runtime catalogue, so they're enabled on
+				// arrival (the app is otherwise source-less); other kinds follow the user setting.
+				isEnabled = isAllEnabled || com.nyora.hasan72341.core.model.DataDrivenMangaSource.isDataDriven(x.name),
 				source = x.name,
-				isEnabled = isAllEnabled,
 				sortKey = ++maxSortKey,
 				addedIn = BuildConfig.VERSION_CODE,
 				lastUsedAt = 0,
