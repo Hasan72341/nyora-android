@@ -18,7 +18,7 @@ import com.nyora.hasan72341.mihon.parsers.model.MangaListFilter
 import com.nyora.hasan72341.mihon.parsers.model.MangaListFilterCapabilities
 import com.nyora.hasan72341.mihon.parsers.model.MangaListFilterOptions
 import com.nyora.hasan72341.mihon.parsers.model.MangaPage
-import com.nyora.hasan72341.mihon.parsers.model.MangaParserSource
+import com.nyora.hasan72341.mihon.parsers.model.MangaSource
 import com.nyora.hasan72341.mihon.parsers.model.MangaState
 import com.nyora.hasan72341.mihon.parsers.model.MangaTag
 import com.nyora.hasan72341.mihon.parsers.model.SortOrder
@@ -34,7 +34,7 @@ import java.util.EnumSet
  * 3-image anonymous preview.
  */
 class ToonDexMangaRepository(
-	override val source: MangaParserSource,
+	override val source: MangaSource,
 	private val okHttpClient: OkHttpClient,
 	cache: MemoryContentCache,
 ) : CachingMangaRepository(cache) {

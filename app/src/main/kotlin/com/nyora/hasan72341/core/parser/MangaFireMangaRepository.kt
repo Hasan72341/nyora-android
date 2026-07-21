@@ -17,7 +17,8 @@ import com.nyora.hasan72341.mihon.parsers.model.MangaListFilter
 import com.nyora.hasan72341.mihon.parsers.model.MangaListFilterCapabilities
 import com.nyora.hasan72341.mihon.parsers.model.MangaListFilterOptions
 import com.nyora.hasan72341.mihon.parsers.model.MangaPage
-import com.nyora.hasan72341.mihon.parsers.model.MangaParserSource
+import com.nyora.hasan72341.core.model.DataDrivenMangaSource
+import com.nyora.hasan72341.mihon.parsers.model.MangaSource
 import com.nyora.hasan72341.mihon.parsers.model.MangaState
 import com.nyora.hasan72341.mihon.parsers.model.MangaTag
 import com.nyora.hasan72341.mihon.parsers.model.SortOrder
@@ -36,7 +37,7 @@ import java.util.EnumSet
  * single shared catalog (language is intentionally ignored there — matches MangaFire itself).
  */
 class MangaFireMangaRepository(
-	override val source: MangaParserSource,
+	override val source: MangaSource,
 	private val okHttpClient: OkHttpClient,
 	cache: MemoryContentCache,
 ) : CachingMangaRepository(cache) {
@@ -45,15 +46,19 @@ class MangaFireMangaRepository(
 
 	private val json = Json { ignoreUnknownKeys = true }
 
-	// MangaFire's own language code differs from a couple of the enum suffixes.
-	private val langCode: String = when (source.name.removePrefix("MANGAFIRE_")) {
-		"ES" -> "es"
-		"ESLA" -> "es-la"
-		"FR" -> "fr"
-		"JA" -> "ja"
-		"PT" -> "pt"
-		"PTBR" -> "pt-br"
-		else -> "en" // EN and any unexpected suffix
+	// MangaFire's own language code. Data-driven sources carry it verbatim in their config
+	// (en, es, es-la, fr, ja, pt-br); the legacy native enum path derives it from the name suffix.
+	private val langCode: String = when (val s = source) {
+		is DataDrivenMangaSource -> (s.config["language"] as? String)?.lowercase() ?: "en"
+		else -> when (s.name.removePrefix("MANGAFIRE_")) {
+			"ES" -> "es"
+			"ESLA" -> "es-la"
+			"FR" -> "fr"
+			"JA" -> "ja"
+			"PT" -> "pt"
+			"PTBR" -> "pt-br"
+			else -> "en" // EN and any unexpected suffix
+		}
 	}
 
 	override val sortOrders: Set<SortOrder> = EnumSet.of(SortOrder.POPULARITY, SortOrder.UPDATED)

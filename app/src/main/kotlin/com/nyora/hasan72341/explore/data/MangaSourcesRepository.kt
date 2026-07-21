@@ -11,6 +11,7 @@ import com.nyora.hasan72341.core.model.MangaSourceInfo
 import com.nyora.hasan72341.core.model.getTitle
 import com.nyora.hasan72341.core.model.isNsfw
 import com.nyora.hasan72341.core.model.getContentTypeOrNull
+import com.nyora.hasan72341.core.model.localeCode
 import com.nyora.hasan72341.core.prefs.AppSettings
 import com.nyora.hasan72341.core.prefs.observeAsFlow
 import com.nyora.hasan72341.core.ui.util.ReversibleHandle
@@ -128,7 +129,10 @@ class MangaSourcesRepository @Inject constructor(
 		}
 
 		if (locale != null) {
-			sources.retainAll { it is MangaParserSource && it.locale == locale }
+			// localeCode() resolves the language for BOTH native parser sources and data-driven ones;
+			// the old `it is MangaParserSource` guard silently dropped every data-driven source from
+			// any language-filtered view.
+			sources.retainAll { it.localeCode() == locale }
 		}
 		if (types.isNotEmpty()) {
 			sources.retainAll { it.getContentTypeOrNull() in types }

@@ -100,9 +100,14 @@ class DataDrivenCatalogueRepository @Inject constructor(
             // kotatsu extraction's @Broken marker — it means the NATIVE kotatsu parser was broken,
             // which is irrelevant here since data-driven sources use our own engines, so those are kept.
             .filterNot { it.broken && !it.brokenReason.isNullOrBlank() }
-            // Drop rows that can't yield a usable source: no id/domain, or an engine this build
-            // doesn't bundle.
-            .filter { it.id.isNotBlank() && it.domain.isNotBlank() && EngineRegistry.supports(it.engine) }
+            // Drop rows that can't yield a usable source: no id/domain, or an engine this build can't
+            // render — either a bundled generic engine (EngineRegistry) or a natively-backed engine
+            // whose repository lives in the app (e.g. mangafire: custom JSON API + image scrambling
+            // a generic engine can't express).
+            .filter {
+                it.id.isNotBlank() && it.domain.isNotBlank() &&
+                    (EngineRegistry.supports(it.engine) || it.engine in NATIVE_BACKED_ENGINES)
+            }
             .map { row ->
                 val config = row.config.toValueMap().toMutableMap()
                 // Surface the row-level pageSize into the config the engine reads.
@@ -114,6 +119,7 @@ class DataDrivenCatalogueRepository @Inject constructor(
                     lang = row.lang,
                     nsfw = row.nsfw,
                     domain = row.domain.sanitizeDomain(),
+                    contentType = row.contentType,
                     config = config,
                 )
             }
@@ -127,6 +133,7 @@ class DataDrivenCatalogueRepository @Inject constructor(
         val name: String = "",
         val lang: String = "en",
         val nsfw: Boolean = false,
+        val contentType: String? = null,
         val engine: String,
         val domain: String,
         val broken: Boolean = false,
@@ -159,6 +166,10 @@ class DataDrivenCatalogueRepository @Inject constructor(
         .trim()
 
     companion object {
+        // Engines with no generic implementation that are instead handled by a bundled native
+        // MangaRepository (routed in MangaRepository.Factory). Kept in the catalogue so those
+        // sources still appear, filter, and categorise like any other data-driven source.
+        private val NATIVE_BACKED_ENGINES = setOf("mangafire")
         private const val CACHE_FILE = "datadriven-catalogue.json"
         private const val MAX_CATALOGUE_BYTES = 16L * 1024 * 1024 // 16 MiB; real catalogue is ~350 KiB
         const val CATALOGUE_URL =

@@ -67,7 +67,12 @@ class FaviconFetcher(
 
 			is LocalMangaRepository -> imageLoader.fetch(R.drawable.ic_storage, options)
 			is MihonMangaRepository -> fetchMihonIcon(repo)
-			is com.nyora.hasan72341.core.parser.DataDrivenMangaRepository -> fetchDataDrivenIcon(repo)
+			is com.nyora.hasan72341.core.parser.DataDrivenMangaRepository ->
+				fetchDomainIcon(repo.domain, repo.source.name)
+			is com.nyora.hasan72341.core.parser.MangaFireMangaRepository ->
+				fetchDomainIcon("mangafire.to", repo.source.name)
+			is com.nyora.hasan72341.core.parser.ToonDexMangaRepository ->
+				fetchDomainIcon("toondex.io", repo.source.name)
 
 			else -> throw IllegalArgumentException("Unsupported repo ${repo.javaClass.simpleName}")
 		}
@@ -115,15 +120,15 @@ class FaviconFetcher(
 		throwNSEE(lastError)
 	}
 
-	private suspend fun fetchDataDrivenIcon(
-		repository: com.nyora.hasan72341.core.parser.DataDrivenMangaRepository,
-	): FetchResult {
+	// Resolve a favicon from a source's domain (used by data-driven sources and the natively-backed
+	// MangaFire, neither of which ships a bundled icon).
+	private suspend fun fetchDomainIcon(domain: String, sourceName: String): FetchResult {
 		val sizePx = maxOf(
 			options.size.width.pxOrElse { FALLBACK_SIZE },
 			options.size.height.pxOrElse { FALLBACK_SIZE },
 			64,
 		)
-		val cacheKey = options.diskCacheKey ?: "${repository.source.name}_$sizePx"
+		val cacheKey = options.diskCacheKey ?: "${sourceName}_$sizePx"
 		if (options.diskCachePolicy.readEnabled) {
 			localStorageCache[cacheKey]?.let { file ->
 				return SourceFetchResult(
@@ -133,10 +138,9 @@ class FaviconFetcher(
 				)
 			}
 		}
-		// Data-driven sources carry no bundled icon; resolve the favicon from the source domain.
+		// These sources carry no bundled icon; resolve the favicon from the source domain.
 		// Google's favicon cache reaches sites that block direct /favicon.ico requests (same source
 		// as the iOS app and the aidoku icon pipeline), with the site's own icon as a fallback.
-		val domain = repository.domain
 		val candidates = listOf(
 			"https://www.google.com/s2/favicons?sz=${sizePx.coerceAtMost(128)}&domain=$domain",
 			"https://$domain/favicon.ico",

@@ -20,6 +20,9 @@ data class DataDrivenMangaSource(
     val lang: String,
     val nsfw: Boolean,
     val domain: String,
+    // Catalogue content type (MANGA/MANHWA/MANHUA/HENTAI/COMICS/…), used to categorise the source in
+    // the catalog's content-type tabs. Null for rows the catalogue doesn't tag; callers default to MANGA.
+    val contentType: String? = null,
     val config: Map<String, Any?> = emptyMap(),
 ) : MangaSource {
 

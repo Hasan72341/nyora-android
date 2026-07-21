@@ -114,6 +114,23 @@ interface MangaRepository {
 				cache = contentCache,
 			)
 
+			// MangaFire's new JSON API + image scrambling can't be expressed by a generic engine,
+			// so its data-driven rows are backed by the native MangaFire repository (langCode read
+			// from the catalogue config). Must precede the generic DataDrivenMangaSource branch.
+			is DataDrivenMangaSource if source.engineKey == "mangafire" -> MangaFireMangaRepository(
+				source = source,
+				okHttpClient = okHttpClient,
+				cache = contentCache,
+			)
+
+			// ToonDex (ex Toonily.me) rebuilt on the MangaBuddy JSON API; its catalogue engine
+			// (madtheme) no longer matches, so back its data-driven row with the native repository.
+			is DataDrivenMangaSource if source.sourceId == "TOONILY_ME" -> ToonDexMangaRepository(
+				source = source,
+				okHttpClient = okHttpClient,
+				cache = contentCache,
+			)
+
 			// Data-driven source: rendered at runtime by a bundled generic engine from
 			// fetched SourceDef data, with no per-source parser in the APK.
 			is DataDrivenMangaSource -> DataDrivenMangaRepository(
