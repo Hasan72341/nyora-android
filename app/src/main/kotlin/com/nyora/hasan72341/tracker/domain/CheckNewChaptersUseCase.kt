@@ -29,9 +29,9 @@ class CheckNewChaptersUseCase @Inject constructor(
 	private val localMangaRepository: LocalMangaRepository,
 ) {
 
-	private val mutex = MultiMutex<Long>()
+	private val mutex = MultiMutex<String>()
 
-	suspend operator fun invoke(manga: Manga): MangaUpdates = mutex.withLock(manga.id.toLongOrNull() ?: 0L) {
+	suspend operator fun invoke(manga: Manga): MangaUpdates = mutex.withLock(manga.id) {
 		repository.updateTracks()
 		val tracking = repository.getTrackOrNull(manga) ?: return@withLock MangaUpdates.Failure(
 			manga = manga,
@@ -40,23 +40,23 @@ class CheckNewChaptersUseCase @Inject constructor(
 		invokeImpl(tracking)
 	}
 
-	suspend operator fun invoke(track: MangaTracking): MangaUpdates = mutex.withLock(track.manga.id.toLongOrNull() ?: 0L) {
+	suspend operator fun invoke(track: MangaTracking): MangaUpdates = mutex.withLock(track.manga.id) {
 		invokeImpl(track)
 	}
 
-	suspend operator fun invoke(manga: Manga, currentChapterId: Long) = mutex.withLock(manga.id.toLongOrNull() ?: 0L) {
+	suspend operator fun invoke(manga: Manga, currentChapterId: String) = mutex.withLock(manga.id) {
 		runCatchingCancellable {
 			repository.updateTracks()
 			val details = getFullManga(manga)
 			val track = repository.getTrackOrNull(manga) ?: return@withLock
-			val branch = checkNotNull(details.chapters.find { it.id == currentChapterId.toString() }).branch
+			val branch = checkNotNull(details.chapters.find { it.id == currentChapterId }).branch
 			val chapters = details.chapters.filter { it.branch == branch }
-			val chapterIndex = chapters.indexOfFirst { x -> x.id == currentChapterId.toString() }
+			val chapterIndex = chapters.indexOfFirst { x -> x.id == currentChapterId }
 			val lastNewChapterIndex = chapters.size - track.newChapters
 			val lastChapter = chapters.lastOrNull()
 			val tracking = MangaTracking(
 				manga = details,
-				lastChapterId = lastChapter?.id?.toLongOrNull() ?: 0L,
+				lastChapterId = lastChapter?.id ?: "",
 				lastCheck = Instant.now(),
 				lastChapterDate = lastChapter?.uploadDate?.toInstantOrNull() ?: track.lastChapterDate,
 				newChapters = when {
@@ -84,13 +84,13 @@ class CheckNewChaptersUseCase @Inject constructor(
 		repository.saveUpdates(updates)
 	}
 
-	private suspend fun getBranch(manga: Manga, trackChapterId: Long): String? {
+	private suspend fun getBranch(manga: Manga, trackChapterId: String): String? {
 		historyRepository.getOne(manga)?.let { history ->
 			manga.chapters.find { it.id == history.chapterId }
 		}?.let {
 			return it.branch
 		}
-		manga.chapters.find { it.id == trackChapterId.toString() }?.let {
+		manga.chapters.find { it.id == trackChapterId }?.let {
 			return it.branch
 		}
 		// fallback
@@ -126,10 +126,10 @@ class CheckNewChaptersUseCase @Inject constructor(
 			return MangaUpdates.Success(manga, branch, emptyList(), isValid = false)
 		}
 		val chapters = manga.chapters.filter { it.branch == branch }
-		if (BuildConfig.DEBUG && chapters.find { it.id == track.lastChapterId.toString() } == null) {
+		if (BuildConfig.DEBUG && chapters.find { it.id == track.lastChapterId } == null) {
 			Log.e("Tracker", "Chapter ${track.lastChapterId} not found")
 		}
-		val newChapters = chapters.takeLastWhile { x -> x.id != track.lastChapterId.toString() }
+		val newChapters = chapters.takeLastWhile { x -> x.id != track.lastChapterId }
 		return when {
 			newChapters.isEmpty() -> {
 				MangaUpdates.Success(

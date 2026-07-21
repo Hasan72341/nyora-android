@@ -43,12 +43,12 @@ class TrackingRepository @Inject constructor(
 
 	private var isGcCalled = AtomicBoolean(false)
 
-	suspend fun getNewChaptersCount(mangaId: Long): Int {
-		return db.getTracksDao().findNewChapters(mangaId.toString())
+	suspend fun getNewChaptersCount(mangaId: String): Int {
+		return db.getTracksDao().findNewChapters(mangaId)
 	}
 
-	fun observeNewChaptersCount(mangaId: Long): Flow<Int> {
-		return db.getTracksDao().observeNewChapters(mangaId.toString())
+	fun observeNewChaptersCount(mangaId: String): Flow<Int> {
+		return db.getTracksDao().observeNewChapters(mangaId)
 	}
 
 	@Deprecated("")
@@ -66,7 +66,7 @@ class TrackingRepository @Inject constructor(
 			.mapItems {
 				MangaTracking(
 					manga = it.manga.toManga(),
-					lastChapterId = it.track.lastChapterId.toLongOrNull() ?: NO_ID,
+					lastChapterId = it.track.lastChapterId,
 					lastCheck = it.track.lastCheckTime.toInstantOrNull(),
 					lastChapterDate = it.track.lastChapterDate.toInstantOrNull(),
 					newChapters = it.track.newChapters,
@@ -84,7 +84,7 @@ class TrackingRepository @Inject constructor(
 			.map {
 				MangaTracking(
 					manga = it.manga.toManga(),
-					lastChapterId = it.track.lastChapterId.toLongOrNull() ?: NO_ID,
+					lastChapterId = it.track.lastChapterId,
 					lastCheck = it.track.lastCheckTime.toInstantOrNull(),
 					lastChapterDate = it.track.lastChapterDate.toInstantOrNull(),
 					newChapters = it.track.newChapters,
@@ -105,7 +105,7 @@ class TrackingRepository @Inject constructor(
 	suspend fun getTrack(manga: Manga): MangaTracking {
 		return getTrackOrNull(manga) ?: MangaTracking(
 			manga = manga,
-			lastChapterId = NO_ID,
+			lastChapterId = NO_ID_STRING,
 			lastCheck = null,
 			lastChapterDate = null,
 			newChapters = 0,
@@ -116,7 +116,7 @@ class TrackingRepository @Inject constructor(
 		val track = db.getTracksDao().find(manga.id) ?: return null
 		return MangaTracking(
 			manga = manga,
-			lastChapterId = track.lastChapterId.toLongOrNull() ?: NO_ID,
+			lastChapterId = track.lastChapterId,
 			lastCheck = track.lastCheckTime.toInstantOrNull(),
 			lastChapterDate = track.lastChapterDate.toInstantOrNull(),
 			newChapters = track.newChapters,
@@ -124,8 +124,8 @@ class TrackingRepository @Inject constructor(
 	}
 
 	@VisibleForTesting
-	suspend fun deleteTrack(mangaId: Long) {
-		db.getTracksDao().delete(mangaId.toString())
+	suspend fun deleteTrack(mangaId: String) {
+		db.getTracksDao().delete(mangaId)
 	}
 
 	fun observeTrackingLog(limit: Int, filterOptions: Set<ListFilterOption>): Flow<List<TrackingLogItem>> {
@@ -182,7 +182,7 @@ class TrackingRepository @Inject constructor(
 	suspend fun mergeWith(tracking: MangaTracking) {
 		val entity = TrackEntity(
 			mangaId = tracking.manga.id,
-			lastChapterId = tracking.lastChapterId.toString(),
+			lastChapterId = tracking.lastChapterId,
 			newChapters = tracking.newChapters,
 			lastCheckTime = tracking.lastCheck?.toEpochMilli() ?: 0L,
 			lastChapterDate = tracking.lastChapterDate?.toEpochMilli() ?: 0L,

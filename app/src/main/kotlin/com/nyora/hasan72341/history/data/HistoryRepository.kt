@@ -136,7 +136,7 @@ class HistoryRepository @Inject constructor(
 					deletedAt = 0L,
 				),
 			)
-			newChaptersUseCaseProvider.get()(manga, chapterId.toLongOrNull() ?: 0L)
+			newChaptersUseCaseProvider.get()(manga, chapterId)
 			scrobblers.forEach { it.tryScrobble(manga, chapterId) }
 		}
 		enqueueSyncAfterMutation()

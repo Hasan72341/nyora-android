@@ -40,11 +40,10 @@ class DetailsInteractor @Inject constructor(
 	}
 
 	fun observeNewChapters(mangaId: String): Flow<Int> {
-		val numericId = mangaId.toLongOrNull() ?: return flowOf(0)
 		return settings.observeAsFlow(AppSettings.KEY_TRACKER_ENABLED) { isTrackerEnabled }
 			.flatMapLatest { isEnabled ->
 				if (isEnabled) {
-					trackingRepository.observeNewChaptersCount(numericId)
+					trackingRepository.observeNewChaptersCount(mangaId)
 				} else {
 					flowOf(0)
 				}
