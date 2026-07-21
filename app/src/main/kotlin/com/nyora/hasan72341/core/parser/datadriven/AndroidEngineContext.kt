@@ -48,8 +48,12 @@ class AndroidEngineContext(
         when (request.method.uppercase()) {
             "POST" -> {
                 val body = when {
+                    // Engine form keys/values are already URL-encoded (Madara's madara_load_more
+                    // template, `query.urlEncoded()`, …), so use addEncoded to avoid double-encoding
+                    // — plain add() would turn `vars%5Bs%5D` into `vars%255Bs%255D` and the request
+                    // would return nothing.
                     request.form != null -> FormBody.Builder().apply {
-                        request.form!!.forEach { (k, v) -> add(k, v) }
+                        request.form!!.forEach { (k, v) -> addEncoded(k, v) }
                     }.build()
 
                     request.body != null -> {
