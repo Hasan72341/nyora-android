@@ -142,8 +142,10 @@ class MangaListMapper @Inject constructor(
 	}
 
 	private suspend fun getCounter(mangaId: String, @Options options: Int): Int {
+		// Data-driven sources use non-numeric ids and aren't tracked (numeric-keyed feature).
+		val numericId = mangaId.toLongOrNull() ?: return 0
 		return if (settings.isTrackerEnabled) {
-			trackingRepository.getNewChaptersCount(mangaId.toLong())
+			trackingRepository.getNewChaptersCount(numericId)
 		} else {
 			0
 		}
@@ -162,7 +164,8 @@ class MangaListMapper @Inject constructor(
 	}
 
 	private suspend fun isSaved(mangaId: String, @Options options: Int): Boolean {
-		return options.isBadgeEnabled(SAVED) && mangaId.toLong() in localMangaIndex
+		val numericId = mangaId.toLongOrNull() ?: return false
+		return options.isBadgeEnabled(SAVED) && numericId in localMangaIndex
 	}
 
 	@ColorRes

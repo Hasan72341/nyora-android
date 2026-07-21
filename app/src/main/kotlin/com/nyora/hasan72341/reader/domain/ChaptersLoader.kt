@@ -31,18 +31,18 @@ class ChaptersLoader @Inject constructor(
 		chapters.clear()
 		currentMangaSource = manga.toManga().source.name
 		manga.allChapters.forEach {
-			chapters.put(it.id.toLongOrNull() ?: 0L, it)
+			chapters.put(it.id.toChapterKey(), it)
 		}
 	}
 
 	suspend fun loadPrevNextChapter(manga: MangaDetails, currentId: Long, isNext: Boolean): Boolean {
-		val predicate: (MangaChapter) -> Boolean = { it.id.toLongOrNull() == currentId }
+		val predicate: (MangaChapter) -> Boolean = { it.id.toChapterKey() == currentId }
 		val currentChapter = manga.allChapters.find(predicate) ?: return false
 		val chapters = manga.readerChapters(currentChapter.branch)
 		val index = chapters.indexOfFirst(predicate)
 		if (index == -1) return false
 		val newChapter = chapters.getOrNull(if (isNext) index + 1 else index - 1) ?: return false
-		val newPages = loadChapter(newChapter.id.toLongOrNull() ?: 0L)
+		val newPages = loadChapter(newChapter.id.toChapterKey())
 		mutex.withLock {
 			if (chapterPages.chaptersSize > 1) {
 				// trim pages
@@ -55,9 +55,9 @@ class ChaptersLoader @Inject constructor(
 				}
 			}
 			if (isNext) {
-				chapterPages.addLast(newChapter.id.toLongOrNull() ?: 0L, newPages)
+				chapterPages.addLast(newChapter.id.toChapterKey(), newPages)
 			} else {
-				chapterPages.addFirst(newChapter.id.toLongOrNull() ?: 0L, newPages)
+				chapterPages.addFirst(newChapter.id.toChapterKey(), newPages)
 			}
 		}
 		return true

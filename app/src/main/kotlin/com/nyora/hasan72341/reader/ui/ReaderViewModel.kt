@@ -1,5 +1,6 @@
 package com.nyora.hasan72341.reader.ui
 
+import com.nyora.hasan72341.reader.domain.toChapterKey
 import android.net.Uri
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
@@ -274,7 +275,7 @@ class ReaderViewModel @Inject constructor(
 
     fun getCurrentChapterPages(): List<MangaPage>? {
         val chapterId = readingState.value?.chapterId ?: return null
-        return chaptersLoader.getPages(chapterId.toLong())
+        return chaptersLoader.getPages(chapterId.toChapterKey())
     }
 
     fun saveCurrentPage(
@@ -287,7 +288,7 @@ class ReaderViewModel @Inject constructor(
             val currentManga = manga.requireValue()
             val task = PageSaveHelper.Task(
                 manga = currentManga,
-                chapterId = state.chapterId.toLong(),
+                chapterId = state.chapterId.toChapterKey(),
                 pageNumber = state.page + 1,
                 page = checkNotNull(getCurrentPage()) { "Cannot find current page" },
             )
@@ -308,7 +309,7 @@ class ReaderViewModel @Inject constructor(
         loadingJob = launchLoadingJob(Dispatchers.IO) {
             prevJob?.cancelAndJoin()
             content.value = ReaderContent(emptyList(), null)
-            chaptersLoader.loadSingleChapter(id.toLong())
+            chaptersLoader.loadSingleChapter(id.toChapterKey())
             val newState = ReaderState(id, page, 0)
             content.value = ReaderContent(chaptersLoader.snapshot(), newState)
             saveCurrentState(newState)
@@ -332,7 +333,7 @@ class ReaderViewModel @Inject constructor(
                 prevState.chapterId
             }
             content.value = ReaderContent(emptyList(), null)
-            chaptersLoader.loadSingleChapter(newChapterId.toLong())
+            chaptersLoader.loadSingleChapter(newChapterId.toChapterKey())
             val newState = ReaderState(
                 chapterId = newChapterId,
                 page = if (delta == 0) prevState.page else 0,
@@ -453,11 +454,11 @@ class ReaderViewModel @Inject constructor(
                             val mode = runCatchingCancellable {
                                 detectReaderModeUseCase(manga, newState)
                             }.getOrDefault(settings.defaultReaderMode)
-                            val branch = chaptersLoader.peekChapter(newState.chapterId.toLong())?.branch
+                            val branch = chaptersLoader.peekChapter(newState.chapterId.toChapterKey())?.branch
                             selectedBranch.value = branch
                             readerMode.value = mode
                             try {
-                                chaptersLoader.loadSingleChapter(newState.chapterId.toLong())
+                                chaptersLoader.loadSingleChapter(newState.chapterId.toChapterKey())
                             } catch (e: Exception) {
                                 readingState.value = null // try next time
                                 exception = e.mergeWith(exception)
@@ -516,7 +517,7 @@ class ReaderViewModel @Inject constructor(
         val prevJob = loadingJob
         loadingJob = launchLoadingJob(Dispatchers.IO) {
             prevJob?.join()
-            chaptersLoader.loadPrevNextChapter(mangaDetails.requireValue(), currentId.toLong(), isNext)
+            chaptersLoader.loadPrevNextChapter(mangaDetails.requireValue(), currentId.toChapterKey(), isNext)
             content.value = ReaderContent(chaptersLoader.snapshot(), null)
         }
     }
@@ -534,7 +535,7 @@ class ReaderViewModel @Inject constructor(
     @WorkerThread
     private fun notifyStateChanged() {
         val state = getCurrentState() ?: return
-        val chapter = chaptersLoader.peekChapter(state.chapterId.toLong()) ?: return
+        val chapter = chaptersLoader.peekChapter(state.chapterId.toChapterKey()) ?: return
         val m = mangaDetails.value ?: return
         val orderedChapters = m.readerChapters(chapter.branch)
         val chapterIndex = orderedChapters.indexOfFirst { it.id == chapter.id }
@@ -543,7 +544,7 @@ class ReaderViewModel @Inject constructor(
             chapter = chapter,
             chapterIndex = chapterIndex,
             chaptersTotal = orderedChapters.size,
-            totalPages = chaptersLoader.getPagesCount(chapter.id.toLong()),
+            totalPages = chaptersLoader.getPagesCount(chapter.id.toChapterKey()),
             currentPage = state.page,
             percent = computePercent(state.chapterId, state.page),
             incognito = isIncognitoMode.value == true,
@@ -556,11 +557,11 @@ class ReaderViewModel @Inject constructor(
     }
 
     private fun computePercent(chapterId: String, pageIndex: Int): Float {
-        val branch = chaptersLoader.peekChapter(chapterId.toLong())?.branch
+        val branch = chaptersLoader.peekChapter(chapterId.toChapterKey())?.branch
         val chapters = mangaDetails.value?.readerChapters(branch) ?: return PROGRESS_NONE
         val chaptersCount = chapters.size
         val chapterIndex = chapters.indexOfFirst { x -> x.id == chapterId }
-        val pagesCount = chaptersLoader.getPagesCount(chapterId.toLong())
+        val pagesCount = chaptersLoader.getPagesCount(chapterId.toChapterKey())
         if (chaptersCount == 0 || chapterIndex < 0 || pagesCount == 0) {
             return PROGRESS_NONE
         }
@@ -666,7 +667,7 @@ class ReaderViewModel @Inject constructor(
             for (chapter in nextChapters) {
                 ensureActive()
                 val chapterId = chapter.id
-                if (translator.hasChapterCached(chapterId.toLong()) || !pretranslatingChapters.add(chapterId)) {
+                if (translator.hasChapterCached(chapterId.toChapterKey()) || !pretranslatingChapters.add(chapterId)) {
                     continue
                 }
                 
@@ -690,7 +691,7 @@ class ReaderViewModel @Inject constructor(
                     }
                     ensureActive()
                     
-                    translator.translateChapter(chapterId.toLong(), decodedUris)
+                    translator.translateChapter(chapterId.toChapterKey(), decodedUris)
                     
                     android.util.Log.d("MangaTranslator", "Successfully pre-translated chapter: id=${chapterId}")
                 } catch (e: Exception) {

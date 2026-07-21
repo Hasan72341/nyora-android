@@ -146,7 +146,7 @@ class LocalMangaRepository @Inject constructor(
 		val file = manga.url.toUri().toFile()
 		val result = file.deleteAwait()
 		if (result) {
-			localMangaIndex.delete(manga.id.toLong())
+			manga.id.toLongOrNull()?.let { localMangaIndex.delete(it) }
 			localStorageChanges.emit(null)
 		}
 		return result
@@ -170,8 +170,8 @@ class LocalMangaRepository @Inject constructor(
 	}
 
 	suspend fun findSavedManga(remoteManga: Manga, withDetails: Boolean = true): LocalManga? = runCatchingCancellable {
-		// very fast path
-		localMangaIndex.get(remoteManga.id.toLong(), withDetails)?.let { cached ->
+		// very fast path (numeric-id manga only; the local index is keyed by Long)
+		remoteManga.id.toLongOrNull()?.let { localMangaIndex.get(it, withDetails) }?.let { cached ->
 			return@runCatchingCancellable cached
 		}
 		// fast path

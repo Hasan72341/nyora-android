@@ -1,5 +1,6 @@
 package com.nyora.hasan72341.reader.ui
 
+import com.nyora.hasan72341.reader.domain.toChapterKey
 import android.app.assist.AssistContent
 import android.content.DialogInterface
 import android.content.Intent
@@ -521,7 +522,7 @@ class ReaderActivity :
     override fun switchPageTo(index: Int) {
         val pages = viewModel.getCurrentChapterPages()
         val page = pages?.getOrNull(index) ?: return
-        val chapterId = viewModel.getCurrentState()?.chapterId?.toLongOrNull() ?: return
+        val chapterId = viewModel.getCurrentState()?.chapterId?.toChapterKey() ?: return
         onPageSelected(ReaderPage(page, index, chapterId))
     }
 

@@ -31,7 +31,7 @@ class CheckNewChaptersUseCase @Inject constructor(
 
 	private val mutex = MultiMutex<Long>()
 
-	suspend operator fun invoke(manga: Manga): MangaUpdates = mutex.withLock(manga.id.toLong()) {
+	suspend operator fun invoke(manga: Manga): MangaUpdates = mutex.withLock(manga.id.toLongOrNull() ?: 0L) {
 		repository.updateTracks()
 		val tracking = repository.getTrackOrNull(manga) ?: return@withLock MangaUpdates.Failure(
 			manga = manga,
@@ -40,11 +40,11 @@ class CheckNewChaptersUseCase @Inject constructor(
 		invokeImpl(tracking)
 	}
 
-	suspend operator fun invoke(track: MangaTracking): MangaUpdates = mutex.withLock(track.manga.id.toLong()) {
+	suspend operator fun invoke(track: MangaTracking): MangaUpdates = mutex.withLock(track.manga.id.toLongOrNull() ?: 0L) {
 		invokeImpl(track)
 	}
 
-	suspend operator fun invoke(manga: Manga, currentChapterId: Long) = mutex.withLock(manga.id.toLong()) {
+	suspend operator fun invoke(manga: Manga, currentChapterId: Long) = mutex.withLock(manga.id.toLongOrNull() ?: 0L) {
 		runCatchingCancellable {
 			repository.updateTracks()
 			val details = getFullManga(manga)
