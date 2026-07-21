@@ -81,7 +81,7 @@ class ScrobblerConfigActivity : BaseActivity<ActivityScrobblerConfigBinding>(),
 	}
 
 	override fun onItemClick(item: ScrobblingInfo, view: View) {
-		router.openDetails(item.mangaId.toString())
+		router.openDetails(item.mangaId)
 	}
 
 	override fun onClick(v: View) {

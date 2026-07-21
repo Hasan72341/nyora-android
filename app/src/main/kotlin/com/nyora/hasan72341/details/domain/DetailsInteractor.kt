@@ -51,8 +51,12 @@ class DetailsInteractor @Inject constructor(
 	}
 
 	fun observeScrobblingInfo(mangaId: String): Flow<List<ScrobblingInfo>> {
-		// Scrobbling info API stubbed out; return empty.
-		return flowOf(emptyList())
+		if (scrobblers.isEmpty()) {
+			return flowOf(emptyList())
+		}
+		return combine(scrobblers.map { it.observeScrobblingInfo(mangaId) }) { infos ->
+			infos.filterNotNull()
+		}
 	}
 
 	fun observeIncognitoMode(mangaFlow: Flow<Manga?>): Flow<TriStateOption> {

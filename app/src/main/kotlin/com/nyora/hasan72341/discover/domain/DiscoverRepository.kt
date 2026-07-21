@@ -64,6 +64,8 @@ class DiscoverRepository @Inject constructor(
 
 	var cachedMultiRails: DiscoverMultiRails? = null
 		private set
+	// The (type, adult) the cached rails were fetched for, so a content-type switch re-fetches.
+	private var cachedRailsKey: String? = null
 	var cachedPopularSource: DiscoverPopularSource? = null
 		private set
 
@@ -86,12 +88,13 @@ class DiscoverRepository @Inject constructor(
 	 * every list is empty and [heroSource] is null, so the VM renders each rail as
 	 * Error/hidden rather than crashing.
 	 */
-	suspend fun getMultiRails(limit: Int = 20): DiscoverMultiRails = withContext(Dispatchers.IO) {
+	suspend fun getMultiRails(limit: Int = 20, type: String = "manga", adult: Boolean = false): DiscoverMultiRails = withContext(Dispatchers.IO) {
+		val key = "$type/$adult"
 		val cached = cachedMultiRails
-		if (cached != null && cached.trending.isNotEmpty()) {
+		if (cached != null && cachedRailsKey == key && cached.trending.isNotEmpty()) {
 			return@withContext cached
 		}
-		val response = runCatchingCancellable { mangaBakaRepository.getMultiRails(limit) }.getOrNull()
+		val response = runCatchingCancellable { mangaBakaRepository.getMultiRails(limit, type, adult) }.getOrNull()
 		val result = DiscoverMultiRails(
 			heroSource = response?.trending?.firstOrNull(),
 			trending = response?.trending?.map(::toCard).orEmpty(),
@@ -104,6 +107,7 @@ class DiscoverRepository @Inject constructor(
 		)
 		if (result.trending.isNotEmpty()) {
 			cachedMultiRails = result
+			cachedRailsKey = key
 		}
 		result
 	}
@@ -180,6 +184,7 @@ class DiscoverRepository @Inject constructor(
 
 	fun clearCache() {
 		cachedMultiRails = null
+		cachedRailsKey = null
 		cachedPopularSource = null
 	}
 }

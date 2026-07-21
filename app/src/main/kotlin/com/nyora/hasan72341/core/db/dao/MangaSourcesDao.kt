@@ -65,6 +65,9 @@ abstract class MangaSourcesDao {
 	@Upsert
 	abstract suspend fun upsert(entry: MangaSourceEntity)
 
+	@Query("DELETE FROM sources WHERE source IN (:sources)")
+	abstract suspend fun deleteBySources(sources: Collection<String>)
+
 	@Query("SELECT * FROM sources WHERE pinned = 1")
 	abstract suspend fun findAllPinned(): List<MangaSourceEntity>
 

@@ -129,15 +129,17 @@ class MangaBakaRepository @Inject constructor(
 	 * empty list for that rail rather than failing the whole page. Returns null only if
 	 * every rail failed (so callers can distinguish "no data" from "loading").
 	 */
-	suspend fun getMultiRails(limit: Int = 20): MangaBakaRails? {
+	suspend fun getMultiRails(limit: Int = 20, type: String = "manga", adult: Boolean = false): MangaBakaRails? {
 		val rails = MangaBakaRails(
-			trending = safeRail { fetchRail(sortBy = SortBy.POPULARITY, take = limit) },
-			topRated = safeRail { fetchRail(sortBy = SortBy.RATING, take = limit) },
-			manhwa = safeRail { fetchRail(type = "manhwa", sortBy = SortBy.POPULARITY, take = limit) },
-			action = safeRail { fetchRail(genre = "Action", sortBy = SortBy.POPULARITY, take = limit) },
-			romance = safeRail { fetchRail(genre = "Romance", sortBy = SortBy.POPULARITY, take = limit) },
-			fantasy = safeRail { fetchRail(genre = "Fantasy", sortBy = SortBy.POPULARITY, take = limit) },
-			comedy = safeRail { fetchRail(genre = "Comedy", sortBy = SortBy.POPULARITY, take = limit) },
+			trending = safeRail { fetchRail(type = type, adult = adult, sortBy = SortBy.POPULARITY, take = limit) },
+			topRated = safeRail { fetchRail(type = type, adult = adult, sortBy = SortBy.RATING, take = limit) },
+			// Dedicated manhwa showcase; stays manhwa regardless of the selected type unless the
+			// selection already is manhwa.
+			manhwa = safeRail { fetchRail(type = "manhwa", adult = adult, sortBy = SortBy.POPULARITY, take = limit) },
+			action = safeRail { fetchRail(type = type, adult = adult, genre = "Action", sortBy = SortBy.POPULARITY, take = limit) },
+			romance = safeRail { fetchRail(type = type, adult = adult, genre = "Romance", sortBy = SortBy.POPULARITY, take = limit) },
+			fantasy = safeRail { fetchRail(type = type, adult = adult, genre = "Fantasy", sortBy = SortBy.POPULARITY, take = limit) },
+			comedy = safeRail { fetchRail(type = type, adult = adult, genre = "Comedy", sortBy = SortBy.POPULARITY, take = limit) },
 		)
 		val anyContent = listOf(
 			rails.trending, rails.topRated, rails.manhwa,
@@ -162,6 +164,7 @@ class MangaBakaRepository @Inject constructor(
 	private suspend fun fetchRail(
 		genre: String? = null,
 		type: String = "manga",
+		adult: Boolean = false,
 		sortBy: SortBy = SortBy.POPULARITY,
 		limit: Int = 30,
 		take: Int = 20,
@@ -170,8 +173,14 @@ class MangaBakaRepository @Inject constructor(
 			.addQueryParameter("q", BROAD_QUERY)
 			.addQueryParameter("type", type)
 			.addQueryParameter("limit", limit.toString())
-		if (settings.isNsfwContentDisabled) {
-			urlBuilder.addQueryParameter("content_rating", "safe")
+		when {
+			// "Hentai" selection: request the adult ratings only (MangaBaka accepts
+			// safe|suggestive|erotica|pornographic, repeated for multiple).
+			adult -> {
+				urlBuilder.addQueryParameter("content_rating", "erotica")
+				urlBuilder.addQueryParameter("content_rating", "pornographic")
+			}
+			settings.isNsfwContentDisabled -> urlBuilder.addQueryParameter("content_rating", "safe")
 		}
 		if (genre != null) {
 			urlBuilder.addQueryParameter("genre", genre)

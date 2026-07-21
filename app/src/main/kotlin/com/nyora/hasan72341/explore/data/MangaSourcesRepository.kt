@@ -266,11 +266,31 @@ class MangaSourcesRepository @Inject constructor(
 	}
 
 	/**
-	 * Insert any not-yet-known sources into the DB. Call after the runtime catalogue has been
-	 * fetched so the observing source list (whose `onStart` assimilate fired before the catalogue
-	 * arrived) picks up the new data-driven sources without a relaunch.
+	 * Reconcile the DB with the runtime catalogue: insert not-yet-known sources and prune rows for
+	 * sources the (possibly newly-pasted) catalogue no longer contains. Call after a catalogue
+	 * refresh so the observing source list picks up the change without a relaunch. Forces a re-scan
+	 * (unlike the `onStart` fast path) because a swapped catalogue can have the same source count.
 	 */
-	suspend fun assimilateFromCatalogue(): Boolean = assimilateNewSources()
+	suspend fun assimilateFromCatalogue(): Boolean {
+		// Reset the size-guard so a same-count catalogue swap still re-assimilates.
+		lastAssimilatedSize = -1
+		val added = assimilateNewSources()
+		val removed = pruneOrphanedSources()
+		return added || removed
+	}
+
+	// Delete DB rows for sources that are neither native nor present in the current catalogue, e.g.
+	// after the user pastes a different catalogue URL. Their user state (enabled/pinned/sort) is
+	// intentionally dropped; a source that later reappears comes back fresh.
+	private suspend fun pruneOrphanedSources(): Boolean {
+		val valid = allMangaSources.mapToSet { it.name }
+		val orphans = dao.findAll().mapNotNull { it.source.takeIf { name -> name !in valid } }
+		if (orphans.isEmpty()) {
+			return false
+		}
+		dao.deleteBySources(orphans)
+		return true
+	}
 
 	private suspend fun assimilateNewSources(): Boolean {
 		val size = allMangaSources.size

@@ -80,15 +80,20 @@ class DiscoverViewModel @Inject constructor(
 	 * null  -> still loading (every AniList rail renders shimmer)
 	 * value -> loaded; per-rail empty list renders an Error/hidden state.
 	 */
-	private val anilistFlow: Flow<DiscoverMultiRails?> = retryTrigger.flatMapLatest {
-		flow {
-			emit(null)
-			emit(
-				runCatchingCancellable { discoverRepository.getMultiRails(20) }.getOrNull()
-					?: EMPTY_MULTI_RAILS,
-			)
-		}
-	}.flowOn(Dispatchers.IO)
+	private val contentTypeFlow: Flow<String> =
+		settings.observeAsFlow(AppSettings.KEY_DISCOVER_CONTENT_TYPE) { discoverContentType }
+
+	private val anilistFlow: Flow<DiscoverMultiRails?> =
+		combine(retryTrigger, contentTypeFlow) { _, type -> type }.flatMapLatest { contentType ->
+			val (mbType, adult) = contentTypeToQuery(contentType)
+			flow {
+				emit(null)
+				emit(
+					runCatchingCancellable { discoverRepository.getMultiRails(20, mbType, adult) }.getOrNull()
+						?: EMPTY_MULTI_RAILS,
+				)
+			}
+		}.flowOn(Dispatchers.IO)
 
 	/**
 	 * "Popular on <Source>" from an installed source.
@@ -139,6 +144,32 @@ class DiscoverViewModel @Inject constructor(
 			suggestions = emptyList(),
 		),
 	)
+
+	val currentContentType: String
+		get() = settings.discoverContentType
+
+	/** Content-type chips to offer; Hentai only when NSFW content is enabled. */
+	fun availableContentTypes(): List<ContentTypeOption> = buildList {
+		add(ContentTypeOption(CONTENT_TYPE_MANGA, R.string.content_type_manga))
+		add(ContentTypeOption(CONTENT_TYPE_MANHWA, R.string.content_type_manhwa))
+		add(ContentTypeOption(CONTENT_TYPE_MANHUA, R.string.content_type_manhua))
+		if (!settings.isNsfwContentDisabled) {
+			add(ContentTypeOption(CONTENT_TYPE_HENTAI, R.string.content_type_hentai))
+		}
+	}
+
+	fun setContentType(type: String) {
+		if (settings.discoverContentType == type) return
+		settings.discoverContentType = type
+		// contentTypeFlow re-emits on the pref change; the cache key handles re-fetch.
+	}
+
+	private fun contentTypeToQuery(type: String): Pair<String, Boolean> = when (type) {
+		CONTENT_TYPE_MANHWA -> "manhwa" to false
+		CONTENT_TYPE_MANHUA -> "manhua" to false
+		CONTENT_TYPE_HENTAI -> "manga" to true
+		else -> "manga" to false
+	}
 
 	fun retryNetworkRails() {
 		retryTrigger.update { it + 1 }
@@ -309,7 +340,14 @@ class DiscoverViewModel @Inject constructor(
 		)
 	}
 
+	data class ContentTypeOption(val key: String, @StringRes val titleRes: Int)
+
 	companion object {
+		const val CONTENT_TYPE_MANGA = "manga"
+		const val CONTENT_TYPE_MANHWA = "manhwa"
+		const val CONTENT_TYPE_MANHUA = "manhua"
+		const val CONTENT_TYPE_HENTAI = "hentai"
+
 		const val RAIL_HERO = "hero"
 		const val RAIL_CONTINUE_READING = "continue_reading"
 		const val RAIL_UPDATES = "updates"

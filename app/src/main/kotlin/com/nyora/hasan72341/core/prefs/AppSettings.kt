@@ -438,6 +438,12 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	val isSuggestionsEnabled: Boolean
 		get() = prefs.getBoolean(KEY_SUGGESTIONS, false)
 
+	// Content type the Discover feed's network rails are queried for (MangaBaka `type`); "hentai" is
+	// a pseudo-type that requests adult content. Defaults to manga.
+	var discoverContentType: String
+		get() = prefs.getString(KEY_DISCOVER_CONTENT_TYPE, null)?.takeIf { it.isNotEmpty() } ?: "manga"
+		set(value) = prefs.edit { putString(KEY_DISCOVER_CONTENT_TYPE, value) }
+
 	val isSuggestionsWiFiOnly: Boolean
 		get() = prefs.getBoolean(KEY_SUGGESTIONS_WIFI_ONLY, false)
 
@@ -798,6 +804,7 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_SCREENSHOTS_POLICY = "screenshots_policy"
 		const val KEY_PAGES_PRELOAD = "pages_preload"
 		const val KEY_SUGGESTIONS = "suggestions"
+		const val KEY_DISCOVER_CONTENT_TYPE = "discover_content_type"
 		const val KEY_SUGGESTIONS_WIFI_ONLY = "suggestions_wifi"
 		const val KEY_SUGGESTIONS_EXCLUDE_NSFW = "suggestions_exclude_nsfw"
 		const val KEY_SUGGESTIONS_EXCLUDE_TAGS = "suggestions_exclude_tags"
