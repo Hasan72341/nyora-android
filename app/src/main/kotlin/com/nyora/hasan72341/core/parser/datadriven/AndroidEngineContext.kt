@@ -13,6 +13,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.FormBody
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -37,21 +38,33 @@ class AndroidEngineContext(
             // Tag with the source so CommonHeadersInterceptor/CloudFlareInterceptor can key off it.
             .tag(MangaSource::class.java, source)
 
+        // Transport hint (not a real HTTP header): engines set X-Nyora-Encoding=multipart to request
+        // a multipart/form-data body with raw values (e.g. Natsu's advanced_search JSON fields).
+        val isMultipart = request.headers.entries
+            .firstOrNull { it.key.equals(HDR_ENCODING, ignoreCase = true) }
+            ?.value?.equals("multipart", ignoreCase = true) == true
+
         // Don't set User-Agent here: cf_clearance is bound to the WebView UA that
         // CommonHeadersInterceptor supplies; a UA set here would mismatch it and re-trigger Cloudflare.
         val headers = LinkedHashMap<String, String>()
         headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
         headers["Accept-Language"] = "en-US,en;q=0.9"
-        headers.putAll(request.headers)
+        request.headers.forEach { (k, v) -> if (!k.equals(HDR_ENCODING, ignoreCase = true)) headers[k] = v }
         builder.headers(headers.toHeaders())
 
         when (request.method.uppercase()) {
             "POST" -> {
                 val body = when {
-                    // Engine form keys/values are already URL-encoded (Madara's madara_load_more
-                    // template, `query.urlEncoded()`, …), so use addEncoded to avoid double-encoding
-                    // — plain add() would turn `vars%5Bs%5D` into `vars%255Bs%255D` and the request
-                    // would return nothing.
+                    // Multipart form with raw field values (values are NOT pre-encoded).
+                    request.form != null && isMultipart -> MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .apply { request.form!!.forEach { (k, v) -> addFormDataPart(k, v) } }
+                        .build()
+
+                    // urlencoded form. Engine keys/values are already URL-encoded (Madara's
+                    // madara_load_more template, `query.urlEncoded()`), so use addEncoded to avoid
+                    // double-encoding — plain add() would turn `vars%5Bs%5D` into `vars%255Bs%255D`
+                    // and the request would return nothing.
                     request.form != null -> FormBody.Builder().apply {
                         request.form!!.forEach { (k, v) -> addEncoded(k, v) }
                     }.build()
@@ -104,6 +117,8 @@ class AndroidEngineContext(
     private companion object {
         // HTML/JSON listing pages are well under this; the cap only guards against abuse.
         private const val MAX_RESPONSE_BYTES = 16L * 1024 * 1024 // 16 MiB
+        // Engine transport hint: value "multipart" -> send the form as multipart/form-data (raw values).
+        private const val HDR_ENCODING = "X-Nyora-Encoding"
     }
 }
 
