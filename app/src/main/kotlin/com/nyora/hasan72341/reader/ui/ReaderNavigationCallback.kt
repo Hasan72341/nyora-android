@@ -12,6 +12,6 @@ interface ReaderNavigationCallback {
 	fun onChapterSelected(chapter: MangaChapter): Boolean
 
 	fun onBookmarkSelected(bookmark: Bookmark): Boolean = onPageSelected(
-		ReaderPage(bookmark.toMangaPage(), bookmark.page, bookmark.chapterId.toChapterKey()),
+		ReaderPage(bookmark.toMangaPage(), bookmark.page, bookmark.chapterId),
 	)
 }

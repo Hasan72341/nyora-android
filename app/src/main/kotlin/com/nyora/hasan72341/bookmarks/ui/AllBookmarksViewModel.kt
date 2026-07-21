@@ -64,7 +64,7 @@ class AllBookmarksViewModel @Inject constructor(
 				if (it !is Bookmark || it.pageId !in ids) return@mapNotNull null
 				PageSaveHelper.Task(
 					manga = it.manga,
-					chapterId = it.chapterId.toChapterKey(),
+					chapterId = it.chapterId,
 					pageNumber = it.page + 1,
 					page = it.toMangaPage(),
 				)

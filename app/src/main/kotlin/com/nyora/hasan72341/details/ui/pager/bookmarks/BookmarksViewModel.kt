@@ -72,7 +72,7 @@ class BookmarksViewModel @Inject constructor(
 				if (it !is Bookmark || it.pageId.toLongOrNull() !in ids) return@mapNotNull null
 				PageSaveHelper.Task(
 					manga = m,
-					chapterId = it.chapterId.toChapterKey(),
+					chapterId = it.chapterId,
 					pageNumber = it.page + 1,
 					page = it.toMangaPage(),
 				)

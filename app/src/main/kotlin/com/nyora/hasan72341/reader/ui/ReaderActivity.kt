@@ -522,7 +522,7 @@ class ReaderActivity :
     override fun switchPageTo(index: Int) {
         val pages = viewModel.getCurrentChapterPages()
         val page = pages?.getOrNull(index) ?: return
-        val chapterId = viewModel.getCurrentState()?.chapterId?.toChapterKey() ?: return
+        val chapterId = viewModel.getCurrentState()?.chapterId ?: return
         onPageSelected(ReaderPage(page, index, chapterId))
     }
 

@@ -103,8 +103,8 @@ class PagesViewModel @Inject constructor(
 	private suspend fun doInit(state: State) {
 		chaptersLoader.init(state.details)
 		val initialChapterId = (state.readerState?.chapterId?.takeIf {
-			chaptersLoader.peekChapter(it.toChapterKey()) != null
-		} ?: state.details.allChapters.firstOrNull()?.id ?: return).toChapterKey()
+			chaptersLoader.peekChapter(it) != null
+		} ?: state.details.allChapters.firstOrNull()?.id ?: return)
 		if (!chaptersLoader.hasPages(initialChapterId)) {
 			var hasPages = chaptersLoader.loadSingleChapter(initialChapterId)
 			while (!hasPages) {
@@ -134,7 +134,7 @@ class PagesViewModel @Inject constructor(
 	private fun updateList(readerState: ReaderState?) {
 		val snapshot = chaptersLoader.snapshot()
 		val pages = buildList(snapshot.size + chaptersLoader.size + 2) {
-			var previousChapterId = 0L
+			var previousChapterId: String? = null
 			for (page in snapshot) {
 				if (page.chapterId != previousChapterId) {
 					chaptersLoader.peekChapter(page.chapterId)?.let {
@@ -144,7 +144,7 @@ class PagesViewModel @Inject constructor(
 				}
 				this += PageThumbnail(
 					isCurrent = readerState?.let {
-						page.chapterId == it.chapterId.toChapterKey() && page.index == it.page
+						page.chapterId == it.chapterId && page.index == it.page
 					} == true,
 					page = page,
 				)

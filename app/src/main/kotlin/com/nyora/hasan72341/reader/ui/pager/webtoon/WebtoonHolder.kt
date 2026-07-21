@@ -1,5 +1,6 @@
 package com.nyora.hasan72341.reader.ui.pager.webtoon
 
+import com.nyora.hasan72341.reader.domain.toChapterKey
 import android.graphics.Bitmap
 import android.graphics.PointF
 import android.net.Uri
@@ -89,7 +90,7 @@ class WebtoonHolder(
 		translationJob = lifecycleScope.launch {
 			val bitmap = withContext(Dispatchers.IO) { getBitmap() } ?: return@launch
 			try {
-				translator.translatePage(data.chapterId, data.index, bitmap).collect { blocks ->
+				translator.translatePage(data.chapterId.toChapterKey(), data.index, bitmap).collect { blocks ->
 					binding.translationOverlay.setBlocks(blocks)
 				}
 			} finally {
