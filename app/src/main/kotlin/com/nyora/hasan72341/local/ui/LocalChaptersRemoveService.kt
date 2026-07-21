@@ -48,7 +48,7 @@ class LocalChaptersRemoveService : CoroutineIntentService() {
 	override suspend fun IntentJobContext.processIntent(intent: Intent) {
 		startForeground(this)
 		val manga = intent.getParcelableExtraCompat<ParcelableManga>(EXTRA_MANGA)?.manga ?: return
-		val chaptersIds = intent.getLongArrayExtra(EXTRA_CHAPTERS_IDS)?.toSet() ?: return
+		val chaptersIds = intent.getStringArrayExtra(EXTRA_CHAPTERS_IDS)?.toSet() ?: return
 		powerManager.withPartialWakeLock(TAG) {
 			val mangaWithChapters = localMangaRepository.getDetails(manga)
 			localMangaRepository.deleteChapters(mangaWithChapters, chaptersIds)
@@ -110,13 +110,13 @@ class LocalChaptersRemoveService : CoroutineIntentService() {
 
 		private const val TAG = CHANNEL_ID
 
-		fun start(context: Context, manga: Manga, chaptersIds: Collection<Long>) {
+		fun start(context: Context, manga: Manga, chaptersIds: Collection<String>) {
 			if (chaptersIds.isEmpty()) {
 				return
 			}
 			val intent = Intent(context, LocalChaptersRemoveService::class.java)
 			intent.putExtra(EXTRA_MANGA, ParcelableManga(manga))
-			intent.putExtra(EXTRA_CHAPTERS_IDS, chaptersIds.toLongArray())
+			intent.putExtra(EXTRA_CHAPTERS_IDS, chaptersIds.toTypedArray())
 			ContextCompat.startForegroundService(context, intent)
 		}
 	}

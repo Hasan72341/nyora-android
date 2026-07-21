@@ -78,7 +78,7 @@ class DeleteReadChaptersUseCase @Inject constructor(
 		} else {
 			DeletionTask(
 				manga = manga,
-				chaptersIds = filteredChapters.mapTo(mutableSetOf()) { it.id.toLong() },
+				chaptersIds = filteredChapters.mapTo(mutableSetOf()) { it.id },
 			)
 		}
 	}
@@ -100,6 +100,6 @@ class DeleteReadChaptersUseCase @Inject constructor(
 
 	private class DeletionTask(
 		val manga: LocalManga,
-		val chaptersIds: Set<Long>,
+		val chaptersIds: Set<String>,
 	)
 }

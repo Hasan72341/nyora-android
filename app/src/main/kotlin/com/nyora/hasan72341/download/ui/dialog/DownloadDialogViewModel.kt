@@ -99,7 +99,7 @@ class DownloadDialogViewModel @Inject constructor(
 					isPaused = !startNow,
 					isSilent = false,
 					chaptersIds = chaptersMacro.getChaptersIds(m.id.toLongOrNull() ?: 0L, chapters)
-						?.map { it.toString() }?.toTypedArray(),
+						?.toTypedArray(),
 					destination = destination?.file,
 					format = format,
 					allowMeteredNetwork = allowMetered,

@@ -13,7 +13,7 @@ class LocalMangaUtil(
 		require(manga.isLocal) { "Expected LOCAL source but ${manga.source} found" }
 	}
 
-	suspend fun deleteChapters(ids: Set<Long>) {
+	suspend fun deleteChapters(ids: Set<String>) {
 		val file = manga.url.toUri().toFile()
 		if (file.isDirectory) {
 			LocalMangaDirOutput(file, manga).use { output ->

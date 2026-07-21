@@ -164,8 +164,7 @@ class MangaListMapper @Inject constructor(
 	}
 
 	private suspend fun isSaved(mangaId: String, @Options options: Int): Boolean {
-		val numericId = mangaId.toLongOrNull() ?: return false
-		return options.isBadgeEnabled(SAVED) && numericId in localMangaIndex
+		return options.isBadgeEnabled(SAVED) && mangaId in localMangaIndex
 	}
 
 	@ColorRes
