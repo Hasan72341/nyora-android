@@ -4,13 +4,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:title="@string/remote_sources">
 
-    <EditTextPreference
+    <Preference
         android:key="source_repository_url"
         android:persistent="false"
-        android:title="Add source repository"
-        android:summary="Paste a repository link to load sources"
-        android:dialogTitle="Repository link"
-        android:inputType="textUri"
+        android:title="@string/source_repository_title"
+        android:summary="@string/source_repository_summary"
         app:allowDividerBelow="true" />
 
     <ListPreference

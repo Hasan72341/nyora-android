@@ -3,18 +3,12 @@ package com.nyora.hasan72341.settings.sources
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.TwoStatePreference
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import com.nyora.hasan72341.R
-import com.nyora.hasan72341.core.RemoteSourceGate
-import javax.inject.Inject
 import com.nyora.hasan72341.core.nav.router
 import com.nyora.hasan72341.core.prefs.AppSettings
 import com.nyora.hasan72341.core.prefs.TriStateOption
@@ -28,9 +22,6 @@ import com.nyora.hasan72341.mihon.parsers.util.names
 @AndroidEntryPoint
 class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 	SharedPreferences.OnSharedPreferenceChangeListener {
-
-	@Inject
-	lateinit var remoteSourceGate: RemoteSourceGate
 
 	private val viewModel by viewModels<SourcesSettingsViewModel>()
 
@@ -72,19 +63,9 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 				pref.isChecked = it
 			}
 		}
-		findPreference<EditTextPreference>("source_repository_url")?.setOnPreferenceChangeListener { _, newValue ->
-			val url = (newValue as? String)?.trim().orEmpty()
-			if (url.isNotEmpty()) {
-				viewLifecycleOwner.lifecycleScope.launch {
-					val ok = remoteSourceGate.activateFromUrl(url)
-					Toast.makeText(
-						requireContext(),
-						if (ok) getString(R.string.sources_unlocked_toast) else getString(R.string.sources_link_invalid_toast),
-						Toast.LENGTH_LONG,
-					).show()
-				}
-			}
-			false
+		findPreference<Preference>(AppSettings.KEY_SOURCE_REPOSITORY_URL)?.let { pref ->
+			// Show the currently-configured catalogue URL (or the default hint) as the summary.
+			pref.summary = settings.sourceCatalogueUrl.ifEmpty { getString(R.string.source_repository_summary) }
 		}
 		updateEnableAllDependencies()
 		settings.subscribe(this)
@@ -95,7 +76,19 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 		super.onDestroyView()
 	}
 
+	override fun onResume() {
+		super.onResume()
+		// Reflect a URL added via the sheet (or elsewhere) when returning to this screen.
+		findPreference<Preference>(AppSettings.KEY_SOURCE_REPOSITORY_URL)?.summary =
+			settings.sourceCatalogueUrl.ifEmpty { getString(R.string.source_repository_summary) }
+	}
+
 	override fun onPreferenceTreeClick(preference: Preference): Boolean = when (preference.key) {
+		AppSettings.KEY_SOURCE_REPOSITORY_URL -> {
+			router.showAddSourceRepository()
+			true
+		}
+
 		AppSettings.KEY_SOURCES_CATALOG -> {
 			router.openSourcesCatalog()
 			true

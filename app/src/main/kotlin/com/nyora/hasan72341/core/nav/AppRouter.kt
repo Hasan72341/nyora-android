@@ -468,6 +468,10 @@ class AppRouter private constructor(
         ImportDialogFragment().showDistinct()
     }
 
+    fun showAddSourceRepository() {
+        com.nyora.hasan72341.settings.sources.AddSourceRepositorySheet().showDistinct()
+    }
+
     fun showFilterSheet(): Boolean = if (isFilterSupported()) {
         FilterSheetFragment().showDistinct()
     } else {

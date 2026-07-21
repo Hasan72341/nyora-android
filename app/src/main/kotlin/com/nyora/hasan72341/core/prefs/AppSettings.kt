@@ -396,6 +396,13 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		get() = prefs.getBoolean(KEY_SOURCES_MANUAL_UNLOCK, false)
 		set(value) = prefs.edit { putBoolean(KEY_SOURCES_MANUAL_UNLOCK, value) }
 
+	// The catalogue (source-repository) URL the user pasted. The app ships with NO baked-in
+	// catalogue — it fetches the source list from this URL at runtime — so the store build carries
+	// no source domains at all until the user brings their own repository. Empty = no sources yet.
+	var sourceCatalogueUrl: String
+		get() = prefs.getString(KEY_SOURCE_CATALOGUE_URL, null).orEmpty()
+		set(value) = prefs.edit { putString(KEY_SOURCE_CATALOGUE_URL, value.trim()) }
+
 	val isPagesNumbersEnabled: Boolean
 		get() = prefs.getBoolean(KEY_PAGES_NUMBERS, false)
 
@@ -883,6 +890,8 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_SOURCES_ENABLED_ALL = "sources_enabled_all"
 		const val KEY_SOURCES_UNLOCKED = "sources_unlocked"
 		const val KEY_SOURCES_MANUAL_UNLOCK = "sources_manual_unlock"
+		const val KEY_SOURCE_CATALOGUE_URL = "source_catalogue_url"
+		const val KEY_SOURCE_REPOSITORY_URL = "source_repository_url"
 		const val KEY_QUICK_FILTER = "quick_filter"
 		const val KEY_COLLAPSE_DESCRIPTION = "description_collapse"
 		const val KEY_BACKUP_TG_ENABLED = "backup_periodic_tg_enabled"

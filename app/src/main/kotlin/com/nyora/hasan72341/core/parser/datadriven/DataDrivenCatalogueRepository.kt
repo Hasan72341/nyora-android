@@ -41,6 +41,7 @@ import javax.inject.Singleton
 class DataDrivenCatalogueRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     @MangaHttpClient private val okHttpClient: OkHttpClient,
+    private val settings: com.nyora.hasan72341.core.prefs.AppSettings,
 ) {
 
     private val cacheFile = File(context.filesDir, CACHE_FILE)
@@ -61,10 +62,24 @@ class DataDrivenCatalogueRepository @Inject constructor(
         // caching the empty result would pin it and starve the source list even after refresh() lands.
         get() = cached ?: loadFromDisk().also { if (it.isNotEmpty()) cached = it }
 
-    /** Fetch the latest catalogue, replacing the cache. Returns the parsed source count. */
+    /** The catalogue URL the user configured, or a debug-only default so dev builds work offline. */
+    val catalogueUrl: String
+        get() = settings.sourceCatalogueUrl.ifBlank {
+            if (com.nyora.hasan72341.BuildConfig.DEBUG) DEBUG_DEFAULT_URL else ""
+        }
+
+    /**
+     * Fetch the latest catalogue from the user-configured URL, replacing the cache. Returns the
+     * parsed source count, or 0 (success) when no URL is configured yet — the app ships with no
+     * baked-in catalogue, so there is simply nothing to fetch until the user pastes a repository.
+     */
     suspend fun refresh(): Result<Int> = withContext(Dispatchers.IO) {
+        val url = catalogueUrl
+        if (url.isBlank()) {
+            return@withContext Result.success(0)
+        }
         runCatching {
-            val request = Request.Builder().url(CATALOGUE_URL).build()
+            val request = Request.Builder().url(url).build()
             val body = okHttpClient.newCall(request).execute().use { resp ->
                 require(resp.isSuccessful) { "catalogue fetch failed: HTTP ${resp.code}" }
                 // Bounded read: never buffer an unexpectedly huge/hostile response into memory. The
@@ -172,7 +187,10 @@ class DataDrivenCatalogueRepository @Inject constructor(
         private val NATIVE_BACKED_ENGINES = setOf("mangafire")
         private const val CACHE_FILE = "datadriven-catalogue.json"
         private const val MAX_CATALOGUE_BYTES = 16L * 1024 * 1024 // 16 MiB; real catalogue is ~350 KiB
-        const val CATALOGUE_URL =
+        // Debug-only convenience default so dev builds have sources without pasting a URL each install.
+        // Guarded by BuildConfig.DEBUG, so R8 strips it (and this string) from the release APK — the
+        // store build carries no catalogue URL and no source domains until the user configures one.
+        private const val DEBUG_DEFAULT_URL =
             "https://raw.githubusercontent.com/Nyora-Manga/nyora-data-driven/main/catalogue.json"
     }
 }
