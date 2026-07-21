@@ -5,11 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import com.nyora.hasan72341.R
 import com.nyora.hasan72341.core.nav.router
@@ -65,37 +63,12 @@ class DiscoverFragment :
 			setHasFixedSize(true)
 			addItemDecoration(TypedListSpacingDecoration(context, false))
 		}
-		bindContentTypeChips(binding)
 		viewModel.content.observe(viewLifecycleOwner, checkNotNull(discoverAdapter))
-	}
-
-	private fun bindContentTypeChips(binding: FragmentDiscoverBinding) {
-		val group = binding.chipsContentType
-		group.removeAllViews()
-		val current = viewModel.currentContentType
-		for (option in viewModel.availableContentTypes()) {
-			val chip = layoutInflater.inflate(R.layout.chip_content_type, group, false) as Chip
-			chip.text = getString(option.titleRes)
-			chip.tag = option.key
-			chip.isChecked = option.key == current
-			group.addView(chip)
-		}
-		group.setOnCheckedStateChangeListener { chipGroup, checkedIds ->
-			val id = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
-			val key = chipGroup.findViewById<Chip>(id)?.tag as? String ?: return@setOnCheckedStateChangeListener
-			viewModel.setContentType(key)
-		}
 	}
 
 	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		val basePadding = v.resources.getDimensionPixelOffset(R.dimen.list_spacing_normal)
-		// Top inset goes to the sticky content-type bar; the list keeps side/bottom insets.
-		viewBinding?.scrollContentTypes?.updatePadding(
-			left = barsInsets.left + basePadding,
-			top = barsInsets.top,
-			right = barsInsets.right + basePadding,
-		)
 		viewBinding?.recyclerView?.setPadding(
 			/* left = */ barsInsets.left + basePadding,
 			/* top = */ basePadding,
@@ -110,14 +83,14 @@ class DiscoverFragment :
 			DiscoverViewModel.RAIL_CONTINUE_READING -> router.openHistory()
 			DiscoverViewModel.RAIL_UPDATES -> router.openMangaUpdates()
 			DiscoverViewModel.RAIL_TRENDING,
-			DiscoverViewModel.RAIL_TOP_RATED,
 			DiscoverViewModel.RAIL_MANHWA,
+			DiscoverViewModel.RAIL_MANHUA,
+			DiscoverViewModel.RAIL_MANGA,
 			-> router.openSearch(item.getText(requireContext())?.toString().orEmpty())
 
 			DiscoverViewModel.RAIL_GENRE_ACTION -> router.openSearch(getString(R.string.genre_action))
 			DiscoverViewModel.RAIL_GENRE_ROMANCE -> router.openSearch(getString(R.string.genre_romance))
 			DiscoverViewModel.RAIL_GENRE_FANTASY -> router.openSearch(getString(R.string.genre_fantasy))
-			DiscoverViewModel.RAIL_GENRE_COMEDY -> router.openSearch(getString(R.string.genre_comedy))
 			DiscoverViewModel.RAIL_POPULAR_SOURCE -> viewModel.lastPopularSource
 				?.let { router.openList(it, MangaListFilter.EMPTY, SortOrder.POPULARITY) }
 				?: router.openSearch(item.getText(requireContext())?.toString().orEmpty())

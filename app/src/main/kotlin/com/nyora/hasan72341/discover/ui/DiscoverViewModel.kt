@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.plus
@@ -76,24 +75,19 @@ class DiscoverViewModel @Inject constructor(
 	private val retryTrigger = MutableStateFlow(0)
 
 	/**
-	 * All AniList rails from ONE multi-alias request.
+	 * All AniList rails from ONE aliased request.
 	 * null  -> still loading (every AniList rail renders shimmer)
 	 * value -> loaded; per-rail empty list renders an Error/hidden state.
 	 */
-	private val contentTypeFlow: Flow<String> =
-		settings.observeAsFlow(AppSettings.KEY_DISCOVER_CONTENT_TYPE) { discoverContentType }
-
-	private val anilistFlow: Flow<DiscoverMultiRails?> =
-		combine(retryTrigger, contentTypeFlow) { _, type -> type }.flatMapLatest { contentType ->
-			val (mbType, adult) = contentTypeToQuery(contentType)
-			flow {
-				emit(null)
-				emit(
-					runCatchingCancellable { discoverRepository.getMultiRails(20, mbType, adult) }.getOrNull()
-						?: EMPTY_MULTI_RAILS,
-				)
-			}
-		}.flowOn(Dispatchers.IO)
+	private val anilistFlow: Flow<DiscoverMultiRails?> = retryTrigger.flatMapLatest {
+		flow {
+			emit(null)
+			emit(
+				runCatchingCancellable { discoverRepository.getMultiRails(30) }.getOrNull()
+					?: EMPTY_MULTI_RAILS,
+			)
+		}
+	}.flowOn(Dispatchers.IO)
 
 	/**
 	 * "Popular on <Source>" from an installed source.
@@ -144,32 +138,6 @@ class DiscoverViewModel @Inject constructor(
 			suggestions = emptyList(),
 		),
 	)
-
-	val currentContentType: String
-		get() = settings.discoverContentType
-
-	/** Content-type chips to offer; Hentai only when NSFW content is enabled. */
-	fun availableContentTypes(): List<ContentTypeOption> = buildList {
-		add(ContentTypeOption(CONTENT_TYPE_MANGA, R.string.content_type_manga))
-		add(ContentTypeOption(CONTENT_TYPE_MANHWA, R.string.content_type_manhwa))
-		add(ContentTypeOption(CONTENT_TYPE_MANHUA, R.string.content_type_manhua))
-		if (!settings.isNsfwContentDisabled) {
-			add(ContentTypeOption(CONTENT_TYPE_HENTAI, R.string.content_type_hentai))
-		}
-	}
-
-	fun setContentType(type: String) {
-		if (settings.discoverContentType == type) return
-		settings.discoverContentType = type
-		// contentTypeFlow re-emits on the pref change; the cache key handles re-fetch.
-	}
-
-	private fun contentTypeToQuery(type: String): Pair<String, Boolean> = when (type) {
-		CONTENT_TYPE_MANHWA -> "manhwa" to false
-		CONTENT_TYPE_MANHUA -> "manhua" to false
-		CONTENT_TYPE_HENTAI -> "manga" to true
-		else -> "manga" to false
-	}
 
 	fun retryNetworkRails() {
 		retryTrigger.update { it + 1 }
@@ -225,23 +193,23 @@ class DiscoverViewModel @Inject constructor(
 		// 5. Trending now.
 		networkRail(out, R.string.trending_now, RAIL_TRENDING, anilistState(anilist) { it.trending })
 
-		// 6. Top rated.
-		networkRail(out, R.string.top_rated, RAIL_TOP_RATED, anilistState(anilist) { it.topRated })
-
-		// 7. Popular manhwa.
+		// 6. Popular manhwa (KR).
 		networkRail(out, R.string.popular_manhwa, RAIL_MANHWA, anilistState(anilist) { it.manhwa })
 
-		// 8. Action (genre).
+		// 7. Popular manhua (CN).
+		networkRail(out, R.string.popular_manhua, RAIL_MANHUA, anilistState(anilist) { it.manhua })
+
+		// 8. Popular manga (JP).
+		networkRail(out, R.string.popular_manga, RAIL_MANGA, anilistState(anilist) { it.manga })
+
+		// 9. Action (genre).
 		networkRail(out, R.string.genre_action, RAIL_GENRE_ACTION, anilistState(anilist) { it.action })
 
-		// 9. Romance (genre).
+		// 10. Romance (genre).
 		networkRail(out, R.string.genre_romance, RAIL_GENRE_ROMANCE, anilistState(anilist) { it.romance })
 
-		// 10. Fantasy (genre).
+		// 11. Fantasy (genre).
 		networkRail(out, R.string.genre_fantasy, RAIL_GENRE_FANTASY, anilistState(anilist) { it.fantasy })
-
-		// 11. Comedy (genre).
-		networkRail(out, R.string.genre_comedy, RAIL_GENRE_COMEDY, anilistState(anilist) { it.comedy })
 
 		// 12. Popular on <Source> (dynamic, localized header).
 		popularSourceRail(out, popular)
@@ -340,35 +308,28 @@ class DiscoverViewModel @Inject constructor(
 		)
 	}
 
-	data class ContentTypeOption(val key: String, @StringRes val titleRes: Int)
-
 	companion object {
-		const val CONTENT_TYPE_MANGA = "manga"
-		const val CONTENT_TYPE_MANHWA = "manhwa"
-		const val CONTENT_TYPE_MANHUA = "manhua"
-		const val CONTENT_TYPE_HENTAI = "hentai"
-
 		const val RAIL_HERO = "hero"
 		const val RAIL_CONTINUE_READING = "continue_reading"
 		const val RAIL_UPDATES = "updates"
 		const val RAIL_TRENDING = "trending"
-		const val RAIL_TOP_RATED = "top_rated"
 		const val RAIL_MANHWA = "manhwa"
+		const val RAIL_MANHUA = "manhua"
+		const val RAIL_MANGA = "manga"
 		const val RAIL_GENRE_ACTION = "genre_action"
 		const val RAIL_GENRE_ROMANCE = "genre_romance"
 		const val RAIL_GENRE_FANTASY = "genre_fantasy"
-		const val RAIL_GENRE_COMEDY = "genre_comedy"
 		const val RAIL_POPULAR_SOURCE = "popular_source"
 
 		private val EMPTY_MULTI_RAILS = DiscoverMultiRails(
 			heroSource = null,
 			trending = emptyList(),
-			topRated = emptyList(),
 			manhwa = emptyList(),
+			manhua = emptyList(),
+			manga = emptyList(),
 			action = emptyList(),
 			romance = emptyList(),
 			fantasy = emptyList(),
-			comedy = emptyList(),
 		)
 	}
 }
