@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.nyora.hasan72341.R
 import com.nyora.hasan72341.core.model.LocalMangaSource
+import com.nyora.hasan72341.core.model.getLocale
 import com.nyora.hasan72341.core.model.UnknownMangaSource
 import com.nyora.hasan72341.core.nav.AppRouter
 import com.nyora.hasan72341.core.prefs.ListMode
@@ -317,9 +318,7 @@ class SearchViewModel @Inject constructor(
 
 	private fun MangaSource.priority(): Int {
 		var res = 0
-		if (this is MangaParserSource) {
-			if (locale.toLocale() == Locale.getDefault()) res += 2
-		}
+		if (getLocale() == Locale.getDefault()) res += 2
 		return res
 	}
 }

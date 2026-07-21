@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import com.nyora.hasan72341.core.model.MangaSource
+import com.nyora.hasan72341.core.model.localeCode
 import com.nyora.hasan72341.core.parser.MangaRepository
 import com.nyora.hasan72341.core.util.LocaleComparator
 import com.nyora.hasan72341.core.util.ext.asFlow
@@ -65,7 +66,8 @@ class FilterCoordinator @Inject constructor(
 
     private val coroutineScope = lifecycle.lifecycleScope + Dispatchers.IO
     private val repository = mangaRepositoryFactory.create(MangaSource(savedStateHandle[RemoteListFragment.ARG_SOURCE]))
-    private val sourceLocale = (repository.source as? MangaParserSource)?.locale
+    // localeCode() resolves for data-driven sources too, so their tags sort by the source locale.
+    private val sourceLocale = repository.source.localeCode().takeIf { it.isNotEmpty() }
 
     private val currentListFilter = MutableStateFlow(MangaListFilter.EMPTY)
     private val currentSortOrder = MutableStateFlow(repository.defaultSortOrder)
