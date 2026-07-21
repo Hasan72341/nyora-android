@@ -120,8 +120,7 @@ class FaviconFetcher(
 		throwNSEE(lastError)
 	}
 
-	// Resolve a favicon from a source's domain (used by data-driven sources and the natively-backed
-	// MangaFire, neither of which ships a bundled icon).
+	// Favicon by domain, for sources without a bundled icon (data-driven, MangaFire, ToonDex).
 	private suspend fun fetchDomainIcon(domain: String, sourceName: String): FetchResult {
 		val sizePx = maxOf(
 			options.size.width.pxOrElse { FALLBACK_SIZE },
@@ -138,9 +137,7 @@ class FaviconFetcher(
 				)
 			}
 		}
-		// These sources carry no bundled icon; resolve the favicon from the source domain.
-		// Google's favicon cache reaches sites that block direct /favicon.ico requests (same source
-		// as the iOS app and the aidoku icon pipeline), with the site's own icon as a fallback.
+		// Google's favicon cache first (reaches sites that block direct /favicon.ico), then the site.
 		val candidates = listOf(
 			"https://www.google.com/s2/favicons?sz=${sizePx.coerceAtMost(128)}&domain=$domain",
 			"https://$domain/favicon.ico",

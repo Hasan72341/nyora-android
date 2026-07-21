@@ -26,15 +26,8 @@ import com.nyora.hasan72341.tachiyomi.network.await
 import java.util.EnumSet
 
 /**
- * Native MangaFire source. MangaFire relaunched on a new backend backed by a clean JSON API
- * (`/api/titles`) — no vrf token, no `/filter` HTML, no image scrambling — which the bundled
- * kotatsu-parsers MangaFire no longer matches, so it returns 0 results. This app-layer
- * repository ports the verified new API (see the nyora-mihon-extension MangaFireSource) and
- * replaces the kotatsu `MANGAFIRE_*` sources without touching the (JAR-baked) parser lib.
- *
- * One repository instance backs each MangaFire language enum entry; the per-source language is
- * derived from the enum suffix and applied to the chapter list request only. Browsing is a
- * single shared catalog (language is intentionally ignored there — matches MangaFire itself).
+ * Native MangaFire source, on its current JSON API (`/api/titles`) which the bundled kotatsu parser
+ * no longer matches. Language applies to the chapter list only; browsing is one shared catalog.
  */
 class MangaFireMangaRepository(
 	override val source: MangaSource,
@@ -46,8 +39,7 @@ class MangaFireMangaRepository(
 
 	private val json = Json { ignoreUnknownKeys = true }
 
-	// MangaFire's own language code. Data-driven sources carry it verbatim in their config
-	// (en, es, es-la, fr, ja, pt-br); the legacy native enum path derives it from the name suffix.
+	// Data-driven sources carry the MangaFire language code in config; the enum path derives it.
 	private val langCode: String = when (val s = source) {
 		is DataDrivenMangaSource -> (s.config["language"] as? String)?.lowercase() ?: "en"
 		else -> when (s.name.removePrefix("MANGAFIRE_")) {

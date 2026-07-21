@@ -101,14 +101,9 @@ open class BaseApp : Application(), Configuration.Provider {
 			url = "https://sync.nyora.xyz",
 			anonKey = "self-hosted"
 		)
-		// The app ships as an empty shell: no baked-in sources, no remote unlock switch. Sources come
-		// only from the catalogue URL the user pastes in Settings; until then there is nothing to fetch.
-		// Fetch the runtime source catalogue in the background — failures are non-fatal, the disk cache
-		// from a previous launch keeps the catalogue usable offline, and a blank URL is simply a no-op.
+		// Refresh the source catalogue in the background (no-op until the user sets a URL).
 		processLifecycleScope.launch(Dispatchers.IO) {
 			dataDrivenCatalogue.refresh()
-			// Assimilate the freshly-fetched catalogue so the observing source list updates without
-			// a relaunch (its onStart assimilate fired before the async fetch landed).
 			mangaSourcesRepository.assimilateFromCatalogue()
 		}
 	}

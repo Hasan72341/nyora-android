@@ -22,13 +22,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * The [EngineContext] a data-driven [app.nyora.data.engine.SourceEngine] runs against, backed by the
- * app's shared manga OkHttp client. Routing through that client is what gives every data-driven
- * source the app's Cloudflare interceptor, cookie jar and per-source header handling for free — the
- * same treatment the bundled parsers get — so no separate anti-bot solver is wired here.
- *
- * Ported from the library's DefaultEngineContext (JVM harness) with the throwaway OkHttp client
- * swapped for the injected [MangaHttpClient] one. [prefs] is per-source; a fresh context is built
- * per repository instance so the key/value store is naturally namespaced by source.
+ * app's shared manga OkHttp client so it gets the Cloudflare interceptor, cookie jar and headers.
+ * [prefs] is per-source (a fresh context is built per repository).
  */
 class AndroidEngineContext(
     private val client: OkHttpClient,
@@ -39,16 +34,11 @@ class AndroidEngineContext(
 
     override suspend fun http(request: HttpRequest): HttpResponse = withContext(Dispatchers.IO) {
         val builder = Request.Builder().url(request.url)
-            // Tag every request with its source so the shared client's CommonHeadersInterceptor
-            // attaches the source Referer/UA and the CloudFlareInterceptor can raise a solvable,
-            // source-scoped CloudFlareProtectedException (the WebView solver + cf_clearance cookie
-            // jar are keyed by source) — exactly how the native parser requests are handled.
+            // Tag with the source so CommonHeadersInterceptor/CloudFlareInterceptor can key off it.
             .tag(MangaSource::class.java, source)
 
-        // Deliberately DON'T set User-Agent here: Cloudflare binds cf_clearance to the exact UA that
-        // solved the challenge (the app's WebView UA), so CommonHeadersInterceptor must be the one to
-        // supply it. A hardcoded UA here would mismatch cf_clearance and re-trigger the challenge on
-        // every retry after a solve. Only headers the engine itself sets are passed through.
+        // Don't set User-Agent here: cf_clearance is bound to the WebView UA that
+        // CommonHeadersInterceptor supplies; a UA set here would mismatch it and re-trigger Cloudflare.
         val headers = LinkedHashMap<String, String>()
         headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
         headers["Accept-Language"] = "en-US,en;q=0.9"

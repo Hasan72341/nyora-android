@@ -64,7 +64,6 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 			}
 		}
 		findPreference<Preference>(AppSettings.KEY_SOURCE_REPOSITORY_URL)?.let { pref ->
-			// Show the currently-configured catalogue URL (or the default hint) as the summary.
 			pref.summary = settings.sourceCatalogueUrl.ifEmpty { getString(R.string.source_repository_summary) }
 		}
 		updateEnableAllDependencies()
@@ -78,7 +77,6 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 
 	override fun onResume() {
 		super.onResume()
-		// Reflect a URL added via the sheet (or elsewhere) when returning to this screen.
 		findPreference<Preference>(AppSettings.KEY_SOURCE_REPOSITORY_URL)?.summary =
 			settings.sourceCatalogueUrl.ifEmpty { getString(R.string.source_repository_summary) }
 	}

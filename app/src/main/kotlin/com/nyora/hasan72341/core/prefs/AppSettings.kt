@@ -379,26 +379,16 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		get() = prefs.getBoolean(KEY_SOURCES_ENABLED_ALL, false)
 		set(value) = prefs.edit { putBoolean(KEY_SOURCES_ENABLED_ALL, value) }
 
-	// Remote master switch: no sources are exposed until a signed remote config
-	// Always unlocked since the migration to runtime data-driven sources: the app ships NO baked-in
-	// scrapers (kotatsu-parsers is the scraper-stripped fork; the source catalogue is fetched at
-	// runtime), so the RemoteSourceGate that used to hide compiled-in sources for Store review is
-	// obsolete — data-driven sources are always visible. The setter is kept so the remote switch
-	// still functions if a gated native/Mihon path is ever reintroduced.
+	// Always true: sources come from the user's catalogue URL, so there's nothing to gate.
 	var isSourcesUnlocked: Boolean
 		get() = true
 		set(value) = prefs.edit { putBoolean(KEY_SOURCES_UNLOCKED, value) }
 
-	// Set when the user unlocks sources themselves by pasting a valid repository
-	// link. The launch-time remote refresh respects this (never re-locks a manual
-	// unlock), so a user-activated device stays unlocked regardless of the switch.
 	var isSourcesManuallyUnlocked: Boolean
 		get() = prefs.getBoolean(KEY_SOURCES_MANUAL_UNLOCK, false)
 		set(value) = prefs.edit { putBoolean(KEY_SOURCES_MANUAL_UNLOCK, value) }
 
-	// The catalogue (source-repository) URL the user pasted. The app ships with NO baked-in
-	// catalogue — it fetches the source list from this URL at runtime — so the store build carries
-	// no source domains at all until the user brings their own repository. Empty = no sources yet.
+	// The catalogue URL the user pasted; the source list is fetched from it at runtime. Empty = none.
 	var sourceCatalogueUrl: String
 		get() = prefs.getString(KEY_SOURCE_CATALOGUE_URL, null).orEmpty()
 		set(value) = prefs.edit { putString(KEY_SOURCE_CATALOGUE_URL, value.trim()) }

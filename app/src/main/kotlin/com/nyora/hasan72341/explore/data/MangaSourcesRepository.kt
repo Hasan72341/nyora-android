@@ -41,17 +41,13 @@ class MangaSourcesRepository @Inject constructor(
     private val catalogue: com.nyora.hasan72341.core.parser.datadriven.DataDrivenCatalogueRepository,
 ) {
 
-	// Tracks the source-set size we last assimilated. Re-runs when it changes so the runtime
-	// data-driven catalogue (which arrives asynchronously after launch) is picked up without needing
-	// a relaunch — a plain once-per-process guard would miss the catalogue landing mid-session.
+	// Last-assimilated size; re-runs when it changes so a late-arriving catalogue is picked up.
 	@Volatile
 	private var lastAssimilatedSize = -1
 	private val dao: MangaSourcesDao
 		get() = db.getSourcesDao()
 
-	// Source catalog = the runtime-fetched data-driven sources plus the native
-	// kotatsu-parsers-redo sources (the MangaParserSource enum, minus broken/dead).
-	// The data-driven sources are what let the catalogue be fetched rather than baked in.
+	// Data-driven catalogue sources plus the native (stripped) MangaParserSource enum.
 	val allMangaSources: Set<MangaSource>
 		get() {
 			val out = MangaParserSource.entries.filterNotTo(HashSet<MangaSource>()) {
@@ -61,8 +57,6 @@ class MangaSourcesRepository @Inject constructor(
 			return out
 		}
 
-	// Catalogue size for UI counts — 0 while sources are LOCKED, so no source count leaks before
-	// the remote/manual unlock (the app must read as 100% source-free until unlocked).
 	val totalSourcesCountGated: Int
 		get() = if (settings.isSourcesUnlocked) allMangaSources.size else 0
 
@@ -129,9 +123,7 @@ class MangaSourcesRepository @Inject constructor(
 		}
 
 		if (locale != null) {
-			// localeCode() resolves the language for BOTH native parser sources and data-driven ones;
-			// the old `it is MangaParserSource` guard silently dropped every data-driven source from
-			// any language-filtered view.
+			// localeCode() works for data-driven sources too, unlike an `is MangaParserSource` guard.
 			sources.retainAll { it.localeCode() == locale }
 		}
 		if (types.isNotEmpty()) {
@@ -187,8 +179,6 @@ class MangaSourcesRepository @Inject constructor(
 		observeAllEnabled(),
 		observeSortOrder(),
 	) { skipNsfw, allEnabled, order ->
-		// No unlock gate: P5 removed the baked-in scrapers, so the RemoteSourceGate is obsolete and
-		// data-driven sources are always visible.
 		dao.observeAll(!allEnabled, order).map {
 			it.toSources(skipNsfw, order)
 		}
@@ -342,8 +332,6 @@ class MangaSourcesRepository @Inject constructor(
 
 	private suspend fun getNewSources(): MutableSet<out MangaSource> {
 		val entities = dao.findAll()
-		// Use the full catalogue (native + runtime data-driven), not just the compiled
-		// MangaParserSource enum — otherwise data-driven sources are never assimilated into the DB.
 		val result = HashSet<MangaSource>(allMangaSources)
 		for (e in entities) {
 			result.remove(e.source.toMangaSourceOrNull() ?: continue)
@@ -374,8 +362,6 @@ class MangaSourcesRepository @Inject constructor(
 			if (skipNsfwSources && source.isNsfw()) {
 				continue
 			}
-			// Add every resolved source, not only native MangaParserSource ones — otherwise
-			// data-driven sources are silently dropped from the list.
 			result.add(
 				MangaSourceInfo(
 					mangaSource = source,
@@ -402,16 +388,12 @@ class MangaSourcesRepository @Inject constructor(
 		isAllSourcesEnabled
 	}
 
-	// Remote master switch — when locked, the app exposes NO sources (see the
-	// gated methods above). Flipped by a signed remote config on launch.
 	private fun observeSourcesUnlocked() = settings.observeAsFlow(AppSettings.KEY_SOURCES_UNLOCKED) {
 		isSourcesUnlocked
 	}
 
+	// Central resolver so every kind resolves: content:, native enum, and DD_ data-driven sources.
 	private fun String.toMangaSourceOrNull(): MangaSource? =
-		// Route through the central resolver so ALL kinds resolve — content:, native enum, and
-		// (crucially) DD_-prefixed data-driven sources via their catalogue registry. Resolving only
-		// the enum here silently dropped every data-driven source from the list.
 		com.nyora.hasan72341.core.model.MangaSource(this)
 			.takeUnless { it == com.nyora.hasan72341.core.model.UnknownMangaSource }
 }

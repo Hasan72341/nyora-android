@@ -108,9 +108,7 @@ fun MangaSource.getContentTypeOrNull(): ContentType? = when (val source = unwrap
 
 fun MangaSource.contentTypeOrManga(): ContentType = getContentTypeOrNull() ?: ContentType.MANGA
 
-// Map the catalogue's contentType string onto the app's ContentType so data-driven sources land in
-// the right category tab. Untagged rows (most of the catalogue) fall back to nsfw -> HENTAI_MANGA,
-// else MANGA — the same default the app applies to untyped native sources.
+// Catalogue contentType string -> app ContentType; untagged rows fall back by nsfw flag.
 private fun String?.toDataDrivenContentType(nsfw: Boolean): ContentType = when (this?.trim()?.uppercase()) {
 	"MANGA" -> ContentType.MANGA
 	"MANHWA" -> ContentType.MANHWA

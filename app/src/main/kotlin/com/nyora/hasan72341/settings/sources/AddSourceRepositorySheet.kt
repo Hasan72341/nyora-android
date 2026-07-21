@@ -23,12 +23,7 @@ import com.nyora.hasan72341.databinding.SheetAddRepositoryBinding
 import com.nyora.hasan72341.explore.data.MangaSourcesRepository
 import javax.inject.Inject
 
-/**
- * Bottom sheet for the user to paste a source-catalogue URL. The app ships with no baked-in
- * catalogue — this is the single place a user brings their own source repository. On confirm it
- * stores the URL, fetches the catalogue, assimilates the sources into the DB, and reports how many
- * were loaded. Reachable from Settings › Manga sources and from the empty state on the Explore tab.
- */
+/** Lets the user paste a source-catalogue URL to load its sources. */
 @AndroidEntryPoint
 class AddSourceRepositorySheet : BaseAdaptiveSheet<SheetAddRepositoryBinding>() {
 
@@ -79,7 +74,6 @@ class AddSourceRepositorySheet : BaseAdaptiveSheet<SheetAddRepositoryBinding>() 
 		lifecycleScope.launch {
 			settings.sourceCatalogueUrl = url
 			val count = catalogue.refresh().getOrDefault(0)
-			// Insert the freshly-fetched sources so the source list updates immediately.
 			sourcesRepository.assimilateFromCatalogue()
 			setLoading(false)
 			if (count > 0) {

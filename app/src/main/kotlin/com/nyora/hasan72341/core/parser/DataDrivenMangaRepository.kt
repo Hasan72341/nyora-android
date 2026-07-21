@@ -30,11 +30,8 @@ import app.nyora.core.model.MangaListFilter as DdFilter
 import org.koitharu.kotatsu.parsers.model.MangaTag as LibMangaTag
 
 /**
- * A [MangaRepository] backed by a bundled generic [SourceEngine] instead of a compiled per-source
- * parser. The engine is constructed lazily from the [DataDrivenMangaSource]'s data (engine id +
- * domain + config) via the [EngineRegistry], and every call delegates to it with the results mapped
- * between the data-driven model (String ids, List collections) and the app's model. This is the path
- * that lets sources be fetched at runtime rather than baked into the APK.
+ * A [MangaRepository] backed by a generic [SourceEngine] built from the [DataDrivenMangaSource]'s
+ * data. Each call delegates to the engine and maps between the data-driven model and the app's model.
  */
 class DataDrivenMangaRepository(
     private val ddSource: DataDrivenMangaSource,
@@ -43,14 +40,12 @@ class DataDrivenMangaRepository(
 
     override val source: MangaSource get() = ddSource
 
-    /** Exposed so CommonHeadersInterceptor can attach the source Referer (hotlink-gated covers). */
+    /** Exposed so CommonHeadersInterceptor can attach the source Referer. */
     val domain: String get() = ddSource.domain
 
     private val referer: String = "https://${ddSource.domain}/"
 
-    // MangaSourceRef has no data-driven variant; Parser(name) is used because it round-trips
-    // correctly — the persisted "DD_<id>" name resolves back via MangaSource(name) -> the catalogue
-    // registry, so favourites/history restore to this repository regardless of the ref's label.
+    // Parser(name) round-trips: the "DD_<id>" name resolves back via MangaSource(name).
     private val sourceRef: MangaSourceRef = MangaSourceRef.Parser(ddSource.name)
 
     private val context: EngineContext = AndroidEngineContext(okHttpClient, ddSource)
@@ -61,9 +56,7 @@ class DataDrivenMangaRepository(
 
     private val pageSize: Int = (ddSource.config["pageSize"] as? Number)?.toInt() ?: 20
 
-    // These are read while rendering the source LIST, so they must never throw even if a source's
-    // engine can't be constructed (bad config) — a failure there would break the whole list rather
-    // than just that one source. Browse calls (getList/getDetails/…) still surface errors per-source.
+    // Read while rendering the source list, so must never throw on a bad-config engine.
     override val sortOrders: Set<SortOrder>
         get() = runCatching { engine.availableSortOrders.mapNotNull { it.toFork() }.toSet() }
             .getOrNull()?.takeIf { it.isNotEmpty() } ?: setOf(SortOrder.POPULARITY)
