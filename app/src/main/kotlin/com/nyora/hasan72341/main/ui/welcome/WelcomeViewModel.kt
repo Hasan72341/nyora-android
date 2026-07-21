@@ -1,7 +1,6 @@
 package com.nyora.hasan72341.main.ui.welcome
 
 import android.content.Context
-import androidx.core.os.ConfigurationCompat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -10,12 +9,12 @@ import com.nyora.hasan72341.core.LocalizedAppContext
 import com.nyora.hasan72341.core.model.contentTypeOrManga
 import com.nyora.hasan72341.core.model.isHentai
 import com.nyora.hasan72341.core.model.localeCode
+import com.nyora.hasan72341.core.parser.datadriven.DataDrivenCatalogueRepository
 import com.nyora.hasan72341.core.prefs.AppSettings
 import com.nyora.hasan72341.core.ui.BaseViewModel
 import com.nyora.hasan72341.core.util.LocaleComparator
 import com.nyora.hasan72341.core.util.ext.mapSortedByCount
 import com.nyora.hasan72341.core.util.ext.sortedWithSafe
-import com.nyora.hasan72341.core.util.ext.toList
 import com.nyora.hasan72341.core.util.ext.toLocale
 import com.nyora.hasan72341.explore.data.MangaSourcesRepository
 import com.nyora.hasan72341.filter.ui.model.FilterProperty
@@ -27,12 +26,10 @@ import javax.inject.Inject
 @HiltViewModel
 class WelcomeViewModel @Inject constructor(
 	private val repository: MangaSourcesRepository,
+	private val catalogue: DataDrivenCatalogueRepository,
 	private val settings: AppSettings,
 	@LocalizedAppContext context: Context,
 ) : BaseViewModel() {
-
-	private val allSources = repository.allMangaSources
-	private val localesGroups by lazy { allSources.groupBy { it.localeCode().toLocale() } }
 
 	private var updateJob: Job
 
@@ -56,7 +53,18 @@ class WelcomeViewModel @Inject constructor(
 
 	init {
 		updateJob = launchJob(Dispatchers.IO) {
+			// Sources are the runtime data-driven catalogue, which may not have loaded yet on a fresh
+			// install. Without this the locale/content-type chips derive from an empty set and render
+			// blank, so fetch the catalogue before computing the options.
+			if (repository.allMangaSources.isEmpty()) {
+				catalogue.refresh()
+				repository.assimilateFromCatalogue()
+			}
+			val allSources = repository.allMangaSources
+			val localesGroups = allSources.groupBy { it.localeCode().toLocale() }
+
 			val contentTypes = allSources.mapSortedByCount { it.contentTypeOrManga() }
+				.ifEmpty { DEFAULT_CONTENT_TYPES }
 			types.value = types.value.copy(
 				availableItems = contentTypes,
 				isLoading = false,
@@ -112,9 +120,22 @@ class WelcomeViewModel @Inject constructor(
 	private suspend fun commit() {
 		val languages = locales.value.selectedItems.mapToSet { it.language }
 		val types = types.value.selectedItems
-		val enabledSources = allSources.filterTo(HashSet()) { x ->
+		val enabledSources = repository.allMangaSources.filterTo(HashSet()) { x ->
 			x.contentTypeOrManga() in types && x.localeCode() in languages
 		}
 		repository.setSourcesEnabledExclusive(enabledSources)
+	}
+
+	private companion object {
+		// Canonical fallback so onboarding still offers content types if the catalogue can't be
+		// fetched (e.g. offline on a fresh install); once sources load, the real set replaces it.
+		private val DEFAULT_CONTENT_TYPES = listOf(
+			ContentType.MANGA,
+			ContentType.MANHWA,
+			ContentType.MANHUA,
+			ContentType.COMICS,
+			ContentType.NOVEL,
+			ContentType.HENTAI_MANGA,
+		)
 	}
 }

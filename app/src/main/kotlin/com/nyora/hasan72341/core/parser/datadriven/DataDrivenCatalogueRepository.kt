@@ -53,10 +53,11 @@ class DataDrivenCatalogueRepository @Inject constructor(
         // Don't cache an empty disk read; it would pin the empty list even after refresh() lands.
         get() = cached ?: loadFromDisk().also { if (it.isNotEmpty()) cached = it }
 
+    // Self-hosted deployment ships its own catalogue, so fall back to the bundled default when the
+    // user hasn't pasted an override. This is what makes the app source-populated on first launch
+    // (onboarding language/content-type options come from it).
     val catalogueUrl: String
-        get() = settings.sourceCatalogueUrl.ifBlank {
-            if (com.nyora.hasan72341.BuildConfig.DEBUG) DEBUG_DEFAULT_URL else ""
-        }
+        get() = settings.sourceCatalogueUrl.ifBlank { DEFAULT_CATALOGUE_URL }
 
     /** Refresh from [catalogueUrl]. Returns the parsed source count, or 0 when no URL is set yet. */
     suspend fun refresh(): Result<Int> = withContext(Dispatchers.IO) {
@@ -159,8 +160,9 @@ class DataDrivenCatalogueRepository @Inject constructor(
         private val NATIVE_BACKED_ENGINES = setOf("mangafire")
         private const val CACHE_FILE = "datadriven-catalogue.json"
         private const val MAX_CATALOGUE_BYTES = 16L * 1024 * 1024
-        // Debug-only default (R8 strips it from release, so the store build ships no URL).
-        private const val DEBUG_DEFAULT_URL =
+        // Bundled default catalogue for the self-hosted deployment; the user can still override it
+        // by pasting a different URL (settings.sourceCatalogueUrl).
+        private const val DEFAULT_CATALOGUE_URL =
             "https://raw.githubusercontent.com/Nyora-Manga/nyora-data-driven/main/catalogue.json"
     }
 }

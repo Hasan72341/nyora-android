@@ -101,7 +101,7 @@ open class BaseApp : Application(), Configuration.Provider {
 			url = "https://sync.nyora.xyz",
 			anonKey = "self-hosted"
 		)
-		// Refresh the source catalogue in the background (no-op until the user sets a URL).
+		// Refresh the source catalogue in the background (uses the bundled default URL unless the user pasted an override).
 		processLifecycleScope.launch(Dispatchers.IO) {
 			dataDrivenCatalogue.refresh()
 			mangaSourcesRepository.assimilateFromCatalogue()
