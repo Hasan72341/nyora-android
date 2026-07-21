@@ -86,7 +86,7 @@ class CheckNewChaptersUseCase @Inject constructor(
 
 	private suspend fun getBranch(manga: Manga, trackChapterId: Long): String? {
 		historyRepository.getOne(manga)?.let { history ->
-			manga.chapters.find { it.id == history.chapterId.toString() }
+			manga.chapters.find { it.id == history.chapterId }
 		}?.let {
 			return it.branch
 		}

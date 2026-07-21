@@ -624,7 +624,7 @@ class ReaderViewModel @Inject constructor(
         // continue reading
         val history = historyRepository.getOne(manga)
         if (history != null) {
-            val chapter = manga.chapters?.find { it.id == history.chapterId.toString() } ?: return null
+            val chapter = manga.chapters?.find { it.id == history.chapterId } ?: return null
             // specified branch is requested
             return if (ReaderIntent.EXTRA_BRANCH in savedStateHandle) {
                 if (chapter.branch == requestedBranch) {

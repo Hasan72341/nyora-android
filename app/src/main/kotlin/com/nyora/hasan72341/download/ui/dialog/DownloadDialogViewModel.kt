@@ -2,7 +2,6 @@ package com.nyora.hasan72341.download.ui.dialog
 
 import androidx.collection.ArrayMap
 import androidx.collection.ArraySet
-import androidx.collection.MutableLongLongMap
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.nyora.hasan72341.R
@@ -147,13 +146,13 @@ class DownloadDialogViewModel @Inject constructor(
 		var maxChapters = 0
 		var maxUnreadChapters = 0
 		val preferredBranches = ArraySet<String?>(details.size)
-		val currentChaptersIds = MutableLongLongMap(details.size)
+		val currentChaptersIds = HashMap<Long, String>(details.size)
 
 		details.forEach { m ->
 			val history = historyRepository.getOne(m)
 			if (history != null) {
 				currentChaptersIds[m.id.toLongOrNull() ?: 0L] = history.chapterId
-				val unreadChaptersCount = m.chapters?.dropWhile { it.id != history.chapterId.toString() }.sizeOrZero()
+				val unreadChaptersCount = m.chapters?.dropWhile { it.id != history.chapterId }.sizeOrZero()
 				maxUnreadChapters = maxOf(maxUnreadChapters, unreadChaptersCount)
 			} else {
 				maxUnreadChapters = maxOf(maxUnreadChapters, m.chapters.sizeOrZero())

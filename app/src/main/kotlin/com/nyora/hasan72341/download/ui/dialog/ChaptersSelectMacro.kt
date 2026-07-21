@@ -1,7 +1,6 @@
 package com.nyora.hasan72341.download.ui.dialog
 
 import androidx.collection.ArraySet
-import androidx.collection.LongLongMap
 import com.nyora.hasan72341.mihon.parsers.model.MangaChapter
 import com.nyora.hasan72341.mihon.parsers.util.mapNotNullToSet
 
@@ -62,22 +61,20 @@ interface ChaptersSelectMacro {
 	class UnreadChapters(
 		val chaptersCount: Int,
 		val maxAvailableCount: Int,
-		private val currentChaptersIds: LongLongMap,
+		private val currentChaptersIds: Map<Long, String>,
 	) : ChaptersSelectMacro {
 
 		override fun getChaptersIds(mangaId: Long, chapters: List<MangaChapter>): Set<String>? {
 			if (chapters.isEmpty()) {
 				return null
 			}
-			// currentChaptersIds is keyed by numeric ids (history). Data-driven chapters have
-			// non-numeric ids that never match, so this macro degrades to empty for them.
-			val currentChapterId = currentChaptersIds.getOrDefault(mangaId, chapters.first().id.toLongOrNull() ?: -1L)
+			val currentChapterId = currentChaptersIds[mangaId] ?: chapters.first().id
 			var branch: String? = null
 			var isAdding = false
 			val result = ArraySet<String>(minOf(chaptersCount, chapters.size))
 			for (c in chapters) {
 				if (!isAdding) {
-					if (c.id.toLongOrNull() == currentChapterId) {
+					if (c.id == currentChapterId) {
 						branch = c.branch
 						isAdding = true
 					}

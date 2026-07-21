@@ -106,7 +106,7 @@ fun Manga.getPreferredBranch(history: MangaHistory?): String? {
 		return null
 	}
 	if (history != null) {
-		val currentChapter = ch.find { it.id == history.chapterId.toString() }
+		val currentChapter = ch.find { it.id == history.chapterId }
 		if (currentChapter != null) {
 			return currentChapter.branch
 		}

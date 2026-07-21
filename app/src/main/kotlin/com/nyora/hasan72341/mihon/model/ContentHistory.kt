@@ -8,7 +8,7 @@ import java.time.Instant
 data class ContentHistory(
 	val createdAt: Instant,
 	val updatedAt: Instant,
-	val chapterId: Long,
+	val chapterId: String,
 	val page: Int,
 	val scroll: Int,
 	val percent: Float,

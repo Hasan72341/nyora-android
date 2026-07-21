@@ -40,7 +40,7 @@ fun HistoryInfo(
 		manga?.chapters?.get(branch)
 	}
 	val currentChapter = if (history != null && !chapters.isNullOrEmpty()) {
-		chapters.indexOfFirst { it.id == history.chapterId.toString() }
+		chapters.indexOfFirst { it.id == history.chapterId }
 	} else {
 		-2
 	}
@@ -49,7 +49,7 @@ fun HistoryInfo(
 		currentChapter = currentChapter,
 		history = history,
 		isIncognitoMode = isIncognitoMode,
-		isChapterMissing = history != null && manga?.isLoaded == true && manga.allChapters.none { it.id == history.chapterId.toString() },
+		isChapterMissing = history != null && manga?.isLoaded == true && manga.allChapters.none { it.id == history.chapterId },
 		canDownload = manga?.isLocal == false,
 		estimatedTime = estimatedTime,
 	)
