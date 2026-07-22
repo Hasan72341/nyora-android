@@ -152,7 +152,9 @@ class DataDrivenMangaRepository(
 
     private fun DdChapter.toFork(): MangaChapter = MangaChapter(
         id = id,
-        title = title.orEmpty(),
+        // Drop a title that's just the chapter number — the UI formats "Chapter {number}" and would
+        // otherwise render the redundant "Chapter 1 - 1". Matches how native parsers null such titles.
+        title = title?.trim().orEmpty().let { if (it == numberDisplay(number)) "" else it },
         number = number,
         volume = volume,
         url = url,
@@ -160,6 +162,9 @@ class DataDrivenMangaRepository(
         uploadDate = uploadDate,
         branch = branch,
     )
+
+    private fun numberDisplay(number: Float): String =
+        if (number <= 0f) "" else if (number % 1f == 0f) number.toInt().toString() else number.toString()
 
     // Reader page images carry the source Referer so hotlink-protected CDNs serve them, PLUS any
     // per-page engine headers (e.g. MangaPlus's XOR decryption key for the app-side image
