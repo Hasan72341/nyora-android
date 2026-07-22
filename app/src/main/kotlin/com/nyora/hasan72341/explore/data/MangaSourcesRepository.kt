@@ -304,11 +304,18 @@ class MangaSourcesRepository @Inject constructor(
 		}
 		var maxSortKey = dao.getMaxSortKey()
 		val isAllEnabled = settings.isAllSourcesEnabled
+		// Onboarding language choice; empty = all. Newly-arrived data-driven sources are default-enabled
+		// only when their language matches, so a pasted catalogue honours the onboarding selection.
+		val langPref = settings.enabledSourceLanguages
 		val entities = new.map { x ->
 			MangaSourceEntity(
 				// Data-driven sources are the app's own runtime catalogue, so they're enabled on
-				// arrival (the app is otherwise source-less); other kinds follow the user setting.
-				isEnabled = isAllEnabled || com.nyora.hasan72341.core.model.DataDrivenMangaSource.isDataDriven(x.name),
+				// arrival (the app is otherwise source-less), subject to the onboarding language
+				// filter; other kinds follow the user setting.
+				isEnabled = isAllEnabled || (
+					com.nyora.hasan72341.core.model.DataDrivenMangaSource.isDataDriven(x.name) &&
+						(langPref.isEmpty() || x.localeCode() in langPref)
+					),
 				source = x.name,
 				sortKey = ++maxSortKey,
 				addedIn = BuildConfig.VERSION_CODE,

@@ -53,11 +53,13 @@ class DataDrivenCatalogueRepository @Inject constructor(
         // Don't cache an empty disk read; it would pin the empty list even after refresh() lands.
         get() = cached ?: loadFromDisk().also { if (it.isNotEmpty()) cached = it }
 
-    // Self-hosted deployment ships its own catalogue, so fall back to the bundled default when the
-    // user hasn't pasted an override. This is what makes the app source-populated on first launch
-    // (onboarding language/content-type options come from it).
+    // The app ships source-less: the release build has NO catalogue URL until the user pastes one
+    // (that "no source added" state drives the MangaBaka preview). A debug-only default keeps
+    // development builds populated.
     val catalogueUrl: String
-        get() = settings.sourceCatalogueUrl.ifBlank { DEFAULT_CATALOGUE_URL }
+        get() = settings.sourceCatalogueUrl.ifBlank {
+            if (com.nyora.hasan72341.BuildConfig.DEBUG) DEFAULT_CATALOGUE_URL else ""
+        }
 
     /** Refresh from [catalogueUrl]. Returns the parsed source count, or 0 when no URL is set yet. */
     suspend fun refresh(): Result<Int> = withContext(Dispatchers.IO) {

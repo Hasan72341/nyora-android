@@ -36,7 +36,8 @@ class WelcomeViewModel @Inject constructor(
 	val locales = MutableStateFlow(
 		FilterProperty<Locale>(
 			availableItems = listOf(Locale.ROOT),
-			selectedItems = setOf(Locale.ROOT),
+			// Nothing pre-selected: leaving it empty means "all languages" (see commit()).
+			selectedItems = emptySet(),
 			isLoading = true,
 			error = null,
 		),
@@ -69,12 +70,14 @@ class WelcomeViewModel @Inject constructor(
 				availableItems = contentTypes,
 				isLoading = false,
 			)
-			// Default to ALL languages so every (non-NSFW) source is installed by
-			// default; the user can narrow the selection during onboarding.
-			val selectedLocales = HashSet(localesGroups.keys).apply { add(Locale.ROOT) }
+			// No language is pre-selected. Leaving the selection empty enables every language
+			// (commit() treats "none chosen" as "all"); the user can narrow it by picking languages.
+			val availableLocales = localesGroups.keys
+				.ifEmpty { DEFAULT_LOCALES }
+				.sortedWithSafe(LocaleComparator())
 			locales.value = locales.value.copy(
-				availableItems = localesGroups.keys.sortedWithSafe(LocaleComparator()),
-				selectedItems = selectedLocales,
+				availableItems = availableLocales,
+				selectedItems = emptySet(),
 				isLoading = false,
 			)
 			repository.clearNewSourcesBadge()
@@ -118,10 +121,15 @@ class WelcomeViewModel @Inject constructor(
 	}
 
 	private suspend fun commit() {
+		// Non-empty language codes only; empty selection => "all languages".
 		val languages = locales.value.selectedItems.mapToSet { it.language }
+			.filterTo(HashSet()) { it.isNotEmpty() }
 		val types = types.value.selectedItems
+		// Persist the choice so sources ADDED LATER (a pasted catalogue repo) honour it too, not just
+		// the ones present now. Empty = all languages.
+		settings.enabledSourceLanguages = languages
 		val enabledSources = repository.allMangaSources.filterTo(HashSet()) { x ->
-			x.contentTypeOrManga() in types && x.localeCode() in languages
+			x.contentTypeOrManga() in types && (languages.isEmpty() || x.localeCode() in languages)
 		}
 		repository.setSourcesEnabledExclusive(enabledSources)
 	}
@@ -137,5 +145,11 @@ class WelcomeViewModel @Inject constructor(
 			ContentType.NOVEL,
 			ContentType.HENTAI_MANGA,
 		)
+
+		// Canonical language list for onboarding when no catalogue is loaded yet (the app ships
+		// source-less). The choice is saved and applied to sources added later via a catalogue repo.
+		private val DEFAULT_LOCALES: List<Locale> = listOf(
+			"en", "ja", "ko", "zh", "es", "pt", "fr", "de", "ru", "id", "it", "ar", "tr", "vi", "th", "pl",
+		).map { Locale.forLanguageTag(it) }
 	}
 }

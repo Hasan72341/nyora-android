@@ -11,4 +11,7 @@
 	<string name="popular_this_season">Ongoing now</string>
 	<string name="new_releases">New releases</string>
 	<string name="popular_on_source">Popular on %s</string>
+	<string name="chapters_count">%1$s chapters</string>
+	<string name="mangabaka_preview_add_source_hint">Add a source to start reading</string>
+	<string name="mangabaka_preview_unavailable">Preview unavailable</string>
 </resources>

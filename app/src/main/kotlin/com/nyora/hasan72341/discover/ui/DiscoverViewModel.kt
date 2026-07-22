@@ -54,8 +54,16 @@ class DiscoverViewModel @Inject constructor(
 	private val trackingRepository: TrackingRepository,
 	private val discoverRepository: DiscoverRepository,
 	private val suggestionRepository: SuggestionRepository,
+	private val sourcesRepository: com.nyora.hasan72341.explore.data.MangaSourcesRepository,
 	private val settings: AppSettings,
 ) : BaseViewModel() {
+
+	/**
+	 * Whether any source is installed. False while the app is source-less (no catalogue URL added);
+	 * Discover then routes taps to the MangaBaka preview instead of a source search.
+	 */
+	val hasSources: Boolean
+		get() = sourcesRepository.allMangaSources.isNotEmpty()
 
 	/**
 	 * The source that produced the non-empty "Popular on <Source>" rail, captured during

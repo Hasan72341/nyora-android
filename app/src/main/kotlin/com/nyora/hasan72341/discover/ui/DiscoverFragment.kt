@@ -46,13 +46,20 @@ class DiscoverFragment :
 		super.onViewBindingCreated(binding, savedInstanceState)
 		discoverAdapter = DiscoverAdapter(
 			cardClick = { card ->
-				if (card.manga != null) {
-					router.openDetails(card.manga)
-				} else {
-					card.searchQuery?.let(router::openSearch)
+				when {
+					card.manga != null -> router.openDetails(card.manga)
+					// No source installed yet: show the MangaBaka overview instead of a dead search.
+					!viewModel.hasSources -> router.showMangaBakaPreview(card.searchQuery ?: card.title)
+					else -> card.searchQuery?.let(router::openSearch)
 				}
 			},
-			heroClick = { hero -> router.openSearch(hero.searchQuery) },
+			heroClick = { hero ->
+				if (viewModel.hasSources) {
+					router.openSearch(hero.searchQuery)
+				} else {
+					router.showMangaBakaPreview(hero.searchQuery)
+				}
+			},
 			headerClickListener = this,
 			stateHolderListener = this,
 			retry = { viewModel.retryNetworkRails() },
