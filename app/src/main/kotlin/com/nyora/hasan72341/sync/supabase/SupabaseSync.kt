@@ -423,6 +423,9 @@ class SupabaseSync @Inject constructor(
             rows.put(JSONObject().apply {
                 put("user_id", uid)
                 put("manga_id", h.mangaId)
+                // Plain source id (not the JSON source_ref) so other clients can resolve the entry's
+                // source directly, matching nyora-web's history rows.
+                put("source_id", wm.manga.source)
                 put("chapter_id", h.chapterId)
                 put("page", h.page)
                 put("scroll", h.scroll)
@@ -754,7 +757,7 @@ class SupabaseSync @Inject constructor(
                     val largeCoverUrl = if (row.isNull("large_cover_url")) null else row.getString("large_cover_url")
                     val state = if (row.isNull("state")) null else row.getString("state")
                     val authors = if (row.isNull("authors")) null else row.getString("authors")
-                    val source = row.getString("source_ref")
+                    val source = decodeSourceRef(row.getString("source_ref"))
                     val description = row.optString("description", "")
                     val tags = row.optString("tags", "[]")
                     
@@ -955,6 +958,21 @@ class SupabaseSync @Inject constructor(
 
     private fun now(): String = Instant.now().toString()
 
+    // Decode the canonical source_ref (a JSON object {"name": ...}); tolerant of a bare string that
+    // older/other clients may have written. Mirrors nyora-web's decodeSourceRef.
+    private fun decodeSourceRef(raw: String): String {
+        val trimmed = raw.trim()
+        val name = if (trimmed.startsWith("{")) {
+            runCatching {
+                val obj = JSONObject(trimmed)
+                obj.optString("name").ifBlank { obj.optString("id").ifBlank { obj.optString("type") } }
+            }.getOrNull()?.takeIf { it.isNotBlank() } ?: trimmed
+        } else {
+            trimmed
+        }
+        return name.substringAfterLast(".MangaSourceRef.")
+    }
+
     private fun MangaEntity.toRemoteManga(uid: String, updatedAt: String = now()): JSONObject {
         return JSONObject().apply {
             put("user_id", uid)
@@ -970,7 +988,10 @@ class SupabaseSync @Inject constructor(
             largeCoverUrl?.let { put("large_cover_url", it) }
             state?.let { put("state", it) }
             put("authors", authors ?: "[]")
-            put("source_ref", source)
+            // Canonical source_ref is a JSON object {"name": <source>} (nyora-web encodes/decodes it
+            // this way; the server column defaults to "{}"). Pushing a bare string made web-synced
+            // manga resolve to the raw JSON on the other client -> UnknownMangaSource.
+            put("source_ref", JSONObject().put("name", source).toString())
             put("description", description)
             put("tags", tags)
             put("updated_at", updatedAt)
