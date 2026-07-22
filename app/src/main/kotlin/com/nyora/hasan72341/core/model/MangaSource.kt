@@ -49,6 +49,9 @@ fun MangaSource(name: String?): MangaSource {
 	MangaParserSource.entries.forEach {
 		if (it.name == name) return it
 	}
+	// Legacy / cross-client native ids ("parser:MANGADEX", "JS_MANGAFIRE_JA", bare "SUSHISCANFR")
+	// synced from web/desktop map to their data-driven equivalent when the catalogue has one.
+	DataDrivenMangaSource.resolveNativeId(name)?.let { return it }
 	return UnknownMangaSource
 }
 
