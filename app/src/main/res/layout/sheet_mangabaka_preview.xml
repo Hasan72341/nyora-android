@@ -108,24 +108,24 @@
 				android:textAppearance="?attr/textAppearanceBodyMedium"
 				tools:text="As a child, Monkey D. Luffy was inspired to become a pirate…" />
 
-			<TextView
-				android:id="@+id/textReadHint"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="20dp"
-				android:gravity="center"
-				android:text="@string/mangabaka_preview_add_source_hint"
-				android:textAppearance="?attr/textAppearanceBodySmall"
-				android:textColor="?android:attr/textColorSecondary" />
-
-			<com.google.android.material.button.MaterialButton
-				android:id="@+id/buttonAddSource"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:text="@string/add_sources" />
-
 		</LinearLayout>
+
+		<TextView
+			android:id="@+id/textReadHint"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="20dp"
+			android:gravity="center"
+			android:text="@string/mangabaka_preview_add_source_hint"
+			android:textAppearance="?attr/textAppearanceBodySmall"
+			android:textColor="?android:attr/textColorSecondary" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/buttonAddSource"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
+			android:text="@string/add_sources" />
 
 	</LinearLayout>
 
