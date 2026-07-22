@@ -106,6 +106,26 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		prefs.edit { putBoolean("ai_translate_enabled_manga_$mangaId", enabled) }
 	}
 
+	// ---- On-device colorization (see ai/colorize/) ----
+
+	/** Master switch. Gated in the reader by whether the model is actually downloaded. */
+	var isColorizeEnabled: Boolean
+		get() = prefs.getBoolean(KEY_COLORIZE_ENABLED, false)
+		set(value) = prefs.edit { putBoolean(KEY_COLORIZE_ENABLED, value) }
+
+	/** Colorize every page automatically as it's shown (vs. only on manual request). */
+	var isColorizeAuto: Boolean
+		get() = prefs.getBoolean(KEY_COLORIZE_AUTO, true)
+		set(value) = prefs.edit { putBoolean(KEY_COLORIZE_AUTO, value) }
+
+	fun isColorizeEnabledForManga(mangaId: String): Boolean {
+		return prefs.getBoolean("colorize_enabled_manga_$mangaId", true)
+	}
+
+	fun setColorizeEnabledForManga(mangaId: String, enabled: Boolean) {
+		prefs.edit { putBoolean("colorize_enabled_manga_$mangaId", enabled) }
+	}
+
 
 	var mainNavItems: List<NavItem>
 		get() {
@@ -904,6 +924,8 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_AI_MODEL = "ai_model"
 		const val KEY_AI_TARGET_LANG = "ai_target_lang"
 		const val KEY_AI_TRANSLATE_OFFLINE = "ai_translate_offline"
+		const val KEY_COLORIZE_ENABLED = "colorize_enabled"
+		const val KEY_COLORIZE_AUTO = "colorize_auto"
 
 		// keys for non-persistent preferences
 		const val KEY_APP_VERSION = "app_version"

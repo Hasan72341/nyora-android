@@ -270,6 +270,10 @@ dependencies {
 	implementation libs.mlkit.language.id
 	implementation libs.mlkit.translate
 
+	// On-device manga colorization (manga-colorization-v2 ONNX). CPU (XNNPACK) with
+	// NNAPI acceleration where available. See ai/colorize/.
+	implementation libs.onnxruntime.android
+
 	implementation libs.conscrypt.android
 	implementation libs.sentry.android
 

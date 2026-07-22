@@ -43,6 +43,8 @@ data class ReaderSettings(
 	val isAiTranslateEnabled: Boolean,
 	val isAiAutoTranslate: Boolean,
 	val isAiTranslateOffline: Boolean,
+	val isColorizeEnabled: Boolean,
+	val isColorizeAuto: Boolean,
 ) {
 
 	constructor(settings: AppSettings, colorFilterOverride: ReaderColorFilter?, mangaId: String = "") : this(
@@ -63,6 +65,8 @@ data class ReaderSettings(
 		isAiTranslateEnabled = settings.isAiTranslateEnabled && settings.isAiTranslateEnabledForManga(mangaId),
 		isAiAutoTranslate = settings.isAiAutoTranslate,
 		isAiTranslateOffline = settings.isAiTranslateOffline,
+		isColorizeEnabled = settings.isColorizeEnabled && settings.isColorizeEnabledForManga(mangaId),
+		isColorizeAuto = settings.isColorizeAuto,
 	)
 
 	fun applyBackground(view: View) {
@@ -118,6 +122,8 @@ data class ReaderSettings(
 			AppSettings.KEY_AI_TRANSLATE_ENABLED,
 			AppSettings.KEY_AI_AUTO_TRANSLATE,
 			AppSettings.KEY_AI_TRANSLATE_OFFLINE,
+			AppSettings.KEY_COLORIZE_ENABLED,
+			AppSettings.KEY_COLORIZE_AUTO,
 		)
 		private var job: Job? = null
 

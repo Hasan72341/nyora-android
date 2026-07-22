@@ -206,6 +206,8 @@ class ReaderActivity :
     override fun onDestroy() {
         super.onDestroy()
         viewModel.updateReadingProgress()
+        // Free the colorizer's native ONNX session (hundreds of MB) when leaving the reader.
+        com.nyora.hasan72341.ai.colorize.MangaColorizer.close()
     }
 
     override fun getParentActivityIntent(): Intent? {

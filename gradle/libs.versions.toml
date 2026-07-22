@@ -59,6 +59,7 @@ mlkitTextRecognitionChinese = "16.0.1"
 mlkitTextRecognitionKorean = "16.0.1"
 mlkitLanguageId = "17.0.0"
 mlkitTranslate = "17.0.3"
+onnxruntime = "1.20.0"
 dynamicanimation = "1.0.0"
 dynamicanimationKtx = "1.0.0-alpha03"
 palette = "1.0.0"
@@ -145,6 +146,7 @@ mlkit-text-recognition-chinese = { module = "com.google.mlkit:text-recognition-c
 mlkit-text-recognition-korean = { module = "com.google.mlkit:text-recognition-korean", version.ref = "mlkitTextRecognitionKorean" }
 mlkit-language-id = { module = "com.google.mlkit:language-id", version.ref = "mlkitLanguageId" }
 mlkit-translate = { module = "com.google.mlkit:translate", version.ref = "mlkitTranslate" }
+onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version.ref = "onnxruntime" }
 injekt-core = { module = "uy.kohesive.injekt:injekt-core", version = "1.16.1" }
 androidx-dynamicanimation = { module = "androidx.dynamicanimation:dynamicanimation", version.ref = "dynamicanimation" }
 androidx-dynamicanimation-ktx = { module = "androidx.dynamicanimation:dynamicanimation-ktx", version.ref = "dynamicanimationKtx" }
