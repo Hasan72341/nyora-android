@@ -161,10 +161,21 @@ class DataDrivenMangaRepository(
         branch = branch,
     )
 
-    // Reader page images carry the source Referer so hotlink-protected CDNs serve them. The source
-    // MUST be set, or the reader resolves getPageUrl against UnknownMangaSource ("not supported").
+    // Reader page images carry the source Referer so hotlink-protected CDNs serve them, PLUS any
+    // per-page engine headers (e.g. MangaPlus's XOR decryption key for the app-side image
+    // interceptor). The source MUST be set, or the reader resolves getPageUrl against
+    // UnknownMangaSource ("not supported").
     private fun DdPage.toFork(): MangaPage =
-        MangaPage(url = url, id = id, preview = preview, source = ddSource, headers = mapOf("Referer" to referer))
+        MangaPage(
+            url = url,
+            id = id,
+            preview = preview,
+            source = ddSource,
+            headers = buildMap {
+                put("Referer", referer)
+                putAll(headers)
+            },
+        )
 
     private fun DdState.toFork(): MangaState? = runCatching { MangaState.valueOf(name) }.getOrNull()
     private fun DdRating.toFork(): ContentRating? = runCatching { ContentRating.valueOf(name) }.getOrNull()
