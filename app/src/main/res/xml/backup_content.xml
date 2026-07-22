@@ -8,11 +8,8 @@
 		path="_local_index.xml" />
 	<!-- Secrets must not leave the device: session cookies + scrobbler OAuth tokens. -->
 	<exclude domain="sharedpref" path="cookies.xml" />
-	<exclude domain="sharedpref" path="SHIKIMORI.xml" />
 	<exclude domain="sharedpref" path="ANILIST.xml" />
 	<exclude domain="sharedpref" path="MAL.xml" />
-	<exclude domain="sharedpref" path="KITSU.xml" />
-	<exclude domain="sharedpref" path="BANGUMI.xml" />
 	<exclude domain="sharedpref" path="MANGABAKA.xml" />
 	<exclude domain="database" />
 	<exclude domain="device_database" />

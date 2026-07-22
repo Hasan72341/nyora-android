@@ -130,11 +130,8 @@ class ScrobblerConfigActivity : BaseActivity<ActivityScrobblerConfigBinding>(),
 	}
 
 	companion object {
-		const val HOST_SHIKIMORI_AUTH = "shikimori-auth"
 		const val HOST_ANILIST_AUTH = "anilist-auth"
 		const val HOST_MAL_AUTH = "myanimelist-auth"
-		const val HOST_KITSU_AUTH = "kitsu-auth"
-		const val HOST_BANGUMI_AUTH = "bangumi-auth"
 		const val HOST_MANGABAKA_AUTH = "mangabaka-auth"
 	}
 }

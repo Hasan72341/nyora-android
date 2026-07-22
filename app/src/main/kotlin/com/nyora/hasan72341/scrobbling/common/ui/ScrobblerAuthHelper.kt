@@ -7,7 +7,6 @@ import androidx.core.net.toUri
 import com.nyora.hasan72341.scrobbling.common.domain.ScrobblerRepositoryMap
 import com.nyora.hasan72341.scrobbling.common.domain.model.ScrobblerService
 import com.nyora.hasan72341.scrobbling.common.domain.model.ScrobblerUser
-import com.nyora.hasan72341.scrobbling.kitsu.ui.KitsuAuthActivity
 import javax.inject.Inject
 
 class ScrobblerAuthHelper @Inject constructor(
@@ -26,17 +25,9 @@ class ScrobblerAuthHelper @Inject constructor(
 
 	@SuppressLint("UnsafeImplicitIntentLaunch")
 	fun startAuth(context: Context, scrobbler: ScrobblerService) = runCatching {
-		if (scrobbler == ScrobblerService.KITSU) {
-			launchKitsuAuth(context)
-		} else {
-			val repository = repositoriesMap[scrobbler]
-			val intent = Intent(Intent.ACTION_VIEW)
-			intent.data = repository.oauthUrl.toUri()
-			context.startActivity(intent)
-		}
-	}
-
-	private fun launchKitsuAuth(context: Context) {
-		context.startActivity(Intent(context, KitsuAuthActivity::class.java))
+		val repository = repositoriesMap[scrobbler]
+		val intent = Intent(Intent.ACTION_VIEW)
+		intent.data = repository.oauthUrl.toUri()
+		context.startActivity(intent)
 	}
 }

@@ -332,18 +332,14 @@ class SupabaseSync @Inject constructor(
 
     // scrobbler int <-> canonical tracker_id slug (NYORA_TRACKING_SCHEMA.md §3)
     private fun scrobblerSlug(id: Int): String? = when (id) {
-        1 -> "shikimori"
         2 -> "anilist"
         3 -> "myanimelist"
-        4 -> "kitsu"
         else -> null
     }
 
     private fun scrobblerId(slug: String): Int? = when (slug) {
-        "shikimori" -> 1
         "anilist" -> 2
         "myanimelist" -> 3
-        "kitsu" -> 4
         else -> null
     }
 
@@ -358,14 +354,6 @@ class SupabaseSync @Inject constructor(
         3 to mapOf( // MyAnimeList
             "plan_to_read" to "planning", "reading" to "reading", "completed" to "completed",
             "on_hold" to "paused", "dropped" to "dropped",
-        ),
-        4 to mapOf( // Kitsu
-            "planned" to "planning", "current" to "reading", "completed" to "completed",
-            "on_hold" to "paused", "dropped" to "dropped",
-        ),
-        1 to mapOf( // Shikimori
-            "planned" to "planning", "watching" to "reading", "rewatching" to "rereading",
-            "completed" to "completed", "on_hold" to "paused", "dropped" to "dropped",
         ),
     )
 
