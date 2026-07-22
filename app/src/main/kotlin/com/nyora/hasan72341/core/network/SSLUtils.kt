@@ -25,7 +25,7 @@ fun OkHttpClient.Builder.disableCertificateVerification() = also { builder ->
 
             override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
         }
-        val sslContext = SSLContext.getInstance("SSL")
+        val sslContext = SSLContext.getInstance("TLS")
         sslContext.init(null, arrayOf(trustAllCerts), SecureRandom())
         val sslSocketFactory: SSLSocketFactory = sslContext.socketFactory
         builder.sslSocketFactory(sslSocketFactory, trustAllCerts)
