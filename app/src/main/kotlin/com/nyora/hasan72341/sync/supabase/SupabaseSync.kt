@@ -17,6 +17,9 @@ import javax.inject.Singleton
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.nyora.hasan72341.core.db.entity.MangaEntity
 import com.nyora.hasan72341.core.network.BaseHttpClient
+import com.nyora.hasan72341.core.parser.datadriven.DataDrivenCatalogueRepository
+import com.nyora.hasan72341.core.prefs.AppSettings
+import com.nyora.hasan72341.explore.data.MangaSourcesRepository
 import com.nyora.hasan72341.scrobbling.common.data.ScrobblingEntity
 
 @Singleton
@@ -25,6 +28,9 @@ class SupabaseSync @Inject constructor(
     private val database: MangaDatabase,
     @BaseHttpClient private val http: OkHttpClient,
     private val config: SupabaseConfig,
+    private val settings: AppSettings,
+    private val catalogue: DataDrivenCatalogueRepository,
+    private val mangaSourcesRepository: MangaSourcesRepository,
 ) {
     private val historyDao get() = database.getHistoryDao()
     private val favouritesDao get() = database.getFavouritesDao()
@@ -36,6 +42,10 @@ class SupabaseSync @Inject constructor(
     
     private val JSON_MT = "application/json; charset=utf-8".toMediaType()
     private val syncFunctionUrl get() = "${config.url}/functions/v1/nyora-sync"
+
+    // nyora_settings key for the data-driven catalogue URL — synced so a signed-in device can
+    // resolve "DD_" sources (without it, history restores but every source shows as unknown).
+    private val PREF_KEY_CATALOGUE_URL = "source_catalogue_url"
 
     // -- Auth (email/password against the self-hosted OAuth2 server) --
 
@@ -156,6 +166,7 @@ class SupabaseSync @Inject constructor(
         pushCategories()
         pushMangaCategories()
         pushMangaPrefs()
+        pushSettings()
         pushSourcePrefs()
         pushTracking()
         pushExtensionRepos()
@@ -238,6 +249,43 @@ class SupabaseSync @Inject constructor(
             })
         }
         upsert("nyora_source_prefs", rows)
+    }
+
+    // The catalogue URL makes data-driven "DD_" sources resolvable; sync it so a signed-in device
+    // loads the same catalogue instead of restoring history with unknown sources.
+    private suspend fun pushSettings() {
+        val uid = config.userId
+        val catalogueUrl = settings.sourceCatalogueUrl
+        if (catalogueUrl.isBlank()) return
+        val rows = JSONArray().put(JSONObject().apply {
+            put("user_id", uid)
+            put("pref_key", PREF_KEY_CATALOGUE_URL)
+            put("pref_value", catalogueUrl)
+            put("updated_at", now())
+        })
+        upsert("nyora_settings", rows)
+    }
+
+    private suspend fun pullSettings(cutoff: String) {
+        val text = fetch("nyora_settings?select=pref_key,pref_value", cutoff) ?: return
+        runCatching {
+            val arr = JSONArray(text)
+            for (i in 0 until arr.length()) {
+                val row = arr.getJSONObject(i)
+                if (row.optString("pref_key") == PREF_KEY_CATALOGUE_URL) {
+                    val url = row.optString("pref_value")
+                    // Only adopt when this device has no catalogue yet; then load it so the synced
+                    // "DD_" sources resolve.
+                    if (url.isNotBlank() && settings.sourceCatalogueUrl.isBlank()) {
+                        settings.sourceCatalogueUrl = url
+                        runCatching {
+                            catalogue.refresh()
+                            mangaSourcesRepository.assimilateFromCatalogue()
+                        }
+                    }
+                }
+            }
+        }.onFailure { android.util.Log.e("SupabaseSync", "pullSettings failed", it) }
     }
 
     // -- Tracking (scrobbling) --
@@ -533,6 +581,9 @@ class SupabaseSync @Inject constructor(
     }
 
     private suspend fun pullAll(cutoff: String) {
+        // First: adopt the synced catalogue URL + load it, so the "DD_" sources referenced by the
+        // manga/history/source-prefs pulled below can actually resolve.
+        pullSettings(cutoff)
         pullCategories(cutoff)
         pullManga(cutoff)
         pullMangaCategories(cutoff)
