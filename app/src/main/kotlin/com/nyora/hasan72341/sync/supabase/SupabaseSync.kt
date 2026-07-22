@@ -965,7 +965,11 @@ class SupabaseSync @Inject constructor(
         val name = if (trimmed.startsWith("{")) {
             runCatching {
                 val obj = JSONObject(trimmed)
-                obj.optString("name").ifBlank { obj.optString("id").ifBlank { obj.optString("type") } }
+                // Live data has both {"name":..} (web) and {"source":..} (desktop) shapes.
+                obj.optString("name")
+                    .ifBlank { obj.optString("source") }
+                    .ifBlank { obj.optString("id") }
+                    .ifBlank { obj.optString("type") }
             }.getOrNull()?.takeIf { it.isNotBlank() } ?: trimmed
         } else {
             trimmed
