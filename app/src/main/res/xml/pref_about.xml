@@ -12,11 +12,11 @@
 
 	<Preference
 		android:title="Official website"
-		android:summary="nyora.pages.dev"
+		android:summary="nyora.xyz"
 		android:persistent="false">
 		<intent
 			android:action="android.intent.action.VIEW"
-			android:data="https://nyora.pages.dev" />
+			android:data="https://nyora.xyz" />
 	</Preference>
 
 	<Preference
@@ -26,7 +26,7 @@
 		android:persistent="false">
 		<intent
 			android:action="android.intent.action.VIEW"
-			android:data="https://github.com/Hasan72341/nyora-android" />
+			android:data="https://github.com/Nyora-Manga/nyora-android" />
 	</Preference>
 
 	<PreferenceCategory android:title="Developer">
