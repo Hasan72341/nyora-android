@@ -51,7 +51,14 @@ interface MangaRepository {
 
 	suspend fun find(manga: Manga): Manga? {
 		val list = getList(0, SortOrder.RELEVANCE, MangaListFilter(query = manga.title))
-		return list.find { x -> x.id == manga.id }
+		// Match by stable id first, then url, then an exact (case-insensitive) title match. The
+		// fallbacks let self-healing (cover restore, sync reconcile) survive a source that changed
+		// its URL scheme or domain — e.g. Asura moving asuracomic.net -> asurascans.com and
+		// /series -> /comics, which changes both id and url and would otherwise leave old entries
+		// permanently unmatched (blank covers).
+		return list.find { it.id == manga.id }
+			?: list.find { it.url == manga.url }
+			?: list.firstOrNull { it.title.equals(manga.title, ignoreCase = true) }
 	}
 
 	@Singleton
