@@ -93,8 +93,9 @@ class ScrobblerConfigActivity : BaseActivity<ActivityScrobblerConfigBinding>(),
 	private fun processIntent(intent: Intent) {
 		if (intent.action == Intent.ACTION_VIEW) {
 			val uri = intent.data ?: return
-			// Authorization-code services return `?code=...`; implicit services
-			// (AniList) return the token in the URL fragment `#access_token=...`.
+			// Authorization-code services (AniList, MAL, MangaBaka) return
+			// `?code=...`; the fragment fallback handles any implicit-grant
+			// service that returns the token in `#access_token=...`.
 			val code = uri.getQueryParameter("code")
 				?: uri.fragment
 					?.split('&')

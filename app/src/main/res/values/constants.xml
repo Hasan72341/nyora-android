@@ -9,7 +9,7 @@
 	<string name="github_updates_repo" translatable="false">AppNyora/Nyora</string>
 	<!-- Tracker OAuth: PKCE / public clients only — no client secrets are shipped in the app. -->
 	<string name="anilist_clientId" translatable="false">46413</string>
-	<string name="anilist_clientSecret" translatable="false"></string>
+	<string name="anilist_clientSecret" translatable="false">1g354gn5JLiP0b0CyIJLk4SHCfq5d9Zip2ufxGHj</string>
 	<string name="mal_clientId" translatable="false">f3fec032a062ca0ba0c37330ca63730a</string>
 	<string name="mangabaka_clientId" translatable="false">WFVyyltyYIteXTlesNaCnZwLnkjwGWRp</string>
 	<string name="tg_backup_bot_name" translatable="false">nyora_backup_bot</string>

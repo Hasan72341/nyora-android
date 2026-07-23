@@ -45,10 +45,11 @@ class AniListRepository @Inject constructor(
 ) : ScrobblerRepository {
 
 	private val clientId = context.getString(R.string.anilist_clientId)
+	private val clientSecret = context.getString(R.string.anilist_clientSecret)
 
 	override val oauthUrl: String
 		get() = "${BASE_URL}oauth/authorize?client_id=$clientId&" +
-			"redirect_uri=${REDIRECT_URI}&response_type=token"
+			"redirect_uri=${REDIRECT_URI}&response_type=code"
 
 	override val isAuthorized: Boolean
 		get() = storage.accessToken != null
@@ -56,14 +57,27 @@ class AniListRepository @Inject constructor(
 	private val shrinkRegex = Regex("\\t+")
 
 	override suspend fun authorize(code: String?) {
-		// AniList uses the implicit grant (Mihon's public client 16329 is
-		// implicit-only): the access token arrives directly in the redirect
-		// fragment, so `code` is the token itself. There is no refresh token, so a
-		// null code (refresh) cannot be honoured — the user re-authenticates.
-		val token = requireNotNull(code) {
-			"AniList uses the implicit grant and cannot refresh; sign in again"
+		// AniList's registered client (46413) is a confidential authorization-code
+		// app: it issues a client secret and rejects the implicit grant with
+		// "unsupported_grant_type". Exchange the `code` from the redirect for a
+		// token. A null code (silent refresh) can't be honoured here, so the user
+		// re-authenticates.
+		val authCode = requireNotNull(code) {
+			"AniList sign-in returned no authorization code; sign in again"
 		}
-		storage.accessToken = token
+		val body = FormBody.Builder()
+			.add("client_id", clientId)
+			.add("client_secret", clientSecret)
+			.add("grant_type", "authorization_code")
+			.add("redirect_uri", REDIRECT_URI)
+			.add("code", authCode)
+			.build()
+		val request = Request.Builder()
+			.post(body)
+			.url("${BASE_URL}oauth/token")
+		val response = okHttp.newCall(request.build()).await().parseJson()
+		storage.accessToken = response.getString("access_token")
+		storage.refreshToken = response.getStringOrNull("refresh_token")
 	}
 
 	override suspend fun loadUser(): ScrobblerUser {
