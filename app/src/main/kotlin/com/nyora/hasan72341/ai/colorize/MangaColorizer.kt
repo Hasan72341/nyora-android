@@ -51,22 +51,19 @@ object MangaColorizer {
 			session?.let { return@withLock it }
 			val model = ColorizeModelManager.modelFile(context)
 			require(model.isFile) { "Colorizer model not downloaded" }
-			val created = try {
-				createSession(model.absolutePath, useNnapi = true)
-			} catch (_: Throwable) {
-				// NNAPI unavailable or rejected this fp16 graph — fall back to CPU (XNNPACK).
-				createSession(model.absolutePath, useNnapi = false)
-			}
-			session = created
-			created
+			// CPU only. NNAPI was tried first, but many Android NNAPI drivers mis-partition this
+			// fp16 GAN (Cast + Conv graph) and silently return zero-chroma output — the page then
+			// combines back to plain grayscale, i.e. "colorize does nothing". The CPU EP runs the
+			// fp16 casts correctly and matches the web (wasm) result; it's slower but always right.
+			session = createSession(model.absolutePath)
+			session!!
 		}
 	}
 
-	private fun createSession(path: String, useNnapi: Boolean): OrtSession {
+	private fun createSession(path: String): OrtSession {
 		val opts = OrtSession.SessionOptions()
 		opts.setIntraOpNumThreads((Runtime.getRuntime().availableProcessors() - 1).coerceIn(1, 4))
 		opts.setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT)
-		if (useNnapi) opts.addNnapi()
 		return env.createSession(path, opts)
 	}
 

@@ -195,7 +195,7 @@ class ReaderActivity :
         viewModel.isZoomControlsEnabled.observe(this) {
             viewBinding.zoomControl.isVisible = it
         }
-        addMenuProvider(ReaderMenuProvider(viewModel, ::translateCurrentPage))
+        addMenuProvider(ReaderMenuProvider(viewModel, ::translateCurrentPage, ::colorizeCurrentPage))
 
         observeWindowLayout()
 
@@ -498,6 +498,10 @@ class ReaderActivity :
         translateCurrentPage()
     }
 
+    override fun onColorizePageClick() {
+        colorizeCurrentPage()
+    }
+
     override fun onScrollTimerClick(isLongClick: Boolean) {
         if (isLongClick) {
             scrollTimer.setActive(!scrollTimer.isActive.value)
@@ -604,6 +608,10 @@ class ReaderActivity :
 
     private fun translateCurrentPage() {
         readerManager.translateCurrentPage()
+    }
+
+    private fun colorizeCurrentPage() {
+        readerManager.colorizeCurrentPage()
     }
 
     companion object {

@@ -10,6 +10,12 @@
 		app:showAsAction="ifRoom" />
 
 	<item
+		android:id="@+id/action_colorize"
+		android:icon="@drawable/ic_colorize"
+		android:title="@string/colorize_page"
+		app:showAsAction="ifRoom" />
+
+	<item
 		android:id="@+id/action_info"
 		android:icon="@drawable/ic_info_outline"
 		android:title="@string/details"

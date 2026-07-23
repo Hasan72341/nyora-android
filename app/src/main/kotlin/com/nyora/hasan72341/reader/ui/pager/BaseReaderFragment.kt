@@ -79,6 +79,8 @@ abstract class BaseReaderFragment<B : ViewBinding> : BaseFragment<B>(), ZoomCont
 
 	open fun translateCurrentPage() = Unit
 
+	open fun colorizeCurrentPage() = Unit
+
 	open fun translatePageAt(index: Int) = Unit
 
 	protected abstract fun onCreateAdapter(): BaseReaderAdapter<*>

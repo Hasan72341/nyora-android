@@ -151,6 +151,7 @@
 		<item>Chinese (Vertical)</item>
 		<item>Chinese (Horizontal)</item>
 		<item>Korean</item>
+		<item>English</item>
 	</string-array>
 
 	<string-array name="ai_source_langs_values" translatable="false">
@@ -160,6 +161,7 @@
 		<item>ZH_VERT</item>
 		<item>ZH_HORIZ</item>
 		<item>KO</item>
+		<item>EN</item>
 	</string-array>
 
 	<string-array name="ai_target_langs" translatable="false">

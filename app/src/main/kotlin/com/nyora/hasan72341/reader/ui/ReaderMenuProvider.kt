@@ -9,6 +9,7 @@ import com.nyora.hasan72341.R
 	class ReaderMenuProvider(
 	private val viewModel: ReaderViewModel,
 	private val onTranslatePage: () -> Unit,
+	private val onColorizePage: () -> Unit,
 ) : MenuProvider {
 
 	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -19,6 +20,11 @@ import com.nyora.hasan72341.R
 		return when (menuItem.itemId) {
 			R.id.action_ai_translate -> {
 				onTranslatePage()
+				true
+			}
+
+			R.id.action_colorize -> {
+				onColorizePage()
 				true
 			}
 

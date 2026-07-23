@@ -77,6 +77,10 @@ class ReaderManager(
 		currentReader?.translateCurrentPage()
 	}
 
+	fun colorizeCurrentPage() {
+		currentReader?.colorizeCurrentPage()
+	}
+
 	fun translatePageAt(index: Int) {
 		currentReader?.translatePageAt(index)
 	}
