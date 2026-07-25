@@ -193,6 +193,7 @@ Installing Nyora takes about a minute. It is the **signed release APK** — open
 1. Open the **[Releases page](https://github.com/Nyora-Manga/nyora-android/releases/latest)** and download the latest `nyora-*.apk`.
 2. Open the downloaded file. If this is your first sideloaded app, Android will prompt you to **allow installs from your browser (or file manager)** — this is the expected one-time permission for apps not from the Play Store. Grant it and continue.
 3. Confirm the install and launch Nyora.
+4. Add `https://raw.githubusercontent.com/Nyora-Manga/nyora-data-driven/main/catalogue.json` as a source to load the catalogue.
 
 That's it — no sign-up, no onboarding wall. Start reading immediately; sign in later only if you want cloud sync.
 
