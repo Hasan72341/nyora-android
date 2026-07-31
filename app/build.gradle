@@ -53,8 +53,8 @@ android {
 		applicationId 'com.nyora.hasan72341'
 		minSdk = 23
 		targetSdk = 36
-		versionCode project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : 27100
-        versionName project.hasProperty('versionName') ? project.property('versionName') : '2.7.1'
+		versionCode project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : 27300
+        versionName project.hasProperty('versionName') ? project.property('versionName') : '2.7.3'
         generatedDensities = []
 		testInstrumentationRunner 'com.nyora.android.HiltTestRunner'
 		buildConfigField "String", "SUPABASE_URL", "\"${supabaseEnv('SUPABASE_URL')}\""
@@ -82,8 +82,8 @@ android {
 			buildConfigField "String", "SENTRY_DSN", '""'
 		}
 		release {
-			minifyEnabled false
-			shrinkResources false
+			minifyEnabled true
+			shrinkResources true
 			signingConfig signingConfigs.release
 			buildConfigField "String", "SENTRY_DSN", "\"${System.getenv('SENTRY_DSN') ?: ''}\""
 		}
