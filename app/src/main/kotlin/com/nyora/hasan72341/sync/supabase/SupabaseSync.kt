@@ -332,18 +332,14 @@ class SupabaseSync @Inject constructor(
 
     // scrobbler int <-> canonical tracker_id slug (NYORA_TRACKING_SCHEMA.md §3)
     private fun scrobblerSlug(id: Int): String? = when (id) {
-        1 -> "shikimori"
         2 -> "anilist"
         3 -> "myanimelist"
-        4 -> "kitsu"
         else -> null
     }
 
     private fun scrobblerId(slug: String): Int? = when (slug) {
-        "shikimori" -> 1
         "anilist" -> 2
         "myanimelist" -> 3
-        "kitsu" -> 4
         else -> null
     }
 
@@ -358,14 +354,6 @@ class SupabaseSync @Inject constructor(
         3 to mapOf( // MyAnimeList
             "plan_to_read" to "planning", "reading" to "reading", "completed" to "completed",
             "on_hold" to "paused", "dropped" to "dropped",
-        ),
-        4 to mapOf( // Kitsu
-            "planned" to "planning", "current" to "reading", "completed" to "completed",
-            "on_hold" to "paused", "dropped" to "dropped",
-        ),
-        1 to mapOf( // Shikimori
-            "planned" to "planning", "watching" to "reading", "rewatching" to "rereading",
-            "completed" to "completed", "on_hold" to "paused", "dropped" to "dropped",
         ),
     )
 
@@ -435,6 +423,9 @@ class SupabaseSync @Inject constructor(
             rows.put(JSONObject().apply {
                 put("user_id", uid)
                 put("manga_id", h.mangaId)
+                // Plain source id (not the JSON source_ref) so other clients can resolve the entry's
+                // source directly, matching nyora-web's history rows.
+                put("source_id", wm.manga.source)
                 put("chapter_id", h.chapterId)
                 put("page", h.page)
                 put("scroll", h.scroll)
@@ -766,7 +757,7 @@ class SupabaseSync @Inject constructor(
                     val largeCoverUrl = if (row.isNull("large_cover_url")) null else row.getString("large_cover_url")
                     val state = if (row.isNull("state")) null else row.getString("state")
                     val authors = if (row.isNull("authors")) null else row.getString("authors")
-                    val source = row.getString("source_ref")
+                    val source = decodeSourceRef(row.getString("source_ref"))
                     val description = row.optString("description", "")
                     val tags = row.optString("tags", "[]")
                     
@@ -967,6 +958,25 @@ class SupabaseSync @Inject constructor(
 
     private fun now(): String = Instant.now().toString()
 
+    // Decode the canonical source_ref (a JSON object {"name": ...}); tolerant of a bare string that
+    // older/other clients may have written. Mirrors nyora-web's decodeSourceRef.
+    private fun decodeSourceRef(raw: String): String {
+        val trimmed = raw.trim()
+        val name = if (trimmed.startsWith("{")) {
+            runCatching {
+                val obj = JSONObject(trimmed)
+                // Live data has both {"name":..} (web) and {"source":..} (desktop) shapes.
+                obj.optString("name")
+                    .ifBlank { obj.optString("source") }
+                    .ifBlank { obj.optString("id") }
+                    .ifBlank { obj.optString("type") }
+            }.getOrNull()?.takeIf { it.isNotBlank() } ?: trimmed
+        } else {
+            trimmed
+        }
+        return name.substringAfterLast(".MangaSourceRef.")
+    }
+
     private fun MangaEntity.toRemoteManga(uid: String, updatedAt: String = now()): JSONObject {
         return JSONObject().apply {
             put("user_id", uid)
@@ -982,7 +992,10 @@ class SupabaseSync @Inject constructor(
             largeCoverUrl?.let { put("large_cover_url", it) }
             state?.let { put("state", it) }
             put("authors", authors ?: "[]")
-            put("source_ref", source)
+            // Canonical source_ref is a JSON object {"name": <source>} (nyora-web encodes/decodes it
+            // this way; the server column defaults to "{}"). Pushing a bare string made web-synced
+            // manga resolve to the raw JSON on the other client -> UnknownMangaSource.
+            put("source_ref", JSONObject().put("name", source).toString())
             put("description", description)
             put("tags", tags)
             put("updated_at", updatedAt)

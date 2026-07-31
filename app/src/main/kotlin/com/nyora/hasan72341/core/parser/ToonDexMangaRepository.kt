@@ -18,7 +18,7 @@ import com.nyora.hasan72341.mihon.parsers.model.MangaListFilter
 import com.nyora.hasan72341.mihon.parsers.model.MangaListFilterCapabilities
 import com.nyora.hasan72341.mihon.parsers.model.MangaListFilterOptions
 import com.nyora.hasan72341.mihon.parsers.model.MangaPage
-import com.nyora.hasan72341.mihon.parsers.model.MangaParserSource
+import com.nyora.hasan72341.mihon.parsers.model.MangaSource
 import com.nyora.hasan72341.mihon.parsers.model.MangaState
 import com.nyora.hasan72341.mihon.parsers.model.MangaTag
 import com.nyora.hasan72341.mihon.parsers.model.SortOrder
@@ -26,15 +26,11 @@ import com.nyora.hasan72341.tachiyomi.network.await
 import java.util.EnumSet
 
 /**
- * Native ToonDex source (was Toonily.me → toondex.io). ToonDex rebuilt on the MangaBuddy
- * reader-network codebase backed by a clean JSON API (api.toondex.io); the bundled kotatsu
- * Madtheme parser no longer matches, so it returned 0 results. This app-layer repository ports
- * the API (mirrors the helper's ToonDexExtensionService) and replaces the kotatsu TOONILY_ME
- * source. Page images come from the Next.js data route because the /images API returns only a
- * 3-image anonymous preview.
+ * Native ToonDex source (was Toonily.me -> toondex.io), on its JSON API (api.toondex.io) which the
+ * bundled Madtheme parser no longer matches. Page images come from the Next.js data route.
  */
 class ToonDexMangaRepository(
-	override val source: MangaParserSource,
+	override val source: MangaSource,
 	private val okHttpClient: OkHttpClient,
 	cache: MemoryContentCache,
 ) : CachingMangaRepository(cache) {

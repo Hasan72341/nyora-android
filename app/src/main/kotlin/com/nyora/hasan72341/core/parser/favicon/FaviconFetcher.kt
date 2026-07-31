@@ -67,6 +67,12 @@ class FaviconFetcher(
 
 			is LocalMangaRepository -> imageLoader.fetch(R.drawable.ic_storage, options)
 			is MihonMangaRepository -> fetchMihonIcon(repo)
+			is com.nyora.hasan72341.core.parser.DataDrivenMangaRepository ->
+				fetchDomainIcon(repo.domain, repo.source.name)
+			is com.nyora.hasan72341.core.parser.MangaFireMangaRepository ->
+				fetchDomainIcon("mangafire.to", repo.source.name)
+			is com.nyora.hasan72341.core.parser.ToonDexMangaRepository ->
+				fetchDomainIcon("toondex.io", repo.source.name)
 
 			else -> throw IllegalArgumentException("Unsupported repo ${repo.javaClass.simpleName}")
 		}
@@ -109,6 +115,49 @@ class FaviconFetcher(
 			} catch (e: IOException) {
 				lastError = e
 				favicons -= icon
+			}
+		}
+		throwNSEE(lastError)
+	}
+
+	// Favicon by domain, for sources without a bundled icon (data-driven, MangaFire, ToonDex).
+	private suspend fun fetchDomainIcon(domain: String, sourceName: String): FetchResult {
+		val sizePx = maxOf(
+			options.size.width.pxOrElse { FALLBACK_SIZE },
+			options.size.height.pxOrElse { FALLBACK_SIZE },
+			64,
+		)
+		val cacheKey = options.diskCacheKey ?: "${sourceName}_$sizePx"
+		if (options.diskCachePolicy.readEnabled) {
+			localStorageCache[cacheKey]?.let { file ->
+				return SourceFetchResult(
+					source = ImageSource(file.toOkioPath(), FileSystem.SYSTEM),
+					mimeType = MimeTypes.probeMimeType(file)?.toString(),
+					dataSource = DataSource.DISK,
+				)
+			}
+		}
+		// Google's favicon cache first (reaches sites that block direct /favicon.ico), then the site.
+		val candidates = listOf(
+			"https://www.google.com/s2/favicons?sz=${sizePx.coerceAtMost(128)}&domain=$domain",
+			"https://$domain/favicon.ico",
+		)
+		var lastError: Exception? = null
+		for (url in candidates) {
+			currentCoroutineContext().ensureActive()
+			try {
+				val result = imageLoader.fetch(url, options)
+				if (result != null) {
+					return if (options.diskCachePolicy.writeEnabled) {
+						writeToCache(cacheKey, result)
+					} else {
+						result
+					}
+				}
+			} catch (e: CloudFlareProtectedException) {
+				throw e
+			} catch (e: IOException) {
+				lastError = e
 			}
 		}
 		throwNSEE(lastError)

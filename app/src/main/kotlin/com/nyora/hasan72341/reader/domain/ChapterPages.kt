@@ -1,18 +1,16 @@
 package com.nyora.hasan72341.reader.domain
 
-import androidx.collection.LongSparseArray
-import androidx.collection.contains
 import com.nyora.hasan72341.reader.ui.pager.ReaderPage
 
 class ChapterPages private constructor(private val pages: ArrayDeque<ReaderPage>) : List<ReaderPage> by pages {
 
-	// map chapterId to index in pages deque
-	private val indices = LongSparseArray<IntRange>()
+	// map chapterId to index range in the pages deque
+	private val indices = LinkedHashMap<String, IntRange>()
 
 	constructor() : this(ArrayDeque())
 
 	val chaptersSize: Int
-		get() = indices.size()
+		get() = indices.size
 
 	@Synchronized
 	fun removeFirst() {
@@ -36,22 +34,22 @@ class ChapterPages private constructor(private val pages: ArrayDeque<ReaderPage>
 	}
 
 	@Synchronized
-	fun addLast(id: Long, newPages: List<ReaderPage>): Boolean {
+	fun addLast(id: String, newPages: List<ReaderPage>): Boolean {
 		if (id in indices) {
 			return false
 		}
-		indices.put(id, pages.size until (pages.size + newPages.size))
+		indices[id] = pages.size until (pages.size + newPages.size)
 		pages.addAll(newPages)
 		return true
 	}
 
 	@Synchronized
-	fun addFirst(id: Long, newPages: List<ReaderPage>): Boolean {
+	fun addFirst(id: String, newPages: List<ReaderPage>): Boolean {
 		if (id in indices) {
 			return false
 		}
 		shiftIndices(newPages.size)
-		indices.put(id, newPages.indices)
+		indices[id] = newPages.indices
 		pages.addAll(0, newPages)
 		return true
 	}
@@ -62,21 +60,20 @@ class ChapterPages private constructor(private val pages: ArrayDeque<ReaderPage>
 		pages.clear()
 	}
 
-	fun size(id: Long) = indices[id]?.run {
+	fun size(id: String) = indices[id]?.run {
 		endInclusive - start + 1
 	} ?: 0
 
-	fun subList(id: Long): List<ReaderPage> {
+	fun subList(id: String): List<ReaderPage> {
 		val range = indices[id] ?: return emptyList()
 		return pages.subList(range.first, range.last + 1)
 	}
 
-	operator fun contains(chapterId: Long) = chapterId in indices
+	operator fun contains(chapterId: String) = chapterId in indices
 
 	private fun shiftIndices(delta: Int) {
-		for (i in 0 until indices.size()) {
-			val range = indices.valueAt(i)
-			indices.setValueAt(i, range + delta)
+		for (key in indices.keys.toList()) {
+			indices[key] = indices.getValue(key) + delta
 		}
 	}
 

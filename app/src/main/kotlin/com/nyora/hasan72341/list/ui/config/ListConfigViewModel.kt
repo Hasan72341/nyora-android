@@ -2,7 +2,6 @@ package com.nyora.hasan72341.list.ui.config
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.runBlocking
 import com.nyora.hasan72341.core.nav.AppRouter
 import com.nyora.hasan72341.core.prefs.AppSettings
 import com.nyora.hasan72341.core.prefs.ListMode
@@ -23,6 +22,21 @@ class ListConfigViewModel @Inject constructor(
 ) : BaseViewModel() {
 
 	val section = savedStateHandle.require<ListConfigSection>(AppRouter.KEY_LIST_SECTION)
+
+	// Preloaded off the main thread so opening the sheet never does a blocking Room read.
+	@Volatile
+	private var cachedCategoryOrder: ListSortOrder? = null
+
+	init {
+		val fav = section as? ListConfigSection.Favorites
+		if (fav != null && fav.categoryId != NO_ID) {
+			launchJob {
+				cachedCategoryOrder = runCatchingCancellable {
+					favouritesRepository.getCategory(fav.categoryId).order
+				}.getOrNull()
+			}
+		}
+	}
 
 	var listMode: ListMode
 		get() = when (section) {
@@ -107,11 +121,8 @@ class ListConfigViewModel @Inject constructor(
 
 	private fun getCategorySortOrder(id: Long): ListSortOrder = if (id == NO_ID) {
 		settings.allFavoritesSortOrder
-	} else runBlocking {
-		runCatchingCancellable {
-			favouritesRepository.getCategory(id).order
-		}.getOrElse {
-			settings.allFavoritesSortOrder
-		}
+	} else {
+		// Uses the value preloaded in init(); falls back until it lands (avoids a main-thread query).
+		cachedCategoryOrder ?: settings.allFavoritesSortOrder
 	}
 }

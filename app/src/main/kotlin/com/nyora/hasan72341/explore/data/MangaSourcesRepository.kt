@@ -11,6 +11,7 @@ import com.nyora.hasan72341.core.model.MangaSourceInfo
 import com.nyora.hasan72341.core.model.getTitle
 import com.nyora.hasan72341.core.model.isNsfw
 import com.nyora.hasan72341.core.model.getContentTypeOrNull
+import com.nyora.hasan72341.core.model.localeCode
 import com.nyora.hasan72341.core.prefs.AppSettings
 import com.nyora.hasan72341.core.prefs.observeAsFlow
 import com.nyora.hasan72341.core.ui.util.ReversibleHandle
@@ -40,13 +41,13 @@ class MangaSourcesRepository @Inject constructor(
     private val catalogue: com.nyora.hasan72341.core.parser.datadriven.DataDrivenCatalogueRepository,
 ) {
 
-	private val isNewSourcesAssimilated = AtomicBoolean(false)
+	// Last-assimilated size; re-runs when it changes so a late-arriving catalogue is picked up.
+	@Volatile
+	private var lastAssimilatedSize = -1
 	private val dao: MangaSourcesDao
 		get() = db.getSourcesDao()
 
-	// Source catalog = the runtime-fetched data-driven sources plus the native
-	// kotatsu-parsers-redo sources (the MangaParserSource enum, minus broken/dead).
-	// The data-driven sources are what let the catalogue be fetched rather than baked in.
+	// Data-driven catalogue sources plus the native (stripped) MangaParserSource enum.
 	val allMangaSources: Set<MangaSource>
 		get() {
 			val out = MangaParserSource.entries.filterNotTo(HashSet<MangaSource>()) {
@@ -56,8 +57,6 @@ class MangaSourcesRepository @Inject constructor(
 			return out
 		}
 
-	// Catalogue size for UI counts — 0 while sources are LOCKED, so no source count leaks before
-	// the remote/manual unlock (the app must read as 100% source-free until unlocked).
 	val totalSourcesCountGated: Int
 		get() = if (settings.isSourcesUnlocked) allMangaSources.size else 0
 
@@ -124,7 +123,8 @@ class MangaSourcesRepository @Inject constructor(
 		}
 
 		if (locale != null) {
-			sources.retainAll { it is MangaParserSource && it.locale == locale }
+			// localeCode() works for data-driven sources too, unlike an `is MangaParserSource` guard.
+			sources.retainAll { it.localeCode() == locale }
 		}
 		if (types.isNotEmpty()) {
 			sources.retainAll { it.getContentTypeOrNull() in types }
@@ -178,16 +178,10 @@ class MangaSourcesRepository @Inject constructor(
 		observeIsNsfwDisabled(),
 		observeAllEnabled(),
 		observeSortOrder(),
-		observeSourcesUnlocked(),
-	) { skipNsfw, allEnabled, order, unlocked ->
-		val sourcesFlow: Flow<List<MangaSourceInfo>> = if (!unlocked) {
-			flowOf(emptyList())
-		} else {
-			dao.observeAll(!allEnabled, order).map {
-				it.toSources(skipNsfw, order)
-			}
+	) { skipNsfw, allEnabled, order ->
+		dao.observeAll(!allEnabled, order).map {
+			it.toSources(skipNsfw, order)
 		}
-		sourcesFlow
 	}.flattenLatest()
 		.onStart { assimilateNewSources() }
 
@@ -271,20 +265,58 @@ class MangaSourcesRepository @Inject constructor(
 		settings.sourcesVersion = BuildConfig.VERSION_CODE
 	}
 
-	private suspend fun assimilateNewSources(): Boolean {
-		if (isNewSourcesAssimilated.getAndSet(true)) {
+	/**
+	 * Reconcile the DB with the runtime catalogue: insert not-yet-known sources and prune rows for
+	 * sources the (possibly newly-pasted) catalogue no longer contains. Call after a catalogue
+	 * refresh so the observing source list picks up the change without a relaunch. Forces a re-scan
+	 * (unlike the `onStart` fast path) because a swapped catalogue can have the same source count.
+	 */
+	suspend fun assimilateFromCatalogue(): Boolean {
+		// Reset the size-guard so a same-count catalogue swap still re-assimilates.
+		lastAssimilatedSize = -1
+		val added = assimilateNewSources()
+		val removed = pruneOrphanedSources()
+		return added || removed
+	}
+
+	// Delete DB rows for sources that are neither native nor present in the current catalogue, e.g.
+	// after the user pastes a different catalogue URL. Their user state (enabled/pinned/sort) is
+	// intentionally dropped; a source that later reappears comes back fresh.
+	private suspend fun pruneOrphanedSources(): Boolean {
+		val valid = allMangaSources.mapToSet { it.name }
+		val orphans = dao.findAll().mapNotNull { it.source.takeIf { name -> name !in valid } }
+		if (orphans.isEmpty()) {
 			return false
 		}
+		dao.deleteBySources(orphans)
+		return true
+	}
+
+	private suspend fun assimilateNewSources(): Boolean {
+		val size = allMangaSources.size
+		if (size == lastAssimilatedSize) {
+			return false
+		}
+		lastAssimilatedSize = size
 		val new = getNewSources()
 		if (new.isEmpty()) {
 			return false
 		}
 		var maxSortKey = dao.getMaxSortKey()
 		val isAllEnabled = settings.isAllSourcesEnabled
+		// Onboarding language choice; empty = all. Newly-arrived data-driven sources are default-enabled
+		// only when their language matches, so a pasted catalogue honours the onboarding selection.
+		val langPref = settings.enabledSourceLanguages
 		val entities = new.map { x ->
 			MangaSourceEntity(
+				// Data-driven sources are the app's own runtime catalogue, so they're enabled on
+				// arrival (the app is otherwise source-less), subject to the onboarding language
+				// filter; other kinds follow the user setting.
+				isEnabled = isAllEnabled || (
+					com.nyora.hasan72341.core.model.DataDrivenMangaSource.isDataDriven(x.name) &&
+						(langPref.isEmpty() || x.localeCode() in langPref)
+					),
 				source = x.name,
-				isEnabled = isAllEnabled,
 				sortKey = ++maxSortKey,
 				addedIn = BuildConfig.VERSION_CODE,
 				lastUsedAt = 0,
@@ -327,12 +359,7 @@ class MangaSourcesRepository @Inject constructor(
 
 	private suspend fun getNewSources(): MutableSet<out MangaSource> {
 		val entities = dao.findAll()
-		val result = HashSet<MangaSource>()
-		result.addAll(
-			MangaParserSource.entries.filterNot {
-				it.isBroken || it.name in com.nyora.hasan72341.core.SourcePatches.DEAD_SOURCES
-			},
-		)
+		val result = HashSet<MangaSource>(allMangaSources)
 		for (e in entities) {
 			result.remove(e.source.toMangaSourceOrNull() ?: continue)
 		}
@@ -362,15 +389,13 @@ class MangaSourcesRepository @Inject constructor(
 			if (skipNsfwSources && source.isNsfw()) {
 				continue
 			}
-			if (source is MangaParserSource) {
-				result.add(
-					MangaSourceInfo(
-						mangaSource = source,
-						isEnabled = entity.isEnabled || isAllEnabled,
-						isPinned = entity.isPinned,
-					),
-				)
-			}
+			result.add(
+				MangaSourceInfo(
+					mangaSource = source,
+					isEnabled = entity.isEnabled || isAllEnabled,
+					isPinned = entity.isPinned,
+				),
+			)
 		}
 		if (sortOrder == SourcesSortOrder.ALPHABETIC) {
 			result.sortWith(compareBy<MangaSourceInfo> { !it.isPinned }.thenBy { it.getTitle(context) })
@@ -390,19 +415,14 @@ class MangaSourcesRepository @Inject constructor(
 		isAllSourcesEnabled
 	}
 
-	// Remote master switch — when locked, the app exposes NO sources (see the
-	// gated methods above). Flipped by a signed remote config on launch.
 	private fun observeSourcesUnlocked() = settings.observeAsFlow(AppSettings.KEY_SOURCES_UNLOCKED) {
 		isSourcesUnlocked
 	}
 
-	private fun String.toMangaSourceOrNull(): MangaSource? {
-		if (startsWith("content:")) {
-			return com.nyora.hasan72341.core.model.MangaSource(this)
-		}
-		// native kotatsu-parsers-redo sources are keyed by their enum name
-		return MangaParserSource.entries.firstOrNull { it.name == this }
-	}
+	// Central resolver so every kind resolves: content:, native enum, and DD_ data-driven sources.
+	private fun String.toMangaSourceOrNull(): MangaSource? =
+		com.nyora.hasan72341.core.model.MangaSource(this)
+			.takeUnless { it == com.nyora.hasan72341.core.model.UnknownMangaSource }
 }
 
 private fun org.koitharu.kotatsu.parsers.model.ContentType.toNyoraContentType(): ContentType = when (this) {

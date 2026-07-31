@@ -10,6 +10,7 @@ import com.nyora.hasan72341.core.model.MangaSource
 import com.nyora.hasan72341.core.nav.AppRouter
 import com.nyora.hasan72341.core.network.CommonHeaders
 import com.nyora.hasan72341.core.network.proxy.ProxyProvider
+import com.nyora.hasan72341.core.network.webview.WebViewExecutor
 import com.nyora.hasan72341.core.network.webview.adblock.AdBlock
 import com.nyora.hasan72341.core.parser.MangaRepository
 import com.nyora.hasan72341.core.parser.ParserMangaRepository
@@ -33,6 +34,9 @@ abstract class BaseBrowserActivity : BaseActivity<ActivityBrowserBinding>(), Bro
 	@Inject
 	lateinit var adBlock: AdBlock
 
+	@Inject
+	lateinit var webViewExecutor: WebViewExecutor
+
 	private lateinit var onBackPressedCallback: WebViewBackPressedCallback
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,8 +50,14 @@ abstract class BaseBrowserActivity : BaseActivity<ActivityBrowserBinding>(), Bro
 
 		val mangaSource = MangaSource(intent?.getStringExtra(AppRouter.KEY_SOURCE))
 		val repository = mangaRepositoryFactory.create(mangaSource) as? ParserMangaRepository
+		// Fall back to the app's default (stripped) WebView UA when the source has none — e.g.
+		// data-driven sources, whose repository is not a ParserMangaRepository. The Cloudflare
+		// clearance cookie this WebView earns is bound to its UA; OkHttp retries with the same
+		// default UA, so without this fallback the WebView would solve with the raw "; wv" UA and
+		// the cleared retry would mismatch -> the challenge never clears ("solved but still blocked").
 		val userAgent = intent?.getStringExtra(AppRouter.KEY_USER_AGENT)?.nullIfEmpty()
 			?: repository?.getRequestHeaders()?.get(CommonHeaders.USER_AGENT)
+			?: webViewExecutor.defaultUserAgent
 		viewBinding.webView.configureForParser(userAgent)
 
 		onCreate2(savedInstanceState, mangaSource, repository)

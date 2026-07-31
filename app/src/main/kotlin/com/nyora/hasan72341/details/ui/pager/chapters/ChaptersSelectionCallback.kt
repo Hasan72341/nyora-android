@@ -84,7 +84,7 @@ class ChaptersSelectionCallback(
 						LocalChaptersRemoveService.start(
 							recyclerView.context,
 							manga,
-							ids.mapNotNull { it.toLongOrNull() },
+							ids.toList(),
 						)
 						try {
 							Snackbar.make(

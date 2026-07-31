@@ -1,5 +1,6 @@
 package com.nyora.hasan72341.reader.ui.pager.standard
 
+import com.nyora.hasan72341.reader.domain.toChapterKey
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.PointF
@@ -25,6 +26,7 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.nyora.hasan72341.R
 import com.nyora.hasan72341.ai.MangaTranslator
+import com.nyora.hasan72341.ai.colorize.MangaColorizer
 import com.nyora.hasan72341.core.exceptions.resolve.ExceptionResolver
 import com.nyora.hasan72341.core.model.ZoomMode
 import com.nyora.hasan72341.core.os.NetworkState
@@ -36,6 +38,7 @@ import com.nyora.hasan72341.reader.ui.config.ReaderSettings
 import com.nyora.hasan72341.reader.ui.pager.BasePageHolder
 import com.nyora.hasan72341.reader.ui.pager.ReaderPage
 import com.nyora.hasan72341.reader.ui.pager.vm.PageState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -62,6 +65,10 @@ open class PageHolder(
 
 	private var currentUri: Uri? = null
 	private var translationJob: kotlinx.coroutines.Job? = null
+	private var colorizeJob: kotlinx.coroutines.Job? = null
+	// The page uri whose colorized bitmap is currently shown — prevents re-colorizing (and an
+	// infinite loop, since setImage flips the page back to Shown).
+	private var colorizedUri: Uri? = null
 
 	init {
 		ViewCompat.setOnApplyWindowInsetsListener(binding.root, this)
@@ -75,15 +82,30 @@ open class PageHolder(
 
 	override fun onStateChanged(state: PageState) {
 		super.onStateChanged(state)
-		if (state is PageState.Shown) {
-			currentUri = (state.source as? ImageSource.Uri)?.uri
-			if (settings.isAiTranslateEnabled && settings.isAiAutoTranslate) {
-				translatePage()
-			} else {
-				binding.translationOverlay.setBlocks(emptyList())
+		val source = (state as? PageState.Shown)?.source
+		when {
+			// A freshly loaded ORIGINAL page (file-backed). This is the only place AI features run.
+			source is ImageSource.Uri -> {
+				currentUri = source.uri
+				colorizedUri = null // new page content — allow (re)colorizing
+				// Colorize first (it swaps the shown image); translation then overlays on top of
+				// whichever image ends up shown. The colorized bitmap is the same size as the
+				// original, so bubble coordinates still line up, and OCR still reads the original
+				// file (see getBitmap) rather than the coloured pixels.
+				if (settings.isColorizeEnabled && settings.isColorizeAuto) {
+					colorizePage()
+				}
+				if (settings.isAiTranslateEnabled && settings.isAiAutoTranslate) {
+					translatePage()
+				} else {
+					binding.translationOverlay.setBlocks(emptyList())
+				}
 			}
-		} else {
-			binding.translationOverlay.setBlocks(emptyList())
+			// Our own colorized bitmap is now shown — keep currentUri (the original file, needed for
+			// translation) and the existing overlay; do NOT re-run either feature.
+			source != null -> Unit
+			// Not shown (loading/error) — drop any stale translation overlay.
+			else -> binding.translationOverlay.setBlocks(emptyList())
 		}
 	}
 
@@ -93,7 +115,7 @@ open class PageHolder(
 		translationJob = lifecycleScope.launch {
 			val bitmap = withContext(Dispatchers.IO) { getBitmap() } ?: return@launch
 			try {
-				translator.translatePage(data.chapterId, data.index, bitmap).collect { blocks ->
+				translator.translatePage(data.chapterId.toChapterKey(), data.index, bitmap).collect { blocks ->
 					binding.translationOverlay.setBlocks(blocks)
 				}
 			} finally {
@@ -104,9 +126,44 @@ open class PageHolder(
 		}
 	}
 
+	// Colorize the current page on-device and swap the shown image for the coloured one. Mirrors
+	// [translatePage] but replaces the image instead of overlaying. Guarded so it never re-colorizes
+	// the page it just produced.
+	override fun colorizePage() {
+		val uri = currentUri ?: return
+		if (uri == colorizedUri) return
+		if (!MangaColorizer.isAvailable(context)) return
+		colorizeJob?.cancel()
+		colorizeJob = lifecycleScope.launch {
+			val src = withContext(Dispatchers.IO) { getBitmap() } ?: return@launch
+			try {
+				if (!MangaColorizer.canColorize(src.width, src.height)) return@launch
+				val colored = MangaColorizer.colorize(context.applicationContext, src)
+				// The holder may have been recycled/rebound to another page while we worked.
+				if (currentUri != uri) {
+					colored.recycle()
+					return@launch
+				}
+				colorizedUri = uri
+				ssiv.setImage(ImageSource.bitmap(colored))
+			} catch (e: CancellationException) {
+				throw e
+			} catch (e: Throwable) {
+				android.util.Log.e("MangaColorizer", "colorize failed", e)
+			} finally {
+				if (!src.isRecycled) {
+					src.recycle()
+				}
+			}
+		}
+	}
+
 	override fun onRecycled() {
 		translationJob?.cancel()
 		translationJob = null
+		colorizeJob?.cancel()
+		colorizeJob = null
+		colorizedUri = null
 		binding.translationOverlay.setBlocks(emptyList())
 		super.onRecycled()
 	}
@@ -114,6 +171,8 @@ open class PageHolder(
 	override fun onDetachedFromWindow() {
 		translationJob?.cancel()
 		translationJob = null
+		colorizeJob?.cancel()
+		colorizeJob = null
 		super.onDetachedFromWindow()
 	}
 
@@ -155,6 +214,21 @@ open class PageHolder(
 
 	override fun onReady() {
 		binding.ssiv.colorFilter = settings.colorFilter?.toColorFilter()
+	}
+
+	// React to colorize being toggled while a page is on screen.
+	override fun onConfigChanged(settings: ReaderSettings) {
+		super.onConfigChanged(settings)
+		val colorizeOn = settings.isColorizeEnabled && settings.isColorizeAuto
+		if (!colorizeOn) {
+			if (colorizedUri != null) {
+				colorizeJob?.cancel()
+				colorizedUri = null
+				reloadImage() // restore the original (B&W) page
+			}
+		} else if (colorizedUri == null && currentUri != null && viewModel.state.value is PageState.Shown) {
+			colorizePage()
+		}
 	}
 
 	override fun onZoomIn() {

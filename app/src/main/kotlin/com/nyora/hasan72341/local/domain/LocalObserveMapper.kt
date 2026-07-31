@@ -29,7 +29,7 @@ abstract class LocalObserveMapper<E : Any, R : Any>(
 				val mapped = if (m.isLocal) {
 					m
 				} else {
-					m.id.toLongOrNull()?.let { localMangaIndex.get(it, withDetails = false) }?.manga
+					localMangaIndex.get(m.id, withDetails = false)?.manga
 				}
 				mapped?.let { mm -> toResult(item, mm) }
 			}

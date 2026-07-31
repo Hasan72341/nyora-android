@@ -25,13 +25,13 @@ import app.nyora.core.model.MangaPage as DdPage
 import app.nyora.core.model.ContentRating as DdRating
 import app.nyora.core.model.MangaState as DdState
 import app.nyora.core.model.SortOrder as DdSort
+import app.nyora.core.model.MangaTag as DdTag
+import app.nyora.core.model.MangaListFilter as DdFilter
+import org.koitharu.kotatsu.parsers.model.MangaTag as LibMangaTag
 
 /**
- * A [MangaRepository] backed by a bundled generic [SourceEngine] instead of a compiled per-source
- * parser. The engine is constructed lazily from the [DataDrivenMangaSource]'s data (engine id +
- * domain + config) via the [EngineRegistry], and every call delegates to it with the results mapped
- * between the data-driven model (String ids, List collections) and the app's model. This is the path
- * that lets sources be fetched at runtime rather than baked into the APK.
+ * A [MangaRepository] backed by a generic [SourceEngine] built from the [DataDrivenMangaSource]'s
+ * data. Each call delegates to the engine and maps between the data-driven model and the app's model.
  */
 class DataDrivenMangaRepository(
     private val ddSource: DataDrivenMangaSource,
@@ -40,11 +40,12 @@ class DataDrivenMangaRepository(
 
     override val source: MangaSource get() = ddSource
 
-    /** Exposed so CommonHeadersInterceptor can attach the source Referer (hotlink-gated covers). */
+    /** Exposed so CommonHeadersInterceptor can attach the source Referer. */
     val domain: String get() = ddSource.domain
 
     private val referer: String = "https://${ddSource.domain}/"
 
+    // Parser(name) round-trips: the "DD_<id>" name resolves back via MangaSource(name).
     private val sourceRef: MangaSourceRef = MangaSourceRef.Parser(ddSource.name)
 
     private val context: EngineContext = AndroidEngineContext(okHttpClient, ddSource)
@@ -55,19 +56,34 @@ class DataDrivenMangaRepository(
 
     private val pageSize: Int = (ddSource.config["pageSize"] as? Number)?.toInt() ?: 20
 
+    // Read while rendering the source list, so must never throw on a bad-config engine.
     override val sortOrders: Set<SortOrder>
-        get() = engine.availableSortOrders.mapNotNull { it.toFork() }.toSet()
-            .ifEmpty { setOf(SortOrder.POPULARITY) }
+        get() = runCatching { engine.availableSortOrders.mapNotNull { it.toFork() }.toSet() }
+            .getOrNull()?.takeIf { it.isNotEmpty() } ?: setOf(SortOrder.POPULARITY)
 
     override var defaultSortOrder: SortOrder = SortOrder.POPULARITY
 
-    override val filterCapabilities: MangaListFilterCapabilities = MangaListFilterCapabilities()
+    override val filterCapabilities: MangaListFilterCapabilities
+        get() = runCatching {
+            engine.capabilities.let {
+                MangaListFilterCapabilities(
+                    isMultipleTagsSupported = it.multipleTags,
+                    isTagsExclusionSupported = it.tagsExclusion,
+                    isSearchSupported = it.search,
+                    isSearchWithFiltersSupported = it.searchWithFilters,
+                    isYearSupported = it.year,
+                    isAuthorSearchSupported = it.authorSearch,
+                )
+            }
+        }.getOrDefault(MangaListFilterCapabilities())
 
     override suspend fun getList(offset: Int, order: SortOrder?, filter: MangaListFilter?): List<Manga> {
         val page = if (pageSize > 0) offset / pageSize else offset
-        val query = filter?.query?.takeIf { it.isNotBlank() }
+        val ddFilter = filter?.toDd() ?: DdFilter.EMPTY
+        val hasConstraints = ddFilter.query != null || ddFilter.tags.isNotEmpty() ||
+            ddFilter.author != null || ddFilter.year > 0
         val ddList = when {
-            query != null -> engine.search(page, query)
+            hasConstraints -> engine.search(page, ddFilter.query, ddFilter)
             order == SortOrder.UPDATED || order == SortOrder.NEWEST -> engine.getLatest(page)
             else -> engine.getPopular(page)
         }
@@ -94,9 +110,24 @@ class DataDrivenMangaRepository(
         return engine.getPageImageUrl(ddPage)
     }
 
-    override suspend fun getFilterOptions(): MangaListFilterOptions = MangaListFilterOptions()
+    override suspend fun getFilterOptions(): MangaListFilterOptions = MangaListFilterOptions(
+        availableTags = engine.getAvailableTags()
+            .mapTo(LinkedHashSet()) { LibMangaTag(it.title, it.key, ddSource) },
+    )
 
+    // The engines expose no related-manga endpoint; the app degrades to a title search elsewhere.
     override suspend fun getRelated(seed: Manga): List<Manga> = emptyList()
+
+    // ---- model mapping ----
+
+    /** App filter (kotatsu model) -> data-driven engine filter. */
+    private fun MangaListFilter.toDd(): DdFilter = DdFilter(
+        query = query?.takeIf { it.isNotBlank() },
+        tags = tags.mapTo(HashSet()) { DdTag(title = it.title, key = it.key) },
+        tagsExclude = tagsExclude.mapTo(HashSet()) { DdTag(title = it.title, key = it.key) },
+        year = year.takeIf { it > 0 } ?: 0,
+        author = author,
+    )
 
     // ---- model mapping: data-driven -> app ----
 
@@ -121,7 +152,9 @@ class DataDrivenMangaRepository(
 
     private fun DdChapter.toFork(): MangaChapter = MangaChapter(
         id = id,
-        title = title.orEmpty(),
+        // Drop a title that's just the chapter number — the UI formats "Chapter {number}" and would
+        // otherwise render the redundant "Chapter 1 - 1". Matches how native parsers null such titles.
+        title = title?.trim().orEmpty().let { if (it == numberDisplay(number)) "" else it },
         number = number,
         volume = volume,
         url = url,
@@ -130,9 +163,24 @@ class DataDrivenMangaRepository(
         branch = branch,
     )
 
-    // Reader page images carry the source Referer so hotlink-protected CDNs serve them.
+    private fun numberDisplay(number: Float): String =
+        if (number <= 0f) "" else if (number % 1f == 0f) number.toInt().toString() else number.toString()
+
+    // Reader page images carry the source Referer so hotlink-protected CDNs serve them, PLUS any
+    // per-page engine headers (e.g. MangaPlus's XOR decryption key for the app-side image
+    // interceptor). The source MUST be set, or the reader resolves getPageUrl against
+    // UnknownMangaSource ("not supported").
     private fun DdPage.toFork(): MangaPage =
-        MangaPage(url = url, id = id, preview = preview, headers = mapOf("Referer" to referer))
+        MangaPage(
+            url = url,
+            id = id,
+            preview = preview,
+            source = ddSource,
+            headers = buildMap {
+                put("Referer", referer)
+                putAll(headers)
+            },
+        )
 
     private fun DdState.toFork(): MangaState? = runCatching { MangaState.valueOf(name) }.getOrNull()
     private fun DdRating.toFork(): ContentRating? = runCatching { ContentRating.valueOf(name) }.getOrNull()

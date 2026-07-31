@@ -4,6 +4,7 @@ import android.content.Context
 import app.nyora.data.engine.EngineRegistry
 import com.nyora.hasan72341.core.model.DataDrivenMangaSource
 import com.nyora.hasan72341.core.network.MangaHttpClient
+import com.nyora.hasan72341.core.util.ext.printStackTraceDebug
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,19 +28,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Fetches and caches the runtime source catalogue — the list of DATA-only sources rendered by the
- * bundled generic engines, instead of a per-source parser catalogue compiled into the APK. The
- * manifest (nyora-data-driven's catalogue.json) is fetched over the shared manga client, persisted
- * to disk so the catalogue survives offline, and turned into [DataDrivenMangaSource]s. Rows whose
- * engine this build doesn't bundle, or that are flagged broken, are dropped.
- *
- * [sources] reads the in-memory cache synchronously (populated from disk on first use) so the source
- * list can render immediately; [refresh] updates it from the network.
+ * Fetches, caches and parses the runtime source catalogue (catalogue.json) into
+ * [DataDrivenMangaSource]s. [sources] reads the disk/memory cache; [refresh] updates from the network.
  */
 @Singleton
 class DataDrivenCatalogueRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     @MangaHttpClient private val okHttpClient: OkHttpClient,
+    private val settings: com.nyora.hasan72341.core.prefs.AppSettings,
 ) {
 
     private val cacheFile = File(context.filesDir, CACHE_FILE)
@@ -48,23 +44,40 @@ class DataDrivenCatalogueRepository @Inject constructor(
     @Volatile
     private var cached: List<DataDrivenMangaSource>? = null
 
-    /** The currently known data-driven sources (disk cache until a [refresh] lands). */
-    val sources: List<DataDrivenMangaSource>
-        get() = cached ?: loadFromDisk().also { cached = it }
+    init {
+        // Eager disk load so the source list has the catalogue at startup, before the async refresh.
+        loadFromDisk().takeIf { it.isNotEmpty() }?.let { cached = it }
+    }
 
-    /** Fetch the latest catalogue, replacing the cache. Returns the parsed source count. */
+    val sources: List<DataDrivenMangaSource>
+        // Don't cache an empty disk read; it would pin the empty list even after refresh() lands.
+        get() = cached ?: loadFromDisk().also { if (it.isNotEmpty()) cached = it }
+
+    // The app ships source-less: the release build has NO catalogue URL until the user pastes one
+    // (that "no source added" state drives the MangaBaka preview). A debug-only default keeps
+    // development builds populated.
+    val catalogueUrl: String
+        get() = settings.sourceCatalogueUrl.ifBlank {
+            if (com.nyora.hasan72341.BuildConfig.DEBUG) DEFAULT_CATALOGUE_URL else ""
+        }
+
+    /** Refresh from [catalogueUrl]. Returns the parsed source count, or 0 when no URL is set yet. */
     suspend fun refresh(): Result<Int> = withContext(Dispatchers.IO) {
+        val url = catalogueUrl
+        if (url.isBlank()) {
+            return@withContext Result.success(0)
+        }
         runCatching {
-            val request = Request.Builder().url(CATALOGUE_URL).build()
+            val request = Request.Builder().url(url).build()
             val body = okHttpClient.newCall(request).execute().use { resp ->
                 require(resp.isSuccessful) { "catalogue fetch failed: HTTP ${resp.code}" }
-                resp.body?.string().orEmpty()
+                resp.peekBody(MAX_CATALOGUE_BYTES).string()
             }
             val parsed = parse(body)
-            runCatching { cacheFile.writeText(body) } // cache best-effort; a write failure isn't fatal
+            runCatching { cacheFile.writeText(body) }
             publish(parsed)
             parsed.size
-        }
+        }.onFailure { it.printStackTraceDebug("DataDrivenCatalogueRepository") }
     }
 
     private fun loadFromDisk(): List<DataDrivenMangaSource> =
@@ -78,16 +91,19 @@ class DataDrivenCatalogueRepository @Inject constructor(
     }
 
     private fun parse(text: String): List<DataDrivenMangaSource> {
-        // Decode each row independently so a single malformed/forward-incompatible entry is skipped
-        // rather than discarding the whole catalogue.
+        // Decode each row independently so one bad entry doesn't discard the whole catalogue.
         val rows = json.parseToJsonElement(text).jsonObject["sources"]?.jsonArray.orEmpty()
         return rows.asSequence()
             .mapNotNull { runCatching { json.decodeFromJsonElement<SourceRowDto>(it) }.getOrNull() }
-            .filterNot { it.broken }
-            .filter { EngineRegistry.supports(it.engine) }
+            // Keep bare @Broken rows (that flag is about the native kotatsu parser, not our engines);
+            // drop only rows with an explicit brokenReason (dead domain).
+            .filterNot { it.broken && !it.brokenReason.isNullOrBlank() }
+            .filter {
+                it.id.isNotBlank() && it.domain.isNotBlank() &&
+                    (EngineRegistry.supports(it.engine) || it.engine in NATIVE_BACKED_ENGINES)
+            }
             .map { row ->
                 val config = row.config.toValueMap().toMutableMap()
-                // Surface the row-level pageSize into the config the engine reads.
                 if (row.pageSize != null) config.putIfAbsent("pageSize", row.pageSize)
                 DataDrivenMangaSource(
                     sourceId = row.id,
@@ -95,10 +111,12 @@ class DataDrivenCatalogueRepository @Inject constructor(
                     title = row.name.ifEmpty { row.id },
                     lang = row.lang,
                     nsfw = row.nsfw,
-                    domain = row.domain,
+                    domain = row.domain.sanitizeDomain(),
+                    contentType = row.contentType,
                     config = config,
                 )
             }
+            .filter { it.domain.isNotBlank() }
             .toList()
     }
 
@@ -108,9 +126,11 @@ class DataDrivenCatalogueRepository @Inject constructor(
         val name: String = "",
         val lang: String = "en",
         val nsfw: Boolean = false,
+        val contentType: String? = null,
         val engine: String,
         val domain: String,
         val broken: Boolean = false,
+        val brokenReason: String? = null,
         val pageSize: Int? = null,
         val config: JsonObject = JsonObject(emptyMap()),
     )
@@ -130,9 +150,21 @@ class DataDrivenCatalogueRepository @Inject constructor(
         is JsonArray -> map { it.toValue() }
     }
 
+    // Strip any scheme/path/query so URL building can't be derailed by stray data.
+    private fun String.sanitizeDomain(): String = trim()
+        .substringAfter("://")
+        .substringBefore('/')
+        .substringBefore('?')
+        .trim()
+
     companion object {
+        // Engines with no generic implementation; routed to a native MangaRepository in the Factory.
+        private val NATIVE_BACKED_ENGINES = setOf("mangafire")
         private const val CACHE_FILE = "datadriven-catalogue.json"
-        const val CATALOGUE_URL =
+        private const val MAX_CATALOGUE_BYTES = 16L * 1024 * 1024
+        // Bundled default catalogue for the self-hosted deployment; the user can still override it
+        // by pasting a different URL (settings.sourceCatalogueUrl).
+        private const val DEFAULT_CATALOGUE_URL =
             "https://raw.githubusercontent.com/Nyora-Manga/nyora-data-driven/main/catalogue.json"
     }
 }

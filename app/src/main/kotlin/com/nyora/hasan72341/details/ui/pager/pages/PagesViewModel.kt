@@ -1,5 +1,6 @@
 package com.nyora.hasan72341.details.ui.pager.pages
 
+import com.nyora.hasan72341.reader.domain.toChapterKey
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -102,8 +103,8 @@ class PagesViewModel @Inject constructor(
 	private suspend fun doInit(state: State) {
 		chaptersLoader.init(state.details)
 		val initialChapterId = (state.readerState?.chapterId?.takeIf {
-			chaptersLoader.peekChapter(it.toLong()) != null
-		} ?: state.details.allChapters.firstOrNull()?.id ?: return).toLong()
+			chaptersLoader.peekChapter(it) != null
+		} ?: state.details.allChapters.firstOrNull()?.id ?: return)
 		if (!chaptersLoader.hasPages(initialChapterId)) {
 			var hasPages = chaptersLoader.loadSingleChapter(initialChapterId)
 			while (!hasPages) {
@@ -133,7 +134,7 @@ class PagesViewModel @Inject constructor(
 	private fun updateList(readerState: ReaderState?) {
 		val snapshot = chaptersLoader.snapshot()
 		val pages = buildList(snapshot.size + chaptersLoader.size + 2) {
-			var previousChapterId = 0L
+			var previousChapterId: String? = null
 			for (page in snapshot) {
 				if (page.chapterId != previousChapterId) {
 					chaptersLoader.peekChapter(page.chapterId)?.let {
@@ -143,7 +144,7 @@ class PagesViewModel @Inject constructor(
 				}
 				this += PageThumbnail(
 					isCurrent = readerState?.let {
-						page.chapterId == it.chapterId.toLong() && page.index == it.page
+						page.chapterId == it.chapterId && page.index == it.page
 					} == true,
 					page = page,
 				)

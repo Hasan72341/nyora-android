@@ -120,12 +120,12 @@ class MangaIndex(source: String?) {
 		}
 	}
 
-	fun removeChapter(id: Long): Boolean {
-		return json.has(KEY_CHAPTERS) && json.getJSONObject(KEY_CHAPTERS).remove(id.toString()) != null
+	fun removeChapter(id: String): Boolean {
+		return json.has(KEY_CHAPTERS) && json.getJSONObject(KEY_CHAPTERS).remove(id) != null
 	}
 
-	fun getChapterFileName(chapterId: Long): String? {
-		return json.optJSONObject(KEY_CHAPTERS)?.optJSONObject(chapterId.toString())?.getStringOrNull(KEY_FILE)
+	fun getChapterFileName(chapterId: String): String? {
+		return json.optJSONObject(KEY_CHAPTERS)?.optJSONObject(chapterId)?.getStringOrNull(KEY_FILE)
 	}
 
 	fun setCoverEntry(name: String) {

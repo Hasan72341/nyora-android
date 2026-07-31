@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import com.nyora.hasan72341.R
 import com.nyora.hasan72341.core.exceptions.resolve.SnackbarErrorObserver
+import com.nyora.hasan72341.core.model.DataDrivenMangaSource
 import com.nyora.hasan72341.core.model.LocalMangaSource
 import com.nyora.hasan72341.core.nav.router
 import com.nyora.hasan72341.core.parser.external.ExternalMangaSource
@@ -153,7 +154,7 @@ class ExploreFragment :
 
 	override fun onRetryClick(error: Throwable) = Unit
 
-	override fun onEmptyActionClick() = router.openSourcesCatalog()
+	override fun onEmptyActionClick() = router.showAddSourceRepository()
 
 	override fun onSelectionChanged(controller: ListSelectionController, count: Int) {
 		viewBinding?.recyclerView?.invalidateItemDecorations()
@@ -176,7 +177,7 @@ class ExploreFragment :
 		menu.findItem(R.id.action_pin).isVisible = selectedSources.all { !it.isPinned }
 		menu.findItem(R.id.action_unpin).isVisible = selectedSources.all { it.isPinned }
 		menu.findItem(R.id.action_disable)?.isVisible = !viewModel.isAllSourcesEnabled.value &&
-			selectedSources.all { it.mangaSource is MangaParserSource }
+			selectedSources.all { it.mangaSource is MangaParserSource || it.mangaSource is DataDrivenMangaSource }
 		menu.findItem(R.id.action_delete)?.isVisible = selectedSources.all { it.mangaSource is ExternalMangaSource }
 		return super.onPrepareActionMode(controller, mode, menu)
 	}

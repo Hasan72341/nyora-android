@@ -98,7 +98,7 @@ class LocalMangaDirOutput(
 		}
 	}
 
-	suspend fun deleteChapters(ids: Set<Long>) = mutex.withLock {
+	suspend fun deleteChapters(ids: Set<String>) = mutex.withLock {
 		val chapters = checkNotNull(
 			(index.getMangaInfo() ?: LocalMangaParser(rootFile).getManga(withDetails = true).manga).chapters,
 		) {
@@ -106,7 +106,7 @@ class LocalMangaDirOutput(
 		}.withIndex()
 		val victimsIds = ids.toMutableSet()
 		for (chapter in chapters) {
-			val chapterId = chapter.value.id.toLong()
+			val chapterId = chapter.value.id
 			if (!victimsIds.remove(chapterId)) {
 				continue
 			}
@@ -144,7 +144,7 @@ class LocalMangaDirOutput(
 	}
 
 	private fun chapterFileName(chapter: IndexedValue<MangaChapter>): String {
-		index.getChapterFileName(chapter.value.id.toLong())?.let {
+		index.getChapterFileName(chapter.value.id)?.let {
 			return it
 		}
 		val baseName = buildString {

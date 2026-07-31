@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:title="@string/colorize_page">
+
+	<SwitchPreferenceCompat
+		android:defaultValue="false"
+		android:key="colorize_enabled"
+		android:summary="@string/colorize_enabled_summary"
+		android:title="@string/colorize_enabled_title" />
+
+	<SwitchPreferenceCompat
+		android:defaultValue="true"
+		android:dependency="colorize_enabled"
+		android:key="colorize_auto"
+		android:summary="@string/colorize_auto_summary"
+		android:title="@string/colorize_auto_title" />
+
+	<PreferenceCategory android:title="@string/colorize_model_category">
+
+		<Preference
+			android:key="colorize_model"
+			android:persistent="false"
+			android:title="@string/colorize_model_title" />
+
+		<Preference
+			android:key="colorize_delete"
+			android:persistent="false"
+			android:title="@string/colorize_delete_title" />
+
+	</PreferenceCategory>
+
+	<Preference
+		android:key="colorize_about"
+		android:persistent="false"
+		android:selectable="false"
+		android:summary="@string/colorize_about_summary" />
+
+</PreferenceScreen>

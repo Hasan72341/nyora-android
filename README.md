@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://nyora.pages.dev/icon.png" width="120" alt="Nyora"/>
+<img src="https://nyora.xyz/icon.png" width="120" alt="Nyora"/>
 
 # Nyora — Android
 
@@ -10,24 +10,34 @@ A fast, free, ad-free, open-source manga reader for Android — 1100+ sources, w
 
 <p>
   <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin"/>
+  <img src="https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white" alt="Gradle"/>
   <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
   <img src="https://img.shields.io/badge/Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose"/>
   <img src="https://img.shields.io/badge/Material_You-6750A4?style=for-the-badge&logo=materialdesign&logoColor=white" alt="Material You"/>
-  <img src="https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white" alt="Gradle"/>
+  <img src="https://img.shields.io/badge/Hilt-2C2D72?style=for-the-badge&logo=dagger&logoColor=white" alt="Hilt"/>
+  <img src="https://img.shields.io/badge/Room-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="Room"/>
+  <img src="https://img.shields.io/badge/OkHttp-00A98F?style=for-the-badge&logo=square&logoColor=white" alt="OkHttp"/>
+  <img src="https://img.shields.io/badge/Coil-FF6C37?style=for-the-badge&logo=coil&logoColor=white" alt="Coil"/>
+  <img src="https://img.shields.io/badge/ML_Kit-FF6F00?style=for-the-badge&logo=google&logoColor=white" alt="ML Kit"/>
+  <img src="https://img.shields.io/badge/ONNX-005CED?style=for-the-badge&logo=onnx&logoColor=white" alt="ONNX"/>
 </p>
 
 [![License: GPL v3](https://img.shields.io/github/license/Hasan72341/nyora-android?color=blue)](LICENSE)
-[![Latest release](https://img.shields.io/github/v/release/Hasan72341/nyora-android?label=download&color=0ae448)](https://github.com/Hasan72341/nyora-android/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/Hasan72341/nyora-android/total?color=9d95ff)](https://github.com/Hasan72341/nyora-android/releases)
-[![Stars](https://img.shields.io/github/stars/Hasan72341/nyora-android?style=social)](https://github.com/Hasan72341/nyora-android/stargazers)
+[![Latest release](https://img.shields.io/github/v/release/Hasan72341/nyora-android?label=download&color=0ae448)](https://github.com/Nyora-Manga/nyora-android/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/Hasan72341/nyora-android/total?color=9d95ff)](https://github.com/Nyora-Manga/nyora-android/releases)
+[![Stars](https://img.shields.io/github/stars/Hasan72341/nyora-android?style=social)](https://github.com/Nyora-Manga/nyora-android/stargazers)
 
-[![Download APK](https://img.shields.io/badge/Download-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/Hasan72341/nyora-android/releases/latest)
-[![Website](https://img.shields.io/badge/Website-nyora.pages.dev-FF4655?style=for-the-badge&logo=githubpages&logoColor=white)](https://nyora.pages.dev)
-[![Open Web App](https://img.shields.io/badge/Open-Web_App-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](https://nyoraweb.pages.dev)
+[![Download APK](https://img.shields.io/badge/Download-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/Nyora-Manga/nyora-android/releases/latest)
+[![Website](https://img.shields.io/badge/Website-nyora.xyz-FF4655?style=for-the-badge&logo=githubpages&logoColor=white)](https://nyora.xyz)
+[![Open Web App](https://img.shields.io/badge/Open-Web_App-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](https://web.nyora.xyz)
 
 **Open-source · No ads · No tracking · No account needed to read · Your library is yours**
 
 </div>
+
+<p align="center">
+  <a href="https://raw.githubusercontent.com/Nyora-Manga/nyora-data-driven/main/catalogue.json"><img src="https://img.shields.io/badge/Source_Catalogue-JSON-FF6C37?style=for-the-badge&logo=json&logoColor=white" alt="Catalogue"/></a>
+</p>
 
 <p align="center">
   <img src="docs/screenshots/01-home.png" width="200" alt="Home"/>
@@ -57,7 +67,7 @@ Nyora is a polished, privacy-first manga reader for Android — a fork of [Kotat
 |---|---|
 | Translate | Detects every bubble and caption, translates the whole page, and typesets it back over the original artwork — with an on-device offline ML fallback. |
 | Download | Save chapters with a tap for offline reading; open and read local CBZ archives too. |
-| Sources | 1100+ built-in sources for manga, manhwa & manhua, plus native Tachiyomi / Mihon / Keiyoushi extension support. |
+| Sources | 1100+ built-in sources via the **data-driven engine** ([`nyora-data-driven`](https://github.com/Nyora-Manga/nyora-data-driven)) — 35 generic templates — plus native Tachiyomi / Mihon / Keiyoushi extension support. |
 | Sync | Free Nyora Cloud sync of library, categories, history, bookmarks and exact reading progress across every platform. |
 | Open Source | 100% free, ad-free, no tracking, no sign-up to read. Android app under GPLv3; rest of the ecosystem Apache-2.0. |
 
@@ -107,7 +117,7 @@ Save chapters with a single tap and read on the train, on a flight, or anywhere 
 
 ### Sources & Discovery
 
-Browse, search and filter across **1100+ built-in sources** spanning **manga, manhwa and manhua**. When you want more, Nyora speaks **Tachiyomi / Mihon / Keiyoushi** extensions natively — install the extension package you already use and its catalogues plug straight in, with no conversion step. A new-chapter update feed keeps ongoing series fresh, recommendations tailored to your library help surface your next read, and a fast search box gets you to a specific title in seconds. Nyora hosts none of this content; it is a reader that talks to the sources you choose.
+Browse, search and filter across **1100+ built-in sources** spanning **manga, manhwa and manhua**. The source system runs on a **data-driven engine** ([`nyora-data-driven`](https://github.com/Nyora-Manga/nyora-data-driven)) — 35 generic engine templates (Madara, MangaReader, MangaBox, ZeistManga, etc.) that render runtime SourceDefs pulled from a published repo, dramatically simplifying source maintenance. When you want more, Nyora also speaks **Tachiyomi / Mihon / Keiyoushi** extensions natively — install the extension package you already use and its catalogues plug straight in. A new-chapter update feed keeps ongoing series fresh, recommendations tailored to your library help surface your next read, and a fast search box gets you to a specific title in seconds. Nyora hosts none of this content; it is a reader that talks to the sources you choose.
 
 ### Cloud Sync
 
@@ -182,9 +192,10 @@ Installing Nyora takes about a minute. It is the **signed release APK** — open
 
 **Steps**
 
-1. Open the **[Releases page](https://github.com/Hasan72341/nyora-android/releases/latest)** and download the latest `nyora-*.apk`.
+1. Open the **[Releases page](https://github.com/Nyora-Manga/nyora-android/releases/latest)** and download the latest `nyora-*.apk`.
 2. Open the downloaded file. If this is your first sideloaded app, Android will prompt you to **allow installs from your browser (or file manager)** — this is the expected one-time permission for apps not from the Play Store. Grant it and continue.
 3. Confirm the install and launch Nyora.
+4. Add `https://raw.githubusercontent.com/Nyora-Manga/nyora-data-driven/main/catalogue.json` as a source to load the catalogue.
 
 That's it — no sign-up, no onboarding wall. Start reading immediately; sign in later only if you want cloud sync.
 
@@ -207,52 +218,68 @@ Newer releases are published on the same Releases page. Download and install the
 **Build**
 
 ```bash
-git clone https://github.com/Hasan72341/nyora-android.git
+git clone https://github.com/Nyora-Manga/nyora-android.git
 cd nyora-android
 ./gradlew assembleRelease   # or open in Android Studio and Run ▸ app
 ```
 
 The release APK is produced under the app module's build outputs. You can also open the project in Android Studio and use **Run ▸ app** to build and deploy a debug build to a connected device or emulator.
 
-> Good news for contributors: the Android app builds from this public repo with no private dependencies — the 1100+ sources are pulled in as a published parsers library, so you can clone, build and run today. See [Development Setup](#development-setup) for the contributor-oriented quickstart.
+> Good news for contributors: the Android app builds from this public repo with no private dependencies — the 1100+ sources are pulled in as a published data-driven engine library (`com.github.Nyora-Manga:nyora-data-driven`) via JitPack, with an optional local composite build for fast iteration. Clone, build and run today. See [Development Setup](#development-setup) for the contributor-oriented quickstart.
 
 ## Tech Stack
 
 <p>
   <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin"/>
+  <img src="https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white" alt="Gradle"/>
   <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
   <img src="https://img.shields.io/badge/Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose"/>
   <img src="https://img.shields.io/badge/Material_You-6750A4?style=for-the-badge&logo=materialdesign&logoColor=white" alt="Material You"/>
-  <img src="https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white" alt="Gradle"/>
+  <img src="https://img.shields.io/badge/Hilt-2C2D72?style=for-the-badge&logo=dagger&logoColor=white" alt="Hilt"/>
+  <img src="https://img.shields.io/badge/Room-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="Room"/>
+  <img src="https://img.shields.io/badge/OkHttp-00A98F?style=for-the-badge&logo=square&logoColor=white" alt="OkHttp"/>
+  <img src="https://img.shields.io/badge/Coil-FF6C37?style=for-the-badge&logo=coil&logoColor=white" alt="Coil"/>
+  <img src="https://img.shields.io/badge/ML_Kit-FF6F00?style=for-the-badge&logo=google&logoColor=white" alt="ML Kit"/>
+  <img src="https://img.shields.io/badge/ONNX-005CED?style=for-the-badge&logo=onnx&logoColor=white" alt="ONNX"/>
 </p>
 
-- **Kotlin** — the app is written in Kotlin, targeting modern Android.
-- **Android** — native app supporting Android 6.0+ on phones and tablets.
-- **Jetpack Compose** — used for modern, declarative UI.
-- **Material You** — themed, native-feeling design with light/dark/AMOLED.
-- **Gradle** — build system; release builds via `./gradlew assembleRelease`.
+- **Kotlin 2.2** — the app is written entirely in Kotlin, targeting modern Android.
+- **Android** — native app supporting **Android 6.0+ (API 23)** through **Android 16 (API 36)** on phones and tablets.
+- **Gradle 9.3 / AGP 9.1** — build system; release builds via `./gradlew assembleRelease`.
+- **Hybrid UI** — **Jetpack Compose** (BOM 2026.03) for modern declarative screens + **XML layouts** with ViewBinding for the established reader and browsing surfaces. Material You theming with light/dark/AMOLED.
+- **Hilt 2.57** — dependency injection throughout the app.
+- **Room 2.7** — local database with 32 migrations covering manga, history, favourites, categories, bookmarks, tracks and more.
+- **OkHttp 5.2** — networking with DNS-over-HTTPS, Conscrypt TLS 1.3 for older Android, Cloudflare bypass, rate limiting and image proxy interceptors.
+- **Coil 3** — image loading with AVIF, GIF and SVG decoder support.
+- **ML Kit** — on-device OCR for Latin, Japanese, Chinese and Korean text recognition, plus language ID and translation.
+- **ONNX Runtime 1.20** — on-device manga colorization model execution.
+- **Nyora Cloud** — self-hosted sync backend (email + password, OAuth2 + JWT) with Google sign-in option.
+- **Sentry** — crash reporting and performance monitoring.
+- **QuickJS-KT** — JavaScript runtime for parser execution.
+- **Data-driven engine** ([`nyora-data-driven`](https://github.com/Nyora-Manga/nyora-data-driven)) — 35 generic source templates consumed as a local composite build or via JitPack.
 
 ## Architecture
 
 Nyora for Android is a fork of [Kotatsu](https://github.com/KotatsuApp/Kotatsu), inheriting its mature reader engine and source architecture and layering Nyora's pillars on top.
 
-- **Sources layer** — 1100+ built-in sources are accessed through a pluggable source/parser architecture, with native compatibility for **Tachiyomi / Mihon / Keiyoushi** extensions so existing extension ecosystems work without conversion.
+- **Sources layer** — 1100+ built-in sources powered by the **data-driven engine** ([`nyora-data-driven`](https://github.com/Nyora-Manga/nyora-data-driven)): 35 generic engine templates (Madara, MangaReader, MangaBox, ZeistManga, etc.) that render runtime SourceDefs from a published repo. Combined with native compatibility for **Tachiyomi / Mihon / Keiyoushi** extensions, the existing extension ecosystems work without conversion. The engine is consumed as a local composite build during development or via JitPack for CI/release builds.
 - **Reader engine** — a tuned image reader handles standard and webtoon modes, multiple orientations, zoom, double-page layout and live colour correction, with per-title settings persisted locally.
-- **Translation pipeline** — whole-page detection, translation and typesetting render translated text back over the original artwork, with an **on-device offline ML fallback** so the feature works without a network connection.
+- **Translation pipeline** — whole-page detection, translation and typesetting render translated text back over the original artwork, with an **on-device offline ML fallback** (ML Kit OCR + ONNX Runtime) so the feature works without a network connection.
 - **Offline & local files** — a download manager queues and stores chapters for offline reading, and the same reader opens local **CBZ** archives.
-- **Cloud sync** — signing in to a **Nyora Cloud** account (email + password) synchronises library, categories, history, bookmarks and reading progress across all Nyora platforms, so state is consistent on every device. Sync talks to Nyora's self-hosted backend at `https://sync.nyora.xyz` (OAuth2 password flow + JWT), not any third-party service.
+- **Cloud sync** — signing in to a **Nyora Cloud** account (email + password) synchronises library, categories, history, bookmarks and reading progress across all Nyora platforms, so state is consistent on every device. Sync talks to Nyora's self-hosted backend (OAuth2 password flow + JWT), not any third-party service.
 - **Privacy surfaces** — app-lock (PIN/fingerprint) and incognito mode are built in; no tracking is performed and no account is required for local-only reading.
 
 ## Nyora on Every Platform
 
 | Platform | Repo | Get it |
-|---|---|---|
-| Android | **nyora-android** *(you are here)* | [APK](https://github.com/Hasan72341/nyora-android/releases/latest) |
-| Windows | [nyora-windows](https://github.com/Hasan72341/nyora-windows) | [.exe (x64/ARM64)](https://github.com/Hasan72341/nyora-windows/releases/latest) |
-| macOS | [nyora-mac](https://github.com/Hasan72341/nyora-mac) | [.dmg / `brew`](https://github.com/Hasan72341/nyora-mac/releases/latest) |
-| Linux | [nyora-linux](https://github.com/Hasan72341/nyora-linux) | [deb · rpm · curl](https://github.com/Hasan72341/nyora-linux/releases/latest) |
-| iOS / iPadOS | [nyora-ios](https://github.com/Hasan72341/nyora-ios) | [sideload IPA](https://github.com/Hasan72341/nyora-ios/releases/latest) |
-| Web | — | [nyoraweb.pages.dev](https://nyoraweb.pages.dev) |
+|---|---|---|---|
+| Android | **nyora-android** *(you are here)* | [APK](https://github.com/Nyora-Manga/nyora-android/releases/latest) |
+| Windows | [nyora-windows](https://github.com/Nyora-Manga/nyora-windows) | [.exe (x64/ARM64)](https://github.com/Nyora-Manga/nyora-windows/releases/latest) |
+| macOS | [nyora-mac](https://github.com/Nyora-Manga/nyora-mac) | [.dmg / `brew`](https://github.com/Nyora-Manga/nyora-mac/releases/latest) |
+| Linux | [nyora-linux](https://github.com/Nyora-Manga/nyora-linux) | [deb · rpm · curl](https://github.com/Nyora-Manga/nyora-linux/releases/latest) |
+| iOS / iPadOS | [nyora-ios](https://github.com/Nyora-Manga/nyora-ios) | [sideload IPA](https://github.com/Nyora-Manga/nyora-ios/releases/latest) |
+| Data-driven engine | [`nyora-data-driven`](https://github.com/Nyora-Manga/nyora-data-driven) | Published to JitPack |
+| Web | — | [web.nyora.xyz](https://web.nyora.xyz) |
 
 All platforms share one synced library, categories, history, bookmarks and exact reading progress through the same free Nyora Cloud account.
 
@@ -278,7 +305,7 @@ No account is required to read. A free Nyora Cloud account (email + password) is
 Yes. There are no ads and no tracking, and reading never requires an account. Your library, history and downloads live on your device. If you opt into sync, it carries only your own reading state (library, categories, history, bookmarks, progress) between your own devices via your Nyora Cloud account — nothing more.
 
 **How do I update?**
-Download the newest APK from the [Releases page](https://github.com/Hasan72341/nyora-android/releases/latest) and install it over your existing version. Your library, downloads and settings are preserved, and cloud sync restores your library after a fresh install once you sign back in to your Nyora Cloud account.
+Download the newest APK from the [Releases page](https://github.com/Nyora-Manga/nyora-android/releases/latest) and install it over your existing version. Your library, downloads and settings are preserved, and cloud sync restores your library after a fresh install once you sign back in to your Nyora Cloud account.
 
 **Where does the content come from?**
 Nyora hosts no manga. It accesses 1100+ built-in sources and is compatible with Tachiyomi / Mihon / Keiyoushi extensions — it is a reader, not a host, and is not affiliated with any of the sources it can access.
@@ -300,25 +327,25 @@ Android, Windows, macOS, Linux, iOS/iPadOS and the Web — all sync the same lib
 
 ## Contributing
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-0ae448?style=for-the-badge)](https://github.com/Hasan72341/nyora-android/pulls)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-0ae448?style=for-the-badge)](https://github.com/Nyora-Manga/nyora-android/pulls)
 
 Nyora is built in the open, and contributions of every size and skill level are genuinely welcome — you do **not** need to be an Android developer to help, and you can start today. This section is here to make that first step easy.
 
-If you only do one thing: open the [Issues](https://github.com/Hasan72341/nyora-android/issues) tab, find something that interests you, and say hello. We try to keep the project approachable and kind.
+If you only do one thing: open the [Issues](https://github.com/Nyora-Manga/nyora-android/issues) tab, find something that interests you, and say hello. We try to keep the project approachable and kind.
 
 ### Ways to Contribute
 
 There is a place for everyone here — coders and non-coders alike:
 
-- **Report a bug.** Hit something broken? Open a [bug report](https://github.com/Hasan72341/nyora-android/issues/new/choose) — the issue form walks you through the few details we need (app version, Android version, steps). Clear bug reports are one of the most valuable contributions there is.
-- **Suggest a feature.** Have an idea? File a feature request through the [issue templates](https://github.com/Hasan72341/nyora-android/issues/new/choose) and tell us the problem you're trying to solve.
+- **Report a bug.** Hit something broken? Open a [bug report](https://github.com/Nyora-Manga/nyora-android/issues/new/choose) — the issue form walks you through the few details we need (app version, Android version, steps). Clear bug reports are one of the most valuable contributions there is.
+- **Suggest a feature.** Have an idea? File a feature request through the [issue templates](https://github.com/Nyora-Manga/nyora-android/issues/new/choose) and tell us the problem you're trying to solve.
 - **Translate the UI.** Nyora's strings are translated through **Weblate** at [hosted.weblate.org/engage/Nyora](https://hosted.weblate.org/engage/Nyora) — no code, no setup, just pick your language and start. (Please use Weblate rather than editing string resources by hand, so translations stay in sync.)
 - **Help with sources.** The 1100+ sources come from the Kotatsu-style parsers project. If a source breaks or you'd like to propose a new one, that work happens upstream in the parsers repository: [kotatsu-parsers-redo](https://github.com/kotatsu-redo/kotatsu-parsers-redo). Reporting a broken source there (with the site and what failed) is a real, welcome contribution.
 - **Improve the docs.** Spot something unclear in this README or want to add a how-to? Docs PRs are some of the friendliest first contributions.
-- **Test releases.** Try the latest release (or a [nightly build](https://github.com/Hasan72341/nyora-android/releases)) on your device and report what works and what doesn't — especially on less common phones, tablets and Android versions.
-- **Star and share.** Genuinely one of the most helpful things you can do — [star the repo](https://github.com/Hasan72341/nyora-android/stargazers) and tell a friend who reads manga. It costs nothing and helps the project reach more readers and contributors.
+- **Test releases.** Try the latest release (or a [nightly build](https://github.com/Nyora-Manga/nyora-android/releases)) on your device and report what works and what doesn't — especially on less common phones, tablets and Android versions.
+- **Star and share.** Genuinely one of the most helpful things you can do — [star the repo](https://github.com/Nyora-Manga/nyora-android/stargazers) and tell a friend who reads manga. It costs nothing and helps the project reach more readers and contributors.
 
-> **Looking for a bigger, high-impact project?** The largest open contributor opportunity in the Nyora family right now is **NyoraEngine**, the iOS source engine in [nyora-ios](https://github.com/Hasan72341/nyora-ios). Its framework is built and one source template is complete, but of roughly **3,659 classes** and **~1,331 parsers**, around **1,300 sources** still need porting — and they're mostly **mechanical template subclasses**, which makes the work highly parallelisable and ideal for many contributors working at once. If you know (or want to learn) Swift, that's the headline "help wanted." See the iOS repo for the current status and how to claim a batch.
+> **Looking for a bigger, high-impact project?** The largest open contributor opportunity in the Nyora family right now is **NyoraEngine**, the iOS source engine in [nyora-ios](https://github.com/Nyora-Manga/nyora-ios). Its framework is built and one source template is complete, but of roughly **3,659 classes** and **~1,331 parsers**, around **1,300 sources** still need porting — and they're mostly **mechanical template subclasses**, which makes the work highly parallelisable and ideal for many contributors working at once. If you know (or want to learn) Swift, that's the headline "help wanted." See the iOS repo for the current status and how to claim a batch.
 
 ### Development Setup
 
@@ -332,7 +359,7 @@ This is the contributor quickstart for hacking on the **Android app** itself (di
 **Clone, build and run**
 
 ```bash
-git clone https://github.com/Hasan72341/nyora-android.git
+git clone https://github.com/Nyora-Manga/nyora-android.git
 cd nyora-android
 ./gradlew assembleDebug      # builds a debug APK
 ```
@@ -386,9 +413,9 @@ A few simple norms keep reviews fast and friendly:
 - **Describe the change.** Say what it does and why; link the issue it addresses if there is one. Screenshots help enormously for UI changes.
 - **Match the surrounding style.** Follow the existing patterns in the file you're editing; prefer Weblate for strings and avoid adding heavy dependencies (APK size matters).
 - **Be kind.** We review each other's work generously and assume good intent. New contributors are explicitly welcome — ask questions if you're stuck.
-- Start from the [Issues](https://github.com/Hasan72341/nyora-android/issues) page, and open your work as a [Pull Request](https://github.com/Hasan72341/nyora-android/pulls).
+- Start from the [Issues](https://github.com/Nyora-Manga/nyora-android/issues) page, and open your work as a [Pull Request](https://github.com/Nyora-Manga/nyora-android/pulls).
 
-Thank you for being here — whether you fix a typo, file one good bug, translate a screen, or port a hundred sources, you make Nyora better for every reader. And if all you do is [star the repo](https://github.com/Hasan72341/nyora-android/stargazers) and share it with a friend who reads manga, that genuinely helps too. Welcome aboard.
+Thank you for being here — whether you fix a typo, file one good bug, translate a screen, or port a hundred sources, you make Nyora better for every reader. And if all you do is [star the repo](https://github.com/Nyora-Manga/nyora-android/stargazers) and share it with a friend who reads manga, that genuinely helps too. Welcome aboard.
 
 ## Acknowledgements
 

@@ -106,6 +106,26 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		prefs.edit { putBoolean("ai_translate_enabled_manga_$mangaId", enabled) }
 	}
 
+	// ---- On-device colorization (see ai/colorize/) ----
+
+	/** Master switch. Gated in the reader by whether the model is actually downloaded. */
+	var isColorizeEnabled: Boolean
+		get() = prefs.getBoolean(KEY_COLORIZE_ENABLED, false)
+		set(value) = prefs.edit { putBoolean(KEY_COLORIZE_ENABLED, value) }
+
+	/** Colorize every page automatically as it's shown (vs. only on manual request). */
+	var isColorizeAuto: Boolean
+		get() = prefs.getBoolean(KEY_COLORIZE_AUTO, true)
+		set(value) = prefs.edit { putBoolean(KEY_COLORIZE_AUTO, value) }
+
+	fun isColorizeEnabledForManga(mangaId: String): Boolean {
+		return prefs.getBoolean("colorize_enabled_manga_$mangaId", true)
+	}
+
+	fun setColorizeEnabledForManga(mangaId: String, enabled: Boolean) {
+		prefs.edit { putBoolean("colorize_enabled_manga_$mangaId", enabled) }
+	}
+
 
 	var mainNavItems: List<NavItem>
 		get() {
@@ -379,20 +399,19 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		get() = prefs.getBoolean(KEY_SOURCES_ENABLED_ALL, false)
 		set(value) = prefs.edit { putBoolean(KEY_SOURCES_ENABLED_ALL, value) }
 
-	// Remote master switch: no sources are exposed until a signed remote config
-	// (verified on launch) sets this true. Ships false so a Store-review build
-	// shows no sources; flipped remotely (no app update) after approval. Persisted
-	// so a previously-unlocked device stays unlocked offline.
+	// Always true: sources come from the user's catalogue URL, so there's nothing to gate.
 	var isSourcesUnlocked: Boolean
-		get() = prefs.getBoolean(KEY_SOURCES_UNLOCKED, false)
+		get() = true
 		set(value) = prefs.edit { putBoolean(KEY_SOURCES_UNLOCKED, value) }
 
-	// Set when the user unlocks sources themselves by pasting a valid repository
-	// link. The launch-time remote refresh respects this (never re-locks a manual
-	// unlock), so a user-activated device stays unlocked regardless of the switch.
 	var isSourcesManuallyUnlocked: Boolean
 		get() = prefs.getBoolean(KEY_SOURCES_MANUAL_UNLOCK, false)
 		set(value) = prefs.edit { putBoolean(KEY_SOURCES_MANUAL_UNLOCK, value) }
+
+	// The catalogue URL the user pasted; the source list is fetched from it at runtime. Empty = none.
+	var sourceCatalogueUrl: String
+		get() = prefs.getString(KEY_SOURCE_CATALOGUE_URL, null).orEmpty()
+		set(value) = prefs.edit { putString(KEY_SOURCE_CATALOGUE_URL, value.trim()) }
 
 	val isPagesNumbersEnabled: Boolean
 		get() = prefs.getBoolean(KEY_PAGES_NUMBERS, false)
@@ -438,6 +457,12 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 
 	val isSuggestionsEnabled: Boolean
 		get() = prefs.getBoolean(KEY_SUGGESTIONS, false)
+
+	// Language codes chosen during onboarding; newly-added (catalogue) sources are default-enabled
+	// only if their language is in this set. Empty = all languages (the "didn't choose" default).
+	var enabledSourceLanguages: Set<String>
+		get() = prefs.getStringSet(KEY_ENABLED_SOURCE_LANGUAGES, null).orEmpty()
+		set(value) = prefs.edit { putStringSet(KEY_ENABLED_SOURCE_LANGUAGES, value) }
 
 	val isSuggestionsWiFiOnly: Boolean
 		get() = prefs.getBoolean(KEY_SUGGESTIONS_WIFI_ONLY, false)
@@ -799,16 +824,14 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_SCREENSHOTS_POLICY = "screenshots_policy"
 		const val KEY_PAGES_PRELOAD = "pages_preload"
 		const val KEY_SUGGESTIONS = "suggestions"
+		const val KEY_ENABLED_SOURCE_LANGUAGES = "enabled_source_languages"
 		const val KEY_SUGGESTIONS_WIFI_ONLY = "suggestions_wifi"
 		const val KEY_SUGGESTIONS_EXCLUDE_NSFW = "suggestions_exclude_nsfw"
 		const val KEY_SUGGESTIONS_EXCLUDE_TAGS = "suggestions_exclude_tags"
 		const val KEY_SUGGESTIONS_DISABLED_SOURCES = "suggestions_disabled_sources"
 		const val KEY_SUGGESTIONS_NOTIFICATIONS = "suggestions_notifications"
-		const val KEY_SHIKIMORI = "shikimori"
 		const val KEY_ANILIST = "anilist"
 		const val KEY_MAL = "mal"
-		const val KEY_KITSU = "kitsu"
-		const val KEY_BANGUMI = "bangumi"
 		const val KEY_MANGABAKA = "mangabaka"
 		const val KEY_DOWNLOADS_METERED_NETWORK = "downloads_metered_network"
 		const val KEY_DOWNLOADS_FORMAT = "downloads_format"
@@ -881,6 +904,8 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_SOURCES_ENABLED_ALL = "sources_enabled_all"
 		const val KEY_SOURCES_UNLOCKED = "sources_unlocked"
 		const val KEY_SOURCES_MANUAL_UNLOCK = "sources_manual_unlock"
+		const val KEY_SOURCE_CATALOGUE_URL = "source_catalogue_url"
+		const val KEY_SOURCE_REPOSITORY_URL = "source_repository_url"
 		const val KEY_QUICK_FILTER = "quick_filter"
 		const val KEY_COLLAPSE_DESCRIPTION = "description_collapse"
 		const val KEY_BACKUP_TG_ENABLED = "backup_periodic_tg_enabled"
@@ -899,6 +924,8 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_AI_MODEL = "ai_model"
 		const val KEY_AI_TARGET_LANG = "ai_target_lang"
 		const val KEY_AI_TRANSLATE_OFFLINE = "ai_translate_offline"
+		const val KEY_COLORIZE_ENABLED = "colorize_enabled"
+		const val KEY_COLORIZE_AUTO = "colorize_auto"
 
 		// keys for non-persistent preferences
 		const val KEY_APP_VERSION = "app_version"

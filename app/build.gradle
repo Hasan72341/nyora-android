@@ -53,8 +53,8 @@ android {
 		applicationId 'com.nyora.hasan72341'
 		minSdk = 23
 		targetSdk = 36
-		versionCode project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : 22000
-        versionName project.hasProperty('versionName') ? project.property('versionName') : '2.2'
+		versionCode project.hasProperty('versionCode') ? project.property('versionCode').toInteger() : 27000
+        versionName project.hasProperty('versionName') ? project.property('versionName') : '2.7'
         generatedDensities = []
 		testInstrumentationRunner 'com.nyora.android.HiltTestRunner'
 		buildConfigField "String", "SUPABASE_URL", "\"${supabaseEnv('SUPABASE_URL')}\""
@@ -82,9 +82,8 @@ android {
 			buildConfigField "String", "SENTRY_DSN", '""'
 		}
 		release {
-			minifyEnabled true
-			shrinkResources true
-			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+			minifyEnabled false
+			shrinkResources false
 			signingConfig signingConfigs.release
 			buildConfigField "String", "SENTRY_DSN", "\"${System.getenv('SENTRY_DSN') ?: ''}\""
 		}
@@ -168,8 +167,11 @@ dependencies {
 		// -DparsersVersionOverride=$(curl -s https://api.github.com/repos/kotatsu-redo/kotatsu-parsers-redo/commits/master -H "Accept: application/vnd.github.sha" | cut -c -10)
 		parsersVersion = System.getProperty('parsersVersionOverride')
 	}
+	// Scraper-stripped fork of kotatsu-parsers-redo (Play compliance): keeps the parser model +
+	// infrastructure the app is built on, but ships NO site scrapers (the MangaParserSource enum is
+	// a single @Broken STUB, filtered out). Real sources come from the runtime data-driven catalogue.
 	//noinspection UseTomlInstead
-	implementation("com.github.clquwu:kotatsu-parsers-redo:$parsersVersion") {
+	implementation("com.github.Nyora-Manga:kotatsu-parsers-stripped:1.0") {
 		exclude group: 'org.json', module: 'json'
 	}
 
@@ -178,7 +180,7 @@ dependencies {
 	// is provided by the Android platform, so the library's copy is excluded to avoid a
 	// duplicate-class clash. Resolved from the local composite build if present, else JitPack.
 	//noinspection UseTomlInstead
-	implementation("com.github.Nyora-Manga:nyora-data-driven:0.1.0") {
+	implementation("com.github.Nyora-Manga:nyora-data-driven:v0.2.0") {
 		exclude group: 'org.json', module: 'json'
 	}
 
@@ -267,6 +269,10 @@ dependencies {
 	implementation libs.mlkit.text.recognition.korean
 	implementation libs.mlkit.language.id
 	implementation libs.mlkit.translate
+
+	// On-device manga colorization (manga-colorization-v2 ONNX). CPU (XNNPACK) with
+	// NNAPI acceleration where available. See ai/colorize/.
+	implementation libs.onnxruntime.android
 
 	implementation libs.conscrypt.android
 	implementation libs.sentry.android

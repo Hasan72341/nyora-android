@@ -15,7 +15,7 @@ data class ReaderState(
 ) : Parcelable {
 
 	constructor(history: MangaHistory) : this(
-		chapterId = history.chapterId.toString(),
+		chapterId = history.chapterId,
 		page = history.page,
 		scroll = history.scroll,
 	)

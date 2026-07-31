@@ -17,7 +17,8 @@ import com.nyora.hasan72341.mihon.parsers.model.MangaListFilter
 import com.nyora.hasan72341.mihon.parsers.model.MangaListFilterCapabilities
 import com.nyora.hasan72341.mihon.parsers.model.MangaListFilterOptions
 import com.nyora.hasan72341.mihon.parsers.model.MangaPage
-import com.nyora.hasan72341.mihon.parsers.model.MangaParserSource
+import com.nyora.hasan72341.core.model.DataDrivenMangaSource
+import com.nyora.hasan72341.mihon.parsers.model.MangaSource
 import com.nyora.hasan72341.mihon.parsers.model.MangaState
 import com.nyora.hasan72341.mihon.parsers.model.MangaTag
 import com.nyora.hasan72341.mihon.parsers.model.SortOrder
@@ -25,18 +26,11 @@ import com.nyora.hasan72341.tachiyomi.network.await
 import java.util.EnumSet
 
 /**
- * Native MangaFire source. MangaFire relaunched on a new backend backed by a clean JSON API
- * (`/api/titles`) — no vrf token, no `/filter` HTML, no image scrambling — which the bundled
- * kotatsu-parsers MangaFire no longer matches, so it returns 0 results. This app-layer
- * repository ports the verified new API (see the nyora-mihon-extension MangaFireSource) and
- * replaces the kotatsu `MANGAFIRE_*` sources without touching the (JAR-baked) parser lib.
- *
- * One repository instance backs each MangaFire language enum entry; the per-source language is
- * derived from the enum suffix and applied to the chapter list request only. Browsing is a
- * single shared catalog (language is intentionally ignored there — matches MangaFire itself).
+ * Native MangaFire source, on its current JSON API (`/api/titles`) which the bundled kotatsu parser
+ * no longer matches. Language applies to the chapter list only; browsing is one shared catalog.
  */
 class MangaFireMangaRepository(
-	override val source: MangaParserSource,
+	override val source: MangaSource,
 	private val okHttpClient: OkHttpClient,
 	cache: MemoryContentCache,
 ) : CachingMangaRepository(cache) {
@@ -45,15 +39,18 @@ class MangaFireMangaRepository(
 
 	private val json = Json { ignoreUnknownKeys = true }
 
-	// MangaFire's own language code differs from a couple of the enum suffixes.
-	private val langCode: String = when (source.name.removePrefix("MANGAFIRE_")) {
-		"ES" -> "es"
-		"ESLA" -> "es-la"
-		"FR" -> "fr"
-		"JA" -> "ja"
-		"PT" -> "pt"
-		"PTBR" -> "pt-br"
-		else -> "en" // EN and any unexpected suffix
+	// Data-driven sources carry the MangaFire language code in config; the enum path derives it.
+	private val langCode: String = when (val s = source) {
+		is DataDrivenMangaSource -> (s.config["language"] as? String)?.lowercase() ?: "en"
+		else -> when (s.name.removePrefix("MANGAFIRE_")) {
+			"ES" -> "es"
+			"ESLA" -> "es-la"
+			"FR" -> "fr"
+			"JA" -> "ja"
+			"PT" -> "pt"
+			"PTBR" -> "pt-br"
+			else -> "en" // EN and any unexpected suffix
+		}
 	}
 
 	override val sortOrders: Set<SortOrder> = EnumSet.of(SortOrder.POPULARITY, SortOrder.UPDATED)

@@ -70,10 +70,24 @@ class CoverRestoreInterceptor @Inject constructor(
 			return false
 		}
 		val repo = repositoryFactory.create(manga.source.toMangaSource())
-		val fixed = repo.find(manga) ?: return false
-		return if (fixed != manga) {
+		val found = repo.find(manga) ?: return false
+		// When a source changes its URL scheme/domain (e.g. Asura asuracomic.net -> asurascans.com,
+		// /series -> /comics) the found manga has a NEW id. Storing it as-is would create a new row
+		// and orphan the existing history/favourite/track links, so the cover would never actually
+		// heal. Preserve the stored id and refresh only the fields that went stale (cover + url).
+		val fixed = if (found.id == manga.id) {
+			found
+		} else {
+			manga.copy(
+				coverUrl = found.coverUrl.ifEmpty { manga.coverUrl },
+				largeCoverUrl = found.largeCoverUrl ?: manga.largeCoverUrl,
+				url = found.url,
+				publicUrl = found.publicUrl,
+			)
+		}
+		return if (fixed != manga && fixed.coverUrl != manga.coverUrl) {
 			dataRepository.storeManga(fixed, replaceExisting = true)
-			fixed.coverUrl != manga.coverUrl
+			true
 		} else {
 			false
 		}

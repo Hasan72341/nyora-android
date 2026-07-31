@@ -96,7 +96,7 @@ fun Content.getPreferredBranch(history: ContentHistory?): String? {
 		return null
 	}
 	if (history != null) {
-		val currentChapter = ch.findById(history.chapterId.toString())
+		val currentChapter = ch.findById(history.chapterId)
 		if (currentChapter != null) {
 			return currentChapter.branch
 		}

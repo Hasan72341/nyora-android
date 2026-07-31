@@ -468,6 +468,14 @@ class AppRouter private constructor(
         ImportDialogFragment().showDistinct()
     }
 
+    fun showAddSourceRepository() {
+        com.nyora.hasan72341.settings.sources.AddSourceRepositorySheet().showDistinct()
+    }
+
+    fun showMangaBakaPreview(title: String) {
+        com.nyora.hasan72341.discover.ui.MangaBakaPreviewSheet.newInstance(title).showDistinct()
+    }
+
     fun showFilterSheet(): Boolean = if (isFilterSupported()) {
         FilterSheetFragment().showDistinct()
     } else {

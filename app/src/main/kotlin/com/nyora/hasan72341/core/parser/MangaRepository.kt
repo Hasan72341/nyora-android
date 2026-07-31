@@ -51,7 +51,14 @@ interface MangaRepository {
 
 	suspend fun find(manga: Manga): Manga? {
 		val list = getList(0, SortOrder.RELEVANCE, MangaListFilter(query = manga.title))
-		return list.find { x -> x.id == manga.id }
+		// Match by stable id first, then url, then an exact (case-insensitive) title match. The
+		// fallbacks let self-healing (cover restore, sync reconcile) survive a source that changed
+		// its URL scheme or domain — e.g. Asura moving asuracomic.net -> asurascans.com and
+		// /series -> /comics, which changes both id and url and would otherwise leave old entries
+		// permanently unmatched (blank covers).
+		return list.find { it.id == manga.id }
+			?: list.find { it.url == manga.url }
+			?: list.firstOrNull { it.title.equals(manga.title, ignoreCase = true) }
 	}
 
 	@Singleton
@@ -114,8 +121,21 @@ interface MangaRepository {
 				cache = contentCache,
 			)
 
-			// Data-driven source: rendered at runtime by a bundled generic engine from
-			// fetched SourceDef data, with no per-source parser in the APK.
+			// MangaFire and ToonDex use custom JSON APIs a generic engine can't express; route their
+			// data-driven rows to the native repositories. Must precede the generic branch below.
+			is DataDrivenMangaSource if source.engineKey == "mangafire" -> MangaFireMangaRepository(
+				source = source,
+				okHttpClient = okHttpClient,
+				cache = contentCache,
+			)
+
+			is DataDrivenMangaSource if source.sourceId == "TOONILY_ME" -> ToonDexMangaRepository(
+				source = source,
+				okHttpClient = okHttpClient,
+				cache = contentCache,
+			)
+
+			// Rendered at runtime by a bundled generic engine.
 			is DataDrivenMangaSource -> DataDrivenMangaRepository(
 				ddSource = source,
 				okHttpClient = okHttpClient,

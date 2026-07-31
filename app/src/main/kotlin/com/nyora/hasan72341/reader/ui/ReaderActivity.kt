@@ -1,5 +1,6 @@
 package com.nyora.hasan72341.reader.ui
 
+import com.nyora.hasan72341.reader.domain.toChapterKey
 import android.app.assist.AssistContent
 import android.content.DialogInterface
 import android.content.Intent
@@ -194,7 +195,7 @@ class ReaderActivity :
         viewModel.isZoomControlsEnabled.observe(this) {
             viewBinding.zoomControl.isVisible = it
         }
-        addMenuProvider(ReaderMenuProvider(viewModel, ::translateCurrentPage))
+        addMenuProvider(ReaderMenuProvider(viewModel, ::translateCurrentPage, ::colorizeCurrentPage))
 
         observeWindowLayout()
 
@@ -205,6 +206,8 @@ class ReaderActivity :
     override fun onDestroy() {
         super.onDestroy()
         viewModel.updateReadingProgress()
+        // Free the colorizer's native ONNX session (hundreds of MB) when leaving the reader.
+        com.nyora.hasan72341.ai.colorize.MangaColorizer.close()
     }
 
     override fun getParentActivityIntent(): Intent? {
@@ -495,6 +498,10 @@ class ReaderActivity :
         translateCurrentPage()
     }
 
+    override fun onColorizePageClick() {
+        colorizeCurrentPage()
+    }
+
     override fun onScrollTimerClick(isLongClick: Boolean) {
         if (isLongClick) {
             scrollTimer.setActive(!scrollTimer.isActive.value)
@@ -521,7 +528,7 @@ class ReaderActivity :
     override fun switchPageTo(index: Int) {
         val pages = viewModel.getCurrentChapterPages()
         val page = pages?.getOrNull(index) ?: return
-        val chapterId = viewModel.getCurrentState()?.chapterId?.toLongOrNull() ?: return
+        val chapterId = viewModel.getCurrentState()?.chapterId ?: return
         onPageSelected(ReaderPage(page, index, chapterId))
     }
 
@@ -601,6 +608,10 @@ class ReaderActivity :
 
     private fun translateCurrentPage() {
         readerManager.translateCurrentPage()
+    }
+
+    private fun colorizeCurrentPage() {
+        readerManager.colorizeCurrentPage()
     }
 
     companion object {

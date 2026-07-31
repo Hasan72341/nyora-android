@@ -140,7 +140,7 @@ abstract class Scrobbler(
 		}
 		return ScrobblingInfo(
 			scrobbler = scrobblerService,
-			mangaId = mangaId.toLongOrNull() ?: 0L,
+			mangaId = mangaId,
 			targetId = targetId,
 			status = statuses.findKeyByValue(status),
 			chapter = chapter,

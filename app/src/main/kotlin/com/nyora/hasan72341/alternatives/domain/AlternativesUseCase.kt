@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import com.nyora.hasan72341.core.model.getContentTypeOrNull
+import com.nyora.hasan72341.core.model.getLocale
 import com.nyora.hasan72341.core.model.toMangaSource
 import com.nyora.hasan72341.core.parser.MangaRepository
 import com.nyora.hasan72341.core.util.ext.toLocale
@@ -67,15 +69,17 @@ class AlternativesUseCase @Inject constructor(
 	private fun MangaSource.priority(ref: MangaSourceRef): Int {
 		var res = 0
 		val resolvedRef = ref.toMangaSource()
-		if (this is MangaParserSource && resolvedRef is MangaParserSource) {
-			if (locale == resolvedRef.locale) {
-				res += 4
-			} else if (locale.toLocale() == Locale.getDefault()) {
-				res += 2
-			}
-			if (contentType == resolvedRef.contentType) {
-				res++
-			}
+		// getLocale()/getContentTypeOrNull() resolve for data-driven sources too, so alternatives
+		// rank the same whether the reference and candidates are native or data-driven.
+		val refLocale = resolvedRef.getLocale()
+		if (refLocale != null && getLocale() == refLocale) {
+			res += 4
+		} else if (getLocale() == Locale.getDefault()) {
+			res += 2
+		}
+		val refType = resolvedRef.getContentTypeOrNull()
+		if (refType != null && getContentTypeOrNull() == refType) {
+			res++
 		}
 		return res
 	}

@@ -62,8 +62,8 @@ class PagePickerViewModel @Inject constructor(
 			.first { x -> x.isLoaded }
 		chaptersLoader.init(details)
 		val initialChapterId = details.allChapters.firstOrNull()?.id ?: return
-		if (!chaptersLoader.hasPages(initialChapterId.toLongOrNull() ?: 0L)) {
-			chaptersLoader.loadSingleChapter(initialChapterId.toLongOrNull() ?: 0L)
+		if (!chaptersLoader.hasPages(initialChapterId)) {
+			chaptersLoader.loadSingleChapter(initialChapterId)
 		}
 		updateList()
 	}
@@ -87,7 +87,7 @@ class PagePickerViewModel @Inject constructor(
 	private fun updateList() {
 		val snapshot = chaptersLoader.snapshot()
 		val pages = buildList(snapshot.size + chaptersLoader.size + 2) {
-			var previousChapterId = 0L
+			var previousChapterId: String? = null
 			for (page in snapshot) {
 				if (page.chapterId != previousChapterId) {
 					chaptersLoader.peekChapter(page.chapterId)?.let {

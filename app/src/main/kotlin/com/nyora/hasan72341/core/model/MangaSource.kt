@@ -49,6 +49,9 @@ fun MangaSource(name: String?): MangaSource {
 	MangaParserSource.entries.forEach {
 		if (it.name == name) return it
 	}
+	// Legacy / cross-client native ids ("parser:MANGADEX", "JS_MANGAFIRE_JA", bare "SUSHISCANFR")
+	// synced from web/desktop map to their data-driven equivalent when the catalogue has one.
+	DataDrivenMangaSource.resolveNativeId(name)?.let { return it }
 	return UnknownMangaSource
 }
 
@@ -101,12 +104,27 @@ fun MangaSource.getLocale(): Locale? = when (val source = unwrap()) {
 
 fun MangaSource.getContentTypeOrNull(): ContentType? = when (val source = unwrap()) {
 	is MangaParserSource -> source.contentType.toNyoraContentType()
-	is DataDrivenMangaSource -> if (source.nsfw) ContentType.HENTAI_MANGA else ContentType.MANGA
+	is DataDrivenMangaSource -> source.contentType.toDataDrivenContentType(source.nsfw)
 	is com.nyora.hasan72341.mihon.parsers.model.ContentSource -> source.contentType
 	else -> null
 }
 
 fun MangaSource.contentTypeOrManga(): ContentType = getContentTypeOrNull() ?: ContentType.MANGA
+
+// Catalogue contentType string -> app ContentType; untagged rows fall back by nsfw flag.
+private fun String?.toDataDrivenContentType(nsfw: Boolean): ContentType = when (this?.trim()?.uppercase()) {
+	"MANGA" -> ContentType.MANGA
+	"MANHWA" -> ContentType.MANHWA
+	"MANHUA" -> ContentType.MANHUA
+	"COMICS", "COMIC" -> ContentType.COMICS
+	"NOVEL" -> ContentType.NOVEL
+	"ONE_SHOT", "ONESHOT" -> ContentType.ONE_SHOT
+	"DOUJINSHI" -> ContentType.DOUJINSHI
+	"IMAGE_SET", "IMAGESET" -> ContentType.IMAGE_SET
+	"HENTAI", "HENTAI_MANGA" -> ContentType.HENTAI_MANGA
+	"HENTAI_NOVEL" -> ContentType.HENTAI_NOVEL
+	else -> if (nsfw) ContentType.HENTAI_MANGA else ContentType.MANGA
+}
 
 // Raw locale code (e.g. "en"; "" for multi-language sources). Works for both native
 // MangaParserSource and JS/ContentSource sources, which don't share it on the base interface.

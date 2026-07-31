@@ -5,7 +5,7 @@ import com.nyora.hasan72341.list.ui.model.ListModel
 
 data class ScrobblingInfo(
 	val scrobbler: ScrobblerService,
-	val mangaId: Long,
+	val mangaId: String,
 	val targetId: Long,
 	val status: ScrobblingStatus?,
 	val chapter: Int,

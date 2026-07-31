@@ -43,7 +43,7 @@ class DetailsInteractor @Inject constructor(
 		return settings.observeAsFlow(AppSettings.KEY_TRACKER_ENABLED) { isTrackerEnabled }
 			.flatMapLatest { isEnabled ->
 				if (isEnabled) {
-					trackingRepository.observeNewChaptersCount(mangaId.toLong())
+					trackingRepository.observeNewChaptersCount(mangaId)
 				} else {
 					flowOf(0)
 				}
@@ -51,8 +51,12 @@ class DetailsInteractor @Inject constructor(
 	}
 
 	fun observeScrobblingInfo(mangaId: String): Flow<List<ScrobblingInfo>> {
-		// Scrobbling info API stubbed out; return empty.
-		return flowOf(emptyList())
+		if (scrobblers.isEmpty()) {
+			return flowOf(emptyList())
+		}
+		return combine(scrobblers.map { it.observeScrobblingInfo(mangaId) }) { infos ->
+			infos.filterNotNull()
+		}
 	}
 
 	fun observeIncognitoMode(mangaFlow: Flow<Manga?>): Flow<TriStateOption> {

@@ -143,7 +143,7 @@ class MangaListMapper @Inject constructor(
 
 	private suspend fun getCounter(mangaId: String, @Options options: Int): Int {
 		return if (settings.isTrackerEnabled) {
-			trackingRepository.getNewChaptersCount(mangaId.toLong())
+			trackingRepository.getNewChaptersCount(mangaId)
 		} else {
 			0
 		}
@@ -162,7 +162,7 @@ class MangaListMapper @Inject constructor(
 	}
 
 	private suspend fun isSaved(mangaId: String, @Options options: Int): Boolean {
-		return options.isBadgeEnabled(SAVED) && mangaId.toLong() in localMangaIndex
+		return options.isBadgeEnabled(SAVED) && mangaId in localMangaIndex
 	}
 
 	@ColorRes

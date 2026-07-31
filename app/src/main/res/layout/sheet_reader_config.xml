@@ -260,6 +260,13 @@
                     app:drawableStartCompat="@drawable/ic_translate" />
 
                 <com.nyora.hasan72341.core.ui.widgets.ListItemTextView
+                    android:id="@+id/button_colorize"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/colorize_page"
+                    app:drawableStartCompat="@drawable/ic_colorize" />
+
+                <com.nyora.hasan72341.core.ui.widgets.ListItemTextView
                     android:id="@+id/button_screen_rotate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -289,6 +296,16 @@
                     android:text="@string/translate_this_manga"
                     android:textAppearance="?textAppearanceListItem"
                     app:thumbIcon="@drawable/ic_translate" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_manga_colorize"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="16dp"
+                    android:minHeight="56dp"
+                    android:text="@string/colorize_this_manga"
+                    android:textAppearance="?textAppearanceListItem"
+                    app:thumbIcon="@drawable/ic_colorize" />
             </LinearLayout>
 
             <!-- Footer Group -->

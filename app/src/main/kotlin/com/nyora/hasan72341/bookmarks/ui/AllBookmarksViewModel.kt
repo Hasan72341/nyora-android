@@ -1,5 +1,6 @@
 package com.nyora.hasan72341.bookmarks.ui
 
+import com.nyora.hasan72341.reader.domain.toChapterKey
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -63,7 +64,7 @@ class AllBookmarksViewModel @Inject constructor(
 				if (it !is Bookmark || it.pageId !in ids) return@mapNotNull null
 				PageSaveHelper.Task(
 					manga = it.manga,
-					chapterId = it.chapterId.toLong(),
+					chapterId = it.chapterId,
 					pageNumber = it.page + 1,
 					page = it.toMangaPage(),
 				)

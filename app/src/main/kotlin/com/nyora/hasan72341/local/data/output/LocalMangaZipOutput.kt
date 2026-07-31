@@ -120,7 +120,7 @@ class LocalMangaZipOutput(
 
 		private const val FILENAME_PATTERN = "%08d_%04d%04d"
 
-		suspend fun filterChapters(file: File, manga: Manga, idsToRemove: Set<Long>) =
+		suspend fun filterChapters(file: File, manga: Manga, idsToRemove: Set<String>) =
 			runInterruptible(Dispatchers.IO) {
 				val subject = LocalMangaZipOutput(file, manga)
 				try {

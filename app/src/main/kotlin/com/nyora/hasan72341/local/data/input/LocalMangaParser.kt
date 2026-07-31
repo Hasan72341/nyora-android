@@ -74,7 +74,7 @@ class LocalMangaParser(private val uri: Uri) {
 					largeCoverUrl = null,
 					chapters = if (withDetails) {
 						mangaInfo.chapters.mapNotNull { c ->
-							val path = index.getChapterFileName(c.id.toLongOrNull() ?: 0L)?.toPath()
+							val path = index.getChapterFileName(c.id)?.toPath()
 							if (path != null && !fileSystem.exists(rootPath / path)) {
 								null
 							} else {

@@ -170,7 +170,7 @@ class ScrobblingSelectorViewModel @Inject constructor(
 			if (history != null) {
 				currentScrobbler.scrobble(
 					manga = manga,
-					chapterId = history.chapterId.toString(),
+					chapterId = history.chapterId,
 				)
 			}
 			onClose.call(Unit)

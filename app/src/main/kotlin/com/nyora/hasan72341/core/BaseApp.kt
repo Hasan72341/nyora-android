@@ -9,7 +9,6 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.room.InvalidationTracker
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
-import com.nyora.hasan72341.BuildConfig
 import com.nyora.hasan72341.core.db.MangaDatabase
 import com.nyora.hasan72341.core.os.AppValidator
 import com.nyora.hasan72341.core.prefs.AppSettings
@@ -67,10 +66,10 @@ open class BaseApp : Application(), Configuration.Provider {
 	lateinit var supabaseConfig: SupabaseConfig
 
 	@Inject
-	lateinit var remoteSourceGate: RemoteSourceGate
+	lateinit var dataDrivenCatalogue: com.nyora.hasan72341.core.parser.datadriven.DataDrivenCatalogueRepository
 
 	@Inject
-	lateinit var dataDrivenCatalogue: com.nyora.hasan72341.core.parser.datadriven.DataDrivenCatalogueRepository
+	lateinit var mangaSourcesRepository: com.nyora.hasan72341.explore.data.MangaSourcesRepository
 
 	override val workManagerConfiguration: Configuration
 		get() = Configuration.Builder()
@@ -102,21 +101,10 @@ open class BaseApp : Application(), Configuration.Provider {
 			url = "https://sync.nyora.xyz",
 			anonKey = "self-hosted"
 		)
-		// Remote master switch: fetch + verify the signed config and unlock/lock
-		// sources accordingly (ships locked for Store review; enabled remotely).
-		// Debug builds bypass the gate so the app is fully testable offline,
-		// independent of the remote config. Release builds honour the switch.
-		if (BuildConfig.DEBUG) {
-			settings.isSourcesUnlocked = true
-		} else {
-			processLifecycleScope.launch(Dispatchers.IO) {
-				remoteSourceGate.refresh()
-			}
-		}
-		// Fetch the runtime source catalogue (data-driven sources) in the background; failures are
-		// non-fatal — the disk cache from a previous launch keeps the catalogue usable offline.
+		// Refresh the source catalogue in the background (uses the bundled default URL unless the user pasted an override).
 		processLifecycleScope.launch(Dispatchers.IO) {
 			dataDrivenCatalogue.refresh()
+			mangaSourcesRepository.assimilateFromCatalogue()
 		}
 	}
 

@@ -146,13 +146,13 @@ class LocalMangaRepository @Inject constructor(
 		val file = manga.url.toUri().toFile()
 		val result = file.deleteAwait()
 		if (result) {
-			localMangaIndex.delete(manga.id.toLong())
+			localMangaIndex.delete(manga.id)
 			localStorageChanges.emit(null)
 		}
 		return result
 	}
 
-	suspend fun deleteChapters(manga: Manga, ids: Set<Long>) = lock.withLock(manga) {
+	suspend fun deleteChapters(manga: Manga, ids: Set<String>) = lock.withLock(manga) {
 		val subject = if (manga.isLocal) manga else checkNotNull(findSavedManga(manga, withDetails = false)) {
 			"Manga is not stored on local storage"
 		}.manga
@@ -170,8 +170,8 @@ class LocalMangaRepository @Inject constructor(
 	}
 
 	suspend fun findSavedManga(remoteManga: Manga, withDetails: Boolean = true): LocalManga? = runCatchingCancellable {
-		// very fast path
-		localMangaIndex.get(remoteManga.id.toLong(), withDetails)?.let { cached ->
+		// very fast path (numeric-id manga only; the local index is keyed by Long)
+		localMangaIndex.get(remoteManga.id, withDetails)?.let { cached ->
 			return@runCatchingCancellable cached
 		}
 		// fast path

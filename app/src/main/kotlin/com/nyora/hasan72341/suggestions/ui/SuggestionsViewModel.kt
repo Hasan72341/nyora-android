@@ -3,7 +3,7 @@ package com.nyora.hasan72341.suggestions.ui
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.nyora.hasan72341.core.ui.BaseViewModel
-import com.nyora.hasan72341.suggestions.data.MangaBakaRepository
+import com.nyora.hasan72341.suggestions.data.AnilistRepository
 import com.nyora.hasan72341.suggestions.domain.MangaSuggestionV2
 import com.nyora.hasan72341.suggestions.domain.SmartMatchUseCase
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SuggestionsViewModel @Inject constructor(
-    private val mangaBakaRepository: MangaBakaRepository,
+    private val anilistRepository: AnilistRepository,
     private val smartMatchUseCase: SmartMatchUseCase,
 ) : BaseViewModel() {
 
@@ -29,8 +29,8 @@ class SuggestionsViewModel @Inject constructor(
 
     fun refresh() {
         launchLoadingJob(Dispatchers.IO) {
-            val trending = mangaBakaRepository.getTrendingManga(15)
-            val popular = mangaBakaRepository.getPopularManga(15)
+            val trending = anilistRepository.getTrendingManga(15)
+            val popular = anilistRepository.getPopularManga(15)
             val combined = (trending + popular).distinctBy { it.id }
             
             val initialList = combined.map { MangaSuggestionV2(it, isLoadingMatches = true) }

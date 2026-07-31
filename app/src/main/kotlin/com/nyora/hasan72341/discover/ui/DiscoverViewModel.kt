@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.plus
@@ -55,8 +54,16 @@ class DiscoverViewModel @Inject constructor(
 	private val trackingRepository: TrackingRepository,
 	private val discoverRepository: DiscoverRepository,
 	private val suggestionRepository: SuggestionRepository,
+	private val sourcesRepository: com.nyora.hasan72341.explore.data.MangaSourcesRepository,
 	private val settings: AppSettings,
 ) : BaseViewModel() {
+
+	/**
+	 * Whether any source is installed. False while the app is source-less (no catalogue URL added);
+	 * Discover then routes taps to the MangaBaka preview instead of a source search.
+	 */
+	val hasSources: Boolean
+		get() = sourcesRepository.allMangaSources.isNotEmpty()
 
 	/**
 	 * The source that produced the non-empty "Popular on <Source>" rail, captured during
@@ -76,7 +83,7 @@ class DiscoverViewModel @Inject constructor(
 	private val retryTrigger = MutableStateFlow(0)
 
 	/**
-	 * All AniList rails from ONE multi-alias request.
+	 * All AniList rails from ONE aliased request.
 	 * null  -> still loading (every AniList rail renders shimmer)
 	 * value -> loaded; per-rail empty list renders an Error/hidden state.
 	 */
@@ -84,7 +91,7 @@ class DiscoverViewModel @Inject constructor(
 		flow {
 			emit(null)
 			emit(
-				runCatchingCancellable { discoverRepository.getMultiRails(20) }.getOrNull()
+				runCatchingCancellable { discoverRepository.getMultiRails(30) }.getOrNull()
 					?: EMPTY_MULTI_RAILS,
 			)
 		}
@@ -194,23 +201,23 @@ class DiscoverViewModel @Inject constructor(
 		// 5. Trending now.
 		networkRail(out, R.string.trending_now, RAIL_TRENDING, anilistState(anilist) { it.trending })
 
-		// 6. Top rated.
-		networkRail(out, R.string.top_rated, RAIL_TOP_RATED, anilistState(anilist) { it.topRated })
-
-		// 7. Popular manhwa.
+		// 6. Popular manhwa (KR).
 		networkRail(out, R.string.popular_manhwa, RAIL_MANHWA, anilistState(anilist) { it.manhwa })
 
-		// 8. Action (genre).
+		// 7. Popular manhua (CN).
+		networkRail(out, R.string.popular_manhua, RAIL_MANHUA, anilistState(anilist) { it.manhua })
+
+		// 8. Popular manga (JP).
+		networkRail(out, R.string.popular_manga, RAIL_MANGA, anilistState(anilist) { it.manga })
+
+		// 9. Action (genre).
 		networkRail(out, R.string.genre_action, RAIL_GENRE_ACTION, anilistState(anilist) { it.action })
 
-		// 9. Romance (genre).
+		// 10. Romance (genre).
 		networkRail(out, R.string.genre_romance, RAIL_GENRE_ROMANCE, anilistState(anilist) { it.romance })
 
-		// 10. Fantasy (genre).
+		// 11. Fantasy (genre).
 		networkRail(out, R.string.genre_fantasy, RAIL_GENRE_FANTASY, anilistState(anilist) { it.fantasy })
-
-		// 11. Comedy (genre).
-		networkRail(out, R.string.genre_comedy, RAIL_GENRE_COMEDY, anilistState(anilist) { it.comedy })
 
 		// 12. Popular on <Source> (dynamic, localized header).
 		popularSourceRail(out, popular)
@@ -314,23 +321,23 @@ class DiscoverViewModel @Inject constructor(
 		const val RAIL_CONTINUE_READING = "continue_reading"
 		const val RAIL_UPDATES = "updates"
 		const val RAIL_TRENDING = "trending"
-		const val RAIL_TOP_RATED = "top_rated"
 		const val RAIL_MANHWA = "manhwa"
+		const val RAIL_MANHUA = "manhua"
+		const val RAIL_MANGA = "manga"
 		const val RAIL_GENRE_ACTION = "genre_action"
 		const val RAIL_GENRE_ROMANCE = "genre_romance"
 		const val RAIL_GENRE_FANTASY = "genre_fantasy"
-		const val RAIL_GENRE_COMEDY = "genre_comedy"
 		const val RAIL_POPULAR_SOURCE = "popular_source"
 
 		private val EMPTY_MULTI_RAILS = DiscoverMultiRails(
 			heroSource = null,
 			trending = emptyList(),
-			topRated = emptyList(),
 			manhwa = emptyList(),
+			manhua = emptyList(),
+			manga = emptyList(),
 			action = emptyList(),
 			romance = emptyList(),
 			fantasy = emptyList(),
-			comedy = emptyList(),
 		)
 	}
 }

@@ -6,9 +6,10 @@ avifDecoder = "1.1.1.14d8e3c4"
 biometric = "1.4.0-alpha04"
 coil = "3.3.0"
 collections = "1.5.0"
-# https://github.com/google/conscrypt/issues/1268
-#noinspection NewerVersionAvailable,GradleDependency - 2.5.3 cause crashes
-conscrypt = "2.5.2"
+# 2.5.x ships 4 KB-aligned .so files, which Play rejects for 16 KB devices.
+# 2.5.3 was unusable because X509Certificate.toString() aborted in native code
+# (google/conscrypt#1268); that is fixed as of 2.6-alpha2.
+conscrypt = "2.6.1"
 constraintlayout = "2.2.1"
 coreKtx = "1.17.0"
 coroutines = "1.10.2"
@@ -59,6 +60,7 @@ mlkitTextRecognitionChinese = "16.0.1"
 mlkitTextRecognitionKorean = "16.0.1"
 mlkitLanguageId = "17.0.0"
 mlkitTranslate = "17.0.3"
+onnxruntime = "1.20.0"
 dynamicanimation = "1.0.0"
 dynamicanimationKtx = "1.0.0-alpha03"
 palette = "1.0.0"
@@ -145,6 +147,7 @@ mlkit-text-recognition-chinese = { module = "com.google.mlkit:text-recognition-c
 mlkit-text-recognition-korean = { module = "com.google.mlkit:text-recognition-korean", version.ref = "mlkitTextRecognitionKorean" }
 mlkit-language-id = { module = "com.google.mlkit:language-id", version.ref = "mlkitLanguageId" }
 mlkit-translate = { module = "com.google.mlkit:translate", version.ref = "mlkitTranslate" }
+onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version.ref = "onnxruntime" }
 injekt-core = { module = "uy.kohesive.injekt:injekt-core", version = "1.16.1" }
 androidx-dynamicanimation = { module = "androidx.dynamicanimation:dynamicanimation", version.ref = "dynamicanimation" }
 androidx-dynamicanimation-ktx = { module = "androidx.dynamicanimation:dynamicanimation-ktx", version.ref = "dynamicanimationKtx" }

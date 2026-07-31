@@ -6,13 +6,9 @@
 		cleartextTrafficPermitted="true"
 		tools:ignore="InsecureBaseConfiguration">
 		<trust-anchors>
-			<!-- Trust preinstalled CAs -->
+			<!-- Trust only preinstalled system CAs. User-added CAs are intentionally NOT trusted:
+			     opting into them app-wide enables trivial MITM of all traffic (incl. auth flows). -->
 			<certificates src="system" />
-
-			<!-- Additionally, trust user added CAs -->
-			<certificates
-				src="user"
-				tools:ignore="AcceptsUserCertificates" />
 		</trust-anchors>
 	</base-config>
 </network-security-config>

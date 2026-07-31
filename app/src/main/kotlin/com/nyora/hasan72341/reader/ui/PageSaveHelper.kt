@@ -187,14 +187,14 @@ class PageSaveHelper @AssistedInject constructor(
 
 	data class Task(
 		val manga: Manga,
-		val chapterId: Long,
+		val chapterId: String,
 		val pageNumber: Int,
 		val page: MangaPage,
 	) {
 
 		fun getFileBaseName() = buildString {
 			append(manga.title.toFileNameSafe().take(MAX_BASENAME_LENGTH))
-			manga.findChapterById(chapterId.toString())?.let { chapter ->
+			manga.findChapterById(chapterId)?.let { chapter ->
 				append('-')
 				append(chapter.number)
 			}

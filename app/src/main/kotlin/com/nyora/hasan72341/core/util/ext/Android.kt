@@ -215,7 +215,12 @@ fun WebView.configureForParser(userAgentOverride: String?) = with(settings) {
 		WebViewCompat.setAudioMuted(this@configureForParser, true)
 	}
 	databaseEnabled = true
+	// The parser/Cloudflare WebView only ever loads remote http(s), so deny all local-file access.
+	// allowFileAccess defaults to true below API 30, letting a loaded page read file:// with JS on.
 	allowContentAccess = false
+	allowFileAccess = false
+	allowFileAccessFromFileURLs = false
+	allowUniversalAccessFromFileURLs = false
 	if (userAgentOverride != null) {
 		userAgentString = userAgentOverride
 	}

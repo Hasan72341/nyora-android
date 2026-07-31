@@ -21,7 +21,7 @@ class ReadingTimeUseCase @Inject constructor(
 		if (chapters.isNullOrEmpty()) {
 			return null
 		}
-		val isOnHistoryBranch = history != null && chapters.any { it.id == history.chapterId.toString() }
+		val isOnHistoryBranch = history != null && chapters.any { it.id == history.chapterId }
 		// Impossible task, I guess. Good luck on this.
 		var averageTimeSec: Int = 20 /* pages */ * getSecondsPerPage(manga.id) * chapters.size
 		if (isOnHistoryBranch) {

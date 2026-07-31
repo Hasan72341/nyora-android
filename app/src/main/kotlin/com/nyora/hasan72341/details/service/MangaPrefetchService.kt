@@ -75,7 +75,7 @@ class MangaPrefetchService : CoroutineIntentService() {
 		val chapter = if (history == null) {
 			chapters.firstOrNull()
 		} else {
-			details.findChapterById(history.chapterId.toString()) ?: chapters.firstOrNull()
+			details.findChapterById(history.chapterId) ?: chapters.firstOrNull()
 		} ?: return
 		runCatchingCancellable { repo.getPages(chapter) }
 	}

@@ -11,6 +11,7 @@ import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.View
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.nyora.hasan72341.core.util.ext.getThemeColor
 
 class TranslationOverlayView @JvmOverloads constructor(
 	context: Context,
@@ -25,6 +26,13 @@ class TranslationOverlayView @JvmOverloads constructor(
 
 	private var blocks: List<TranslatedBlock> = emptyList()
 	private var ssiv: SubsamplingScaleImageView? = null
+
+	// Material You accent for the transient "downloading models" status text (replaces a hardcoded
+	// navy blue). Falls back to the Material accent only if the theme somehow lacks colorPrimary.
+	private val accentColor: Int = context.getThemeColor(
+		androidx.appcompat.R.attr.colorPrimary,
+		0xFF6750A4.toInt(),
+	)
 
 	private val bgPaint = Paint().apply {
 		style = Paint.Style.FILL
@@ -114,8 +122,8 @@ class TranslationOverlayView @JvmOverloads constructor(
 				Color.WHITE 
 			} else {
 				when (block.state) {
-					TranslationState.MT -> Color.parseColor("#333333")
-					TranslationState.DOWNLOADING_MODELS -> Color.parseColor("#1976D2")
+					TranslationState.MT -> Color.DKGRAY
+					TranslationState.DOWNLOADING_MODELS -> accentColor
 					else -> Color.BLACK
 				}
 			}

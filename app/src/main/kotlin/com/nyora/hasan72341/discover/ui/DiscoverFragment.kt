@@ -46,13 +46,20 @@ class DiscoverFragment :
 		super.onViewBindingCreated(binding, savedInstanceState)
 		discoverAdapter = DiscoverAdapter(
 			cardClick = { card ->
-				if (card.manga != null) {
-					router.openDetails(card.manga)
-				} else {
-					card.searchQuery?.let(router::openSearch)
+				when {
+					card.manga != null -> router.openDetails(card.manga)
+					// No source installed yet: show the MangaBaka overview instead of a dead search.
+					!viewModel.hasSources -> router.showMangaBakaPreview(card.searchQuery ?: card.title)
+					else -> card.searchQuery?.let(router::openSearch)
 				}
 			},
-			heroClick = { hero -> router.openSearch(hero.searchQuery) },
+			heroClick = { hero ->
+				if (viewModel.hasSources) {
+					router.openSearch(hero.searchQuery)
+				} else {
+					router.showMangaBakaPreview(hero.searchQuery)
+				}
+			},
 			headerClickListener = this,
 			stateHolderListener = this,
 			retry = { viewModel.retryNetworkRails() },
@@ -83,14 +90,14 @@ class DiscoverFragment :
 			DiscoverViewModel.RAIL_CONTINUE_READING -> router.openHistory()
 			DiscoverViewModel.RAIL_UPDATES -> router.openMangaUpdates()
 			DiscoverViewModel.RAIL_TRENDING,
-			DiscoverViewModel.RAIL_TOP_RATED,
 			DiscoverViewModel.RAIL_MANHWA,
+			DiscoverViewModel.RAIL_MANHUA,
+			DiscoverViewModel.RAIL_MANGA,
 			-> router.openSearch(item.getText(requireContext())?.toString().orEmpty())
 
 			DiscoverViewModel.RAIL_GENRE_ACTION -> router.openSearch(getString(R.string.genre_action))
 			DiscoverViewModel.RAIL_GENRE_ROMANCE -> router.openSearch(getString(R.string.genre_romance))
 			DiscoverViewModel.RAIL_GENRE_FANTASY -> router.openSearch(getString(R.string.genre_fantasy))
-			DiscoverViewModel.RAIL_GENRE_COMEDY -> router.openSearch(getString(R.string.genre_comedy))
 			DiscoverViewModel.RAIL_POPULAR_SOURCE -> viewModel.lastPopularSource
 				?.let { router.openList(it, MangaListFilter.EMPTY, SortOrder.POPULARITY) }
 				?: router.openSearch(item.getText(requireContext())?.toString().orEmpty())

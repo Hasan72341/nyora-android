@@ -57,11 +57,11 @@ class LocalMangaIndex @Inject constructor(
 		}
 	}
 
-	suspend fun get(mangaId: Long, withDetails: Boolean): LocalManga? {
+	suspend fun get(mangaId: String, withDetails: Boolean): LocalManga? {
 		updateIfRequired()
-		var path = db.getLocalMangaIndexDao().findPath(mangaId.toString())
+		var path = db.getLocalMangaIndexDao().findPath(mangaId)
 		if (path == null && mutex.isLocked) { // wait for updating complete
-			path = mutex.withLock { db.getLocalMangaIndexDao().findPath(mangaId.toString()) }
+			path = mutex.withLock { db.getLocalMangaIndexDao().findPath(mangaId) }
 		}
 		if (path == null) {
 			return null
@@ -73,8 +73,8 @@ class LocalMangaIndex @Inject constructor(
 		}.getOrNull()
 	}
 
-	suspend operator fun contains(mangaId: Long): Boolean {
-		return db.getLocalMangaIndexDao().findPath(mangaId.toString()) != null
+	suspend operator fun contains(mangaId: String): Boolean {
+		return db.getLocalMangaIndexDao().findPath(mangaId) != null
 	}
 
 	suspend fun put(manga: LocalManga) = mutex.withLock {
@@ -83,8 +83,8 @@ class LocalMangaIndex @Inject constructor(
 		}
 	}
 
-	suspend fun delete(mangaId: Long) {
-		db.getLocalMangaIndexDao().delete(mangaId.toString())
+	suspend fun delete(mangaId: String) {
+		db.getLocalMangaIndexDao().delete(mangaId)
 	}
 
 	suspend fun getAvailableTags(skipNsfw: Boolean): List<String> {
