@@ -1,6 +1,6 @@
 name: Release Build
 
-# Publishes a GitHub Release with the signed APK and AAB when a v* tag is
+# Publishes a GitHub Release with the signed APK when a v* tag is
 # pushed. The tag must agree with app/build.gradle or check_version fails.
 #
 # versionCode is MAJOR*10000 + MINOR*1000 + PATCH*100, matching every release
@@ -126,7 +126,7 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
         run: |
-          ./gradlew :app:assembleRelease :app:bundleRelease \
+          ./gradlew :app:assembleRelease \
             -PversionName=${{ steps.version.outputs.version }} \
             -PversionCode=${{ steps.version.outputs.version_code }} \
             --no-build-cache --no-configuration-cache
@@ -140,7 +140,6 @@ jobs:
           prerelease: false
           files: |
             app/build/outputs/apk/release/app-release.apk
-            app/build/outputs/bundle/release/app-release.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
