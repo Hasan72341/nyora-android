@@ -11,7 +11,6 @@ import androidx.lifecycle.lifecycleScope
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.nyora.hasan72341.ai.MangaTranslator
-import com.nyora.hasan72341.ai.colorize.MangaColorizer
 import com.nyora.hasan72341.core.exceptions.resolve.ExceptionResolver
 import com.nyora.hasan72341.core.os.NetworkState
 import com.nyora.hasan72341.databinding.ItemPageWebtoonBinding
@@ -47,8 +46,6 @@ class WebtoonHolder(
 	private var scrollToRestore = 0
 	private var currentUri: Uri? = null
 	private var translationJob: kotlinx.coroutines.Job? = null
-	private var colorizeJob: kotlinx.coroutines.Job? = null
-	private var colorizedUri: Uri? = null
 
 	init {
 		bindingInfo.progressBar.setVisibilityAfterHide(View.GONE)
@@ -66,17 +63,13 @@ class WebtoonHolder(
 		when {
 			source is ImageSource.Uri -> {
 				currentUri = source.uri
-				colorizedUri = null
-				if (settings.isColorizeEnabled && settings.isColorizeAuto) {
-					colorizePage()
-				}
 				if (settings.isAiTranslateEnabled && settings.isAiAutoTranslate) {
 					translatePage()
 				} else {
 					binding.translationOverlay.setBlocks(emptyList())
 				}
 			}
-			// Our own colorized bitmap is shown — keep currentUri (original file) and the overlay.
+			// A bitmap we produced is shown — keep currentUri (original file) and the overlay.
 			source != null -> Unit
 			else -> binding.translationOverlay.setBlocks(emptyList())
 		}
@@ -84,16 +77,6 @@ class WebtoonHolder(
 
 	override fun onConfigChanged(settings: ReaderSettings) {
 		super.onConfigChanged(settings)
-		val colorizeOn = settings.isColorizeEnabled && settings.isColorizeAuto
-		if (!colorizeOn) {
-			if (colorizedUri != null) {
-				colorizeJob?.cancel()
-				colorizedUri = null
-				reloadImage()
-			}
-		} else if (colorizedUri == null && currentUri != null && viewModel.state.value is PageState.Shown) {
-			colorizePage()
-		}
 	}
 
 	override fun onReady() {
@@ -127,40 +110,10 @@ class WebtoonHolder(
 		}
 	}
 
-	override fun colorizePage() {
-		val uri = currentUri ?: return
-		if (uri == colorizedUri) return
-		if (!MangaColorizer.isAvailable(context)) return
-		colorizeJob?.cancel()
-		colorizeJob = lifecycleScope.launch {
-			val src = withContext(Dispatchers.IO) { getBitmap() } ?: return@launch
-			try {
-				if (!MangaColorizer.canColorize(src.width, src.height)) return@launch
-				val colored = MangaColorizer.colorize(context.applicationContext, src)
-				if (currentUri != uri) {
-					colored.recycle()
-					return@launch
-				}
-				colorizedUri = uri
-				ssiv.setImage(ImageSource.bitmap(colored))
-			} catch (e: CancellationException) {
-				throw e
-			} catch (e: Throwable) {
-				android.util.Log.e("MangaColorizer", "colorize failed", e)
-			} finally {
-				if (!src.isRecycled) {
-					src.recycle()
-				}
-			}
-		}
-	}
 
 	override fun onRecycled() {
 		translationJob?.cancel()
 		translationJob = null
-		colorizeJob?.cancel()
-		colorizeJob = null
-		colorizedUri = null
 		binding.translationOverlay.setBlocks(emptyList())
 		super.onRecycled()
 	}
@@ -168,8 +121,6 @@ class WebtoonHolder(
 	override fun onDetachedFromWindow() {
 		translationJob?.cancel()
 		translationJob = null
-		colorizeJob?.cancel()
-		colorizeJob = null
 		super.onDetachedFromWindow()
 	}
 

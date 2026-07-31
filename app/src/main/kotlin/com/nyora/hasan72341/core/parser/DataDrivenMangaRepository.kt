@@ -28,6 +28,8 @@ import app.nyora.core.model.SortOrder as DdSort
 import app.nyora.core.model.MangaTag as DdTag
 import app.nyora.core.model.MangaListFilter as DdFilter
 import org.koitharu.kotatsu.parsers.model.MangaTag as LibMangaTag
+import com.nyora.hasan72341.core.prefs.SourceSettings
+import com.nyora.hasan72341.mihon.parsers.config.ConfigKey
 
 /**
  * A [MangaRepository] backed by a generic [SourceEngine] built from the [DataDrivenMangaSource]'s
@@ -36,19 +38,34 @@ import org.koitharu.kotatsu.parsers.model.MangaTag as LibMangaTag
 class DataDrivenMangaRepository(
     private val ddSource: DataDrivenMangaSource,
     okHttpClient: OkHttpClient,
-) : MangaRepository {
+    private val settings: SourceSettings? = null,
+) : MangaRepository, DomainAwareRepository {
 
     override val source: MangaSource get() = ddSource
 
-    /** Exposed so CommonHeadersInterceptor can attach the source Referer. */
-    val domain: String get() = ddSource.domain
+    /**
+     * Exposed so CommonHeadersInterceptor can attach the source Referer. Resolved through
+     * [SourceSettings] so a data-driven source honours SourcePatches.DOMAIN_OVERRIDES and the
+     * user's per-source domain setting, exactly like a native parser source does. The Referer has
+     * to follow the effective domain — several of these image CDNs 403 a mismatched one.
+     */
+    override val domain: String
+        get() = settings?.get(ConfigKey.Domain(ddSource.domain)) ?: ddSource.domain
 
-    private val referer: String = "https://${ddSource.domain}/"
+    private val referer: String get() = "https://$domain/"
 
     // Parser(name) round-trips: the "DD_<id>" name resolves back via MangaSource(name).
     private val sourceRef: MangaSourceRef = MangaSourceRef.Parser(ddSource.name)
 
-    private val context: EngineContext = AndroidEngineContext(okHttpClient, ddSource)
+    // The engine reads its domain from ctx.prefs; that map was never populated, so both the
+    // shipped domain patches and the user's per-source override were silently inert. The UA is
+    // deliberately NOT seeded here — CommonHeadersInterceptor owns it, and a second value set
+    // here would disagree with the one that earned the Cloudflare clearance cookie.
+    private val context: EngineContext = AndroidEngineContext(
+        client = okHttpClient,
+        source = ddSource,
+        effectiveDomain = { domain },
+    )
 
     private val engine: SourceEngine by lazy {
         EngineRegistry.create(ddSource.engineKey, ddSource.toSourceDef(), context)

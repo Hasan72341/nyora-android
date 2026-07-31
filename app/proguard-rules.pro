@@ -89,5 +89,3 @@
 # Domain obfuscation vault — instrumented classes call it by exact name; must not be renamed/removed.
 -keep class com.nyora.hasan72341.core.vault.DomainVault { *; }
 
-# ONNX Runtime (on-device colorizer) — JNI-backed; keep classes referenced by native code.
--keep class ai.onnxruntime.** { *; }

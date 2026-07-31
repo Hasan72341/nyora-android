@@ -97,8 +97,9 @@ class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),
 		router.openList(item.source, null, null)
 	}
 
+	// fired by the row's add/remove button, not by an actual long press
 	override fun onItemLongClick(item: SourceCatalogItem.Source, view: View): Boolean {
-		viewModel.addSource(item.source)
+		viewModel.toggleSource(item)
 		return false
 	}
 

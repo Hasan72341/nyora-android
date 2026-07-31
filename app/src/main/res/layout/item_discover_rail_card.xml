@@ -27,13 +27,16 @@
 			tools:ignore="ContentDescription"
 			tools:src="@tools:sample/backgrounds/scenic" />
 
+		<!-- Title is fixed at two lines (as in item_manga_grid): with wrap_content a
+		     one-line title made its card shorter than its neighbours in the rail. -->
 		<TextView
 			android:id="@+id/textView_title"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:padding="8dp"
 			android:ellipsize="end"
-			android:maxLines="2"
+			android:gravity="top"
+			android:lines="2"
 			android:textAppearance="?attr/textAppearanceTitleSmall"
 			android:textColor="?android:attr/textColorPrimary"
 			android:textSize="13sp"

@@ -97,30 +97,27 @@ class MangaSourcesRepository @Inject constructor(
 		return result
 	}
 
+	/**
+	 * Catalogue query. Returns [MangaSourceInfo] rather than bare sources so callers keep each
+	 * source's enabled state — the catalogue lists every source and renders add/remove per row.
+	 */
 	suspend fun queryParserSources(
-		isDisabledOnly: Boolean,
 		isNewOnly: Boolean,
-		excludeBroken: Boolean,
 		types: Set<ContentType>,
 		query: String?,
 		locale: String?,
 		sortOrder: SourcesSortOrder?,
-	): List<MangaSource> {
+	): List<MangaSourceInfo> {
 		if (!settings.isSourcesUnlocked) return emptyList()
 		assimilateNewSources()
 		val entities = dao.findAll().toMutableList()
-		if (isDisabledOnly && !settings.isAllSourcesEnabled) {
-			entities.removeAll { it.isEnabled }
-		}
 		if (isNewOnly) {
 			entities.retainAll { it.addedIn == BuildConfig.VERSION_CODE }
 		}
 		val sources = entities.toSources(
 			skipNsfwSources = settings.isNsfwContentDisabled,
 			sortOrder = sortOrder,
-		).run {
-			mapTo(ArrayList(size)) { it.mangaSource }
-		}
+		)
 
 		if (locale != null) {
 			// localeCode() works for data-driven sources too, unlike an `is MangaParserSource` guard.
@@ -335,7 +332,9 @@ class MangaSourcesRepository @Inject constructor(
 	suspend fun setIsPinned(sources: Collection<MangaSource>, isPinned: Boolean): ReversibleHandle {
 		setSourcesPinnedImpl(sources, isPinned)
 		return ReversibleHandle {
-			setSourcesEnabledImpl(sources, !isPinned)
+			// undo has to restore the pin, not toggle enablement — the latter silently
+			// disabled a source when the user undid a pin
+			setSourcesPinnedImpl(sources, !isPinned)
 		}
 	}
 

@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
 import com.nyora.hasan72341.mihon.parsers.model.ContentType
-import com.nyora.hasan72341.mihon.parsers.model.MangaSource
 import java.util.EnumSet
 import java.util.Locale
 import javax.inject.Inject
@@ -81,10 +80,20 @@ class SourcesCatalogViewModel @Inject constructor(
 		appliedFilter.value = appliedFilter.value.copy(locale = value)
 	}
 
-	fun addSource(source: MangaSource) {
+	/**
+	 * Add or remove a source. The list is driven by the sources table invalidation flow, so the
+	 * row's +/− flips on its own once the write lands — no local state to keep in sync.
+	 */
+	fun toggleSource(item: SourceCatalogItem.Source) {
 		launchJob(Dispatchers.IO) {
-			val rollback = repository.setSourcesEnabled(setOf(source), true)
-			onActionDone.call(ReversibleAction(R.string.source_enabled, rollback))
+			val enable = !item.isEnabled
+			val rollback = repository.setSourcesEnabled(setOf(item.source), enable)
+			onActionDone.call(
+				ReversibleAction(
+					if (enable) R.string.source_enabled else R.string.source_disabled,
+					rollback,
+				),
+			)
 		}
 	}
 
@@ -106,9 +115,7 @@ class SourcesCatalogViewModel @Inject constructor(
 
 	private suspend fun buildSourcesList(filter: SourcesCatalogFilter, query: String?): List<SourceCatalogItem> {
 		val sources = repository.queryParserSources(
-			isDisabledOnly = true,
 			isNewOnly = filter.isNewOnly,
-			excludeBroken = false,
 			types = filter.types,
 			query = query,
 			locale = filter.locale,
@@ -132,7 +139,7 @@ class SourcesCatalogViewModel @Inject constructor(
 			)
 		} else {
 			sources.map {
-				SourceCatalogItem.Source(source = it)
+				SourceCatalogItem.Source(source = it.mangaSource, isEnabled = it.isEnabled)
 			}
 		}
 	}

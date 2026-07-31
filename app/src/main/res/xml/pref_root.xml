@@ -46,12 +46,6 @@
         android:title="@string/translate"
         android:summary="@string/translate_summary" />
 
-    <PreferenceScreen
-        android:fragment="com.nyora.hasan72341.settings.AiColorizeSettingsFragment"
-        android:icon="@drawable/ic_colorize"
-        android:key="ai_colorize"
-        android:title="@string/colorize"
-        android:summary="@string/colorize_summary" />
 
     <PreferenceScreen
         android:fragment="com.nyora.hasan72341.settings.tracker.TrackerSettingsFragment"

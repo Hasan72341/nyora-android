@@ -195,7 +195,7 @@ class ReaderActivity :
         viewModel.isZoomControlsEnabled.observe(this) {
             viewBinding.zoomControl.isVisible = it
         }
-        addMenuProvider(ReaderMenuProvider(viewModel, ::translateCurrentPage, ::colorizeCurrentPage))
+        addMenuProvider(ReaderMenuProvider(viewModel, ::translateCurrentPage))
 
         observeWindowLayout()
 
@@ -206,8 +206,6 @@ class ReaderActivity :
     override fun onDestroy() {
         super.onDestroy()
         viewModel.updateReadingProgress()
-        // Free the colorizer's native ONNX session (hundreds of MB) when leaving the reader.
-        com.nyora.hasan72341.ai.colorize.MangaColorizer.close()
     }
 
     override fun getParentActivityIntent(): Intent? {
@@ -498,9 +496,6 @@ class ReaderActivity :
         translateCurrentPage()
     }
 
-    override fun onColorizePageClick() {
-        colorizeCurrentPage()
-    }
 
     override fun onScrollTimerClick(isLongClick: Boolean) {
         if (isLongClick) {
@@ -610,9 +605,6 @@ class ReaderActivity :
         readerManager.translateCurrentPage()
     }
 
-    private fun colorizeCurrentPage() {
-        readerManager.colorizeCurrentPage()
-    }
 
     companion object {
 

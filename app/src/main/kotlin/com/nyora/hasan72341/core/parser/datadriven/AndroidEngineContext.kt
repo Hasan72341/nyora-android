@@ -29,9 +29,14 @@ import java.util.concurrent.ConcurrentHashMap
 class AndroidEngineContext(
     private val client: OkHttpClient,
     private val source: MangaSource,
+    /**
+     * Effective domain for this source (catalogue value after domain patches and the user's
+     * per-source override). Engines read it via `prefs.getString("domain")`.
+     */
+    private val effectiveDomain: (() -> String)? = null,
 ) : EngineContext {
 
-    override val prefs: SourcePrefs = InMemoryPrefs()
+    override val prefs: SourcePrefs = InMemoryPrefs(effectiveDomain)
 
     override suspend fun http(request: HttpRequest): HttpResponse = withContext(Dispatchers.IO) {
         val builder = Request.Builder().url(request.url)
@@ -106,15 +111,30 @@ class AndroidEngineContext(
         return emptyMap()
     }
 
-    private class InMemoryPrefs : SourcePrefs {
+    /**
+     * Per-source engine scratch space. Values an engine writes at runtime stay in memory, but
+     * `domain` is backed by the app's resolved value so domain patches and the user's override
+     * reach the engine instead of falling through to an empty map.
+     */
+    private class InMemoryPrefs(
+        private val effectiveDomain: (() -> String)?,
+    ) : SourcePrefs {
         private val map = ConcurrentHashMap<String, String>()
-        override fun getString(key: String): String? = map[key]
+
+        override fun getString(key: String): String? = when {
+            map.containsKey(key) -> map[key]
+            key == KEY_DOMAIN -> effectiveDomain?.invoke()?.takeIf { it.isNotBlank() }
+            else -> null
+        }
+
         override fun putString(key: String, value: String?) {
             if (value == null) map.remove(key) else map[key] = value
         }
     }
 
     private companion object {
+        // Engine-side key for the source domain (app.nyora.data.engine SourcePrefs contract).
+        private const val KEY_DOMAIN = "domain"
         // HTML/JSON listing pages are well under this; the cap only guards against abuse.
         private const val MAX_RESPONSE_BYTES = 16L * 1024 * 1024 // 16 MiB
         // Engine transport hint: value "multipart" -> send the form as multipart/form-data (raw values).

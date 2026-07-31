@@ -10,7 +10,7 @@
 		android:bottom="1dp">
 		<shape
 			android:shape="rectangle">
-			<solid android:color="#E6090D16" />
+			<solid android:color="@color/nyora_surfaceScrim90" />
 		</shape>
 	</item>
 </layer-list>

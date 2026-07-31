@@ -118,10 +118,6 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 			.forEach { it.translatePage() }
 	}
 
-	override fun colorizeCurrentPage() {
-		(viewBinding ?: return).recyclerView.visiblePageHolders()
-			.forEach { it.colorizePage() }
-	}
 
 	override fun translatePageAt(index: Int) {
 		(viewBinding ?: return).recyclerView.findViewHolderForAdapterPosition(index.toPagePosition())?.let {

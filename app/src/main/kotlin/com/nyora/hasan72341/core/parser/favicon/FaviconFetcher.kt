@@ -67,7 +67,9 @@ class FaviconFetcher(
 
 			is LocalMangaRepository -> imageLoader.fetch(R.drawable.ic_storage, options)
 			is MihonMangaRepository -> fetchMihonIcon(repo)
-			is com.nyora.hasan72341.core.parser.DataDrivenMangaRepository ->
+			// Covers every repository that knows its own domain (data-driven + the native
+			// ports built on one), so adding another native source can't break its favicons.
+			is com.nyora.hasan72341.core.parser.DomainAwareRepository ->
 				fetchDomainIcon(repo.domain, repo.source.name)
 			is com.nyora.hasan72341.core.parser.MangaFireMangaRepository ->
 				fetchDomainIcon("mangafire.to", repo.source.name)

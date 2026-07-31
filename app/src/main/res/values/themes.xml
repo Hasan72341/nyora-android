@@ -37,7 +37,7 @@
 		<item name="colorOnError">@color/onError</item>
 		<item name="colorOnErrorContainer">@color/onErrorContainer</item>
 		<item name="colorOutline">@color/nyora_outline</item>
-		<item name="colorOutlineVariant">@color/nyora_outline</item>
+		<item name="colorOutlineVariant">@color/nyora_outlineVariant</item>
 
 		<!-- Drawables (icons) -->
 		<item name="actionModeCloseDrawable">@drawable/abc_ic_clear_material</item>

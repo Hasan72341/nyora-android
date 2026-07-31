@@ -12,6 +12,7 @@ import com.nyora.hasan72341.core.model.LocalMangaSource
 import com.nyora.hasan72341.core.model.MangaSourceInfo
 import com.nyora.hasan72341.core.model.TestMangaSource
 import com.nyora.hasan72341.core.model.UnknownMangaSource
+import com.nyora.hasan72341.core.prefs.SourceSettings
 import com.nyora.hasan72341.local.data.LocalMangaRepository
 import com.nyora.hasan72341.mihon.parsers.MangaLoaderContext
 import com.nyora.hasan72341.mihon.parsers.model.Manga
@@ -26,6 +27,16 @@ import com.nyora.hasan72341.mihon.parsers.model.SortOrder
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/**
+ * A repository that knows the live domain of its source. [CommonHeadersInterceptor] uses it to
+ * derive the Referer, which several image CDNs (2xstorage.com et al.) hotlink-check — a native
+ * repository that doesn't advertise its domain silently gets 403s on every cover.
+ */
+interface DomainAwareRepository {
+
+	val domain: String
+}
 
 interface MangaRepository {
 
@@ -135,10 +146,22 @@ interface MangaRepository {
 				cache = contentCache,
 			)
 
+			// MangaNato/Mangakakalot/MangaNelo are one deployment whose chapter list moved to a
+			// JSON API and whose browse grid the generic mangabox engine mis-reads (it latches
+			// onto the page's hero slider). Served natively, matching nyora-shared.
+			is DataDrivenMangaSource if source.sourceId in NatoMangaRepository.SOURCE_IDS ->
+				NatoMangaRepository(
+					source = source,
+					okHttpClient = okHttpClient,
+					cache = contentCache,
+					settings = SourceSettings(context, source),
+				)
+
 			// Rendered at runtime by a bundled generic engine.
 			is DataDrivenMangaSource -> DataDrivenMangaRepository(
 				ddSource = source,
 				okHttpClient = okHttpClient,
+				settings = SourceSettings(context, source),
 			)
 
 			else -> null

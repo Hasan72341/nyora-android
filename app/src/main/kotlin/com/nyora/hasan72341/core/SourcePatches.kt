@@ -13,6 +13,8 @@ object SourcePatches {
         "AINZSCANS" to "ainzscans.net",
         "ALTAYSCANS" to "witchscans.com",
         "ASTRASCANS" to "astracomic.com",
+        "DD_mangabat" to "www.mangabats.com",
+        "DD_manganato" to "www.natomanga.com",
         "DOCTRUYEN3Q" to "doctruyen3qhub.org",
         "FLOWERMANGA" to "flowermangas.net",
         "ISEKAISCAN_EU" to "isekaiscan.top",

@@ -106,9 +106,6 @@ abstract class BasePagerReaderFragment : BaseReaderFragment<FragmentReaderPagerB
 		(viewBinding?.pager?.findCurrentViewHolder() as? BasePageHolder<*>)?.translatePage()
 	}
 
-	override fun colorizeCurrentPage() {
-		(viewBinding?.pager?.findCurrentViewHolder() as? BasePageHolder<*>)?.colorizePage()
-	}
 
 	override fun translatePageAt(index: Int) {
 		val rv = viewBinding?.pager?.getChildAt(0) as? androidx.recyclerview.widget.RecyclerView

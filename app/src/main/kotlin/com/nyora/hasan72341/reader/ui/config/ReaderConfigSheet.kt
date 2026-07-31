@@ -102,7 +102,6 @@ class ReaderConfigSheet :
         binding.checkableGroup.addOnButtonCheckedListener(this)
         binding.buttonSavePage.setOnClickListener(this)
         binding.buttonAiTranslate.setOnClickListener(this)
-        binding.buttonColorize.setOnClickListener(this)
         binding.buttonScreenRotate.setOnClickListener(this)
         binding.buttonSettings.setOnClickListener(this)
         binding.buttonImageServer.setOnClickListener(this)
@@ -128,19 +127,6 @@ class ReaderConfigSheet :
             binding.switchMangaTranslate.isVisible = false
         }
 
-        if (manga != null && settings.isColorizeEnabled) {
-            binding.switchMangaColorize.isVisible = true
-            binding.switchMangaColorize.isChecked = settings.isColorizeEnabledForManga(manga.id)
-            binding.switchMangaColorize.setOnCheckedChangeListener { _, isChecked ->
-                settings.setColorizeEnabledForManga(manga.id, isChecked)
-                lifecycleScope.launch {
-                    pageLoader.invalidate(clearCache = true)
-                    viewModel.switchChapterBy(0)
-                }
-            }
-        } else {
-            binding.switchMangaColorize.isVisible = false
-        }
 
         viewModel.isBookmarkAdded.observe(viewLifecycleOwner) {
             binding.buttonBookmark.setText(if (it) R.string.bookmark_remove else R.string.bookmark_add)
@@ -188,10 +174,6 @@ class ReaderConfigSheet :
                 dismissAllowingStateLoss()
             }
 
-            R.id.button_colorize -> {
-                findParentCallback(Callback::class.java)?.onColorizePageClick() ?: return
-                dismissAllowingStateLoss()
-            }
 
             R.id.button_screen_rotate -> {
                 orientationHelper.isLandscape = !orientationHelper.isLandscape
@@ -319,7 +301,6 @@ class ReaderConfigSheet :
 
         fun onTranslatePageClick()
 
-        fun onColorizePageClick()
 
         fun onScrollTimerClick(isLongClick: Boolean)
 

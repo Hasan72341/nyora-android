@@ -105,7 +105,6 @@ abstract class BasePageHolder<B : ViewBinding>(
 
 	open fun translatePage() = Unit
 
-	open fun colorizePage() = Unit
 
 	@CallSuper
 	protected open fun onBind(data: ReaderPage) = Unit

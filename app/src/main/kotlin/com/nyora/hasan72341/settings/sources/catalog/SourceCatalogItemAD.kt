@@ -40,7 +40,21 @@ fun sourceCatalogItemSourceAD(
 		end = (basePadding - context.resources.getDimensionPixelOffset(R.dimen.margin_small)).coerceAtLeast(0),
 	)
 
-	bind {
+	fun bindToggle() {
+		val isEnabled = item.isEnabled
+		binding.imageViewAdd.setImageResource(
+			if (isEnabled) R.drawable.ic_remove else R.drawable.ic_add,
+		)
+		val label = context.getString(if (isEnabled) R.string.remove else R.string.add)
+		binding.imageViewAdd.contentDescription = label
+		binding.imageViewAdd.tooltipText = label
+	}
+
+	bind { payloads ->
+		if (payloads.contains(SourceCatalogItem.PAYLOAD_ENABLED_CHANGED)) {
+			bindToggle()
+			return@bind
+		}
 		binding.textViewTitle.text = item.source.getTitle(context)
 		binding.textViewDescription.text = item.source.getSummary(context)
 		binding.textViewDescription.drawableStart = if (item.source.isBroken) {
@@ -50,6 +64,7 @@ fun sourceCatalogItemSourceAD(
 		}
 		FaviconDrawable(context, R.style.FaviconDrawable_Small, item.source.name)
 		binding.imageViewIcon.setImageAsync(item.source)
+		bindToggle()
 	}
 }
 

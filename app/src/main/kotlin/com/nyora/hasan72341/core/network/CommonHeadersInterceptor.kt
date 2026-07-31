@@ -46,7 +46,7 @@ class CommonHeadersInterceptor @Inject constructor(
 			// Derive a Referer from the source domain — for native parser sources AND data-driven
 			// sources alike. Manganato et al. gate cover/page images on it.
 			val domain = parserRepository?.domain
-				?: (repository as? com.nyora.hasan72341.core.parser.DataDrivenMangaRepository)?.domain
+				?: (repository as? com.nyora.hasan72341.core.parser.DomainAwareRepository)?.domain
 			if (domain != null) {
 				headersBuilder.trySet(CommonHeaders.REFERER, "https://${IDN.toASCII(domain)}/")
 			}

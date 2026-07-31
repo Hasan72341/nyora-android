@@ -4,7 +4,7 @@
 	android:shape="rectangle">
 
 	<corners android:radius="100dp" />
-	<solid android:color="#D9090D16" />
+	<solid android:color="@color/nyora_surfaceScrim85" />
 	<stroke
 		android:width="1.2dp"
 		android:color="?attr/colorOutline" />
