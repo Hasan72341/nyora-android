@@ -1,0 +1,169 @@
+name: Build Release Artifacts
+
+# Manually-triggered signed APK *and* AAB, built from whichever ref you dispatch
+# against. Both are signed with the release keystore (secrets.KEYSTORE_FILE and
+# friends) and uploaded as run artifacts.
+#
+# This exists alongside release.yml because that workflow only fires on a v* tag
+# and derives its versionCode as MAJOR*10000 + MINOR*100 + PATCH, which does not
+# match the MAJOR*10000 + MINOR*1000 convention this project actually uses
+# (2.6 -> 26000, not 20600). Here the version is read straight from
+# app/build.gradle, or overridden via the dispatch inputs.
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'versionName override (blank = read from app/build.gradle)'
+        required: false
+        default: ''
+      version_code:
+        description: 'versionCode override (blank = read from app/build.gradle)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Configure Gradle memory for CI
+        # The project gradle.properties asks for 8 GB for both the Gradle and
+        # Kotlin daemons, which is tuned for a dev machine and gets OOM-killed on
+        # a hosted runner. A gradle.properties in GRADLE_USER_HOME overrides the
+        # project one, so cap the daemons and serialize work here.
+        run: |
+          mkdir -p ~/.gradle
+          {
+            echo 'org.gradle.jvmargs=-Xmx5g -XX:MaxMetaspaceSize=1g -XX:+UseParallelGC -Dkotlin.daemon.jvm.options\="-Xmx2g"'
+            echo 'org.gradle.parallel=false'
+            echo 'org.gradle.workers.max=2'
+          } >> ~/.gradle/gradle.properties
+
+      - name: Resolve version
+        id: version
+        run: |
+          set -euo pipefail
+          VER='${{ github.event.inputs.version_name }}'
+          CODE='${{ github.event.inputs.version_code }}'
+          if [ -z "$VER" ]; then
+            VER=$(grep -oP "versionName project.hasProperty\\('versionName'\\) \\? project.property\\('versionName'\\) : '\\K[^']+" app/build.gradle | head -n1)
+          fi
+          if [ -z "$CODE" ]; then
+            CODE=$(grep -oP "versionCode project.hasProperty\\('versionCode'\\) \\? project.property\\('versionCode'\\).toInteger\\(\\) : \\K[0-9]+" app/build.gradle | head -n1)
+          fi
+          if [ -z "$VER" ] || [ -z "$CODE" ]; then
+            echo "Could not determine version from app/build.gradle" >&2
+            exit 1
+          fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "version_code=$CODE" >> "$GITHUB_OUTPUT"
+          echo "Building $VER ($CODE) from ${GITHUB_REF#refs/heads/}"
+
+      - name: Decode keystore
+        run: echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > keystore.jks
+
+      - name: Build signed APK and AAB
+        env:
+          KEYSTORE_FILE: ${{ github.workspace }}/keystore.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
+        run: |
+          ./gradlew :app:assembleRelease :app:bundleRelease \
+            -PversionName=${{ steps.version.outputs.version }} \
+            -PversionCode=${{ steps.version.outputs.version_code }} \
+            --no-build-cache --no-configuration-cache
+
+      - name: Verify signatures
+        run: |
+          set -euo pipefail
+          APK=app/build/outputs/apk/release/app-release.apk
+          AAB=app/build/outputs/bundle/release/app-release.aab
+          ls -la "$APK" "$AAB"
+          "$JAVA_HOME/bin/jarsigner" -verify -certs -verbose:summary "$APK" 2>&1 | head -20
+          "$JAVA_HOME/bin/jarsigner" -verify -certs -verbose:summary "$AAB" 2>&1 | head -20
+
+      - name: Verify 16 KB page-size alignment
+        # Play rejects native libraries whose ELF LOAD segments are 4 KB aligned
+        # on 16 KB-page devices. Conscrypt 2.5.x shipped 4 KB .so files and got
+        # the 2.6 release flagged, so gate every bundled .so on it here.
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/apkcheck && mkdir -p /tmp/apkcheck
+          unzip -qo app/build/outputs/apk/release/app-release.apk 'lib/*' -d /tmp/apkcheck || true
+          python3 - <<'PY'
+          import glob, struct, sys
+
+          def max_load_align(path):
+              d = open(path, 'rb').read()
+              if d[:4] != b'\x7fELF':
+                  return None
+              w = d[4] == 2
+              phoff = struct.unpack_from('<Q' if w else '<I', d, 32 if w else 28)[0]
+              phentsize, phnum = struct.unpack_from('<HH', d, 54 if w else 42)
+              off, fmt = (48, '<Q') if w else (28, '<I')
+              aligns = [
+                  struct.unpack_from(fmt, d, phoff + i * phentsize + off)[0]
+                  for i in range(phnum)
+                  if struct.unpack_from('<I', d, phoff + i * phentsize)[0] == 1
+              ]
+              return max(aligns) if aligns else None
+
+          libs = sorted(glob.glob('/tmp/apkcheck/lib/*/*.so'))
+          if not libs:
+              print('No bundled .so files found; nothing to check.')
+              sys.exit(0)
+
+          bad = []
+          for lib in libs:
+              align = max_load_align(lib)
+              abi = lib.split('/')[-2]
+              # Only 64-bit ABIs run on 16 KB-page devices.
+              required = 16384 if abi in ('arm64-v8a', 'x86_64') else 4096
+              ok = align is not None and align >= required
+              print(f"{'ok  ' if ok else 'FAIL'} {abi}/{lib.split('/')[-1]} p_align={align}")
+              if not ok:
+                  bad.append(lib)
+
+          if bad:
+              print(f'\n{len(bad)} library/libraries are not 16 KB aligned.')
+              sys.exit(1)
+          print(f'\nAll {len(libs)} bundled libraries are correctly aligned.')
+          PY
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: nyora-${{ steps.version.outputs.version }}-apk
+          path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: nyora-${{ steps.version.outputs.version }}-aab
+          path: app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+      - name: Clean up keystore
+        if: always()
+        run: rm -f keystore.jks
