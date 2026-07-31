@@ -37,6 +37,8 @@ A fast, free, ad-free, open-source manga reader for Android — 1100+ sources, w
 
 ---
 
+## source: `https://raw.githubusercontent.com/Nyora-Manga/nyora-data-driven/refs/heads/main/catalogue.json`
+
 ## About
 
 Nyora is a polished, privacy-first manga reader for Android — a fork of [Kotatsu](https://github.com/KotatsuApp/Kotatsu) rebuilt around five things readers actually care about: translating a whole page of any language back over the original art, downloading chapters for offline reading, pulling from 1100+ built-in sources plus Tachiyomi/Mihon/Keiyoushi extensions, syncing your entire library across every device for free, and staying 100% open-source with no ads, no tracking and no account required to read. Read on your phone at lunch and pick up exactly where you left off on your laptop at night.
