@@ -34,8 +34,9 @@ class SupabaseConfig @Inject constructor(
 	var accessToken: String = ""
 	var refreshToken: String = ""
 	var userId: String = ""
+	var accountEmail: String = ""
 	var lastSyncTimestamp: String = INITIAL_SYNC_TIMESTAMP
-	var firstLoginHandled: Boolean = false
+	var lastSyncError: String? = null
 
 	val isConfigured get() = url.isNotBlank() && anonKey.isNotBlank()
 	val isAuthenticated get() = accessToken.isNotBlank() && userId.isNotBlank()
@@ -50,9 +51,10 @@ class SupabaseConfig @Inject constructor(
 		accessToken = prefs.getString("access_token", "") ?: ""
 		refreshToken = prefs.getString("refresh_token", "") ?: ""
 		userId = prefs.getString("user_id", "") ?: ""
+		accountEmail = prefs.getString("account_email", "") ?: ""
 		lastSyncTimestamp = prefs.getString("last_sync_timestamp", INITIAL_SYNC_TIMESTAMP)
 			?: INITIAL_SYNC_TIMESTAMP
-		firstLoginHandled = prefs.getBoolean("first_login_handled", false)
+		lastSyncError = prefs.getString("last_sync_error", null)
 	}
 
 	fun configure(url: String, anonKey: String) {
@@ -69,9 +71,21 @@ class SupabaseConfig @Inject constructor(
 			putString("access_token", accessToken)
 			putString("refresh_token", refreshToken)
 			putString("user_id", userId)
+			putString("account_email", accountEmail)
 			putString("last_sync_timestamp", lastSyncTimestamp)
-			putBoolean("first_login_handled", firstLoginHandled)
+			putString("last_sync_error", lastSyncError)
 		}
+	}
+
+	fun markSyncSucceeded(completedThrough: String) {
+		lastSyncTimestamp = completedThrough
+		lastSyncError = null
+		saveTokens()
+	}
+
+	fun markSyncFailed(error: Throwable) {
+		lastSyncError = error.message?.take(500) ?: error.javaClass.simpleName
+		prefs.edit { putString("last_sync_error", lastSyncError) }
 	}
 
 	fun resetSyncCursor() {
@@ -85,13 +99,16 @@ class SupabaseConfig @Inject constructor(
 		accessToken = ""
 		refreshToken = ""
 		userId = ""
+		accountEmail = ""
 		lastSyncTimestamp = INITIAL_SYNC_TIMESTAMP
-		firstLoginHandled = false
+		lastSyncError = null
 		prefs.edit {
 			remove("access_token")
 			remove("refresh_token")
 			remove("user_id")
+			remove("account_email")
 			remove("last_sync_timestamp")
+			remove("last_sync_error")
 			remove("first_login_handled")
 		}
 	}
@@ -103,11 +120,13 @@ class SupabaseConfig @Inject constructor(
 		Regex(""""sub"\s*:\s*"([^"]+)""").find(decoded)?.groupValues?.get(1) ?: ""
 	}.getOrDefault("")
 
-	val email: String get() = runCatching {
-		if (accessToken.isBlank()) return@runCatching ""
-		val payload = accessToken.split(".")[1]
-		val padded = payload + "=".repeat((4 - payload.length % 4) % 4)
-		val decoded = String(android.util.Base64.decode(padded, android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP))
-		Regex(""""email"\s*:\s*"([^"]+)""").find(decoded)?.groupValues?.get(1) ?: ""
-	}.getOrDefault("")
+	val email: String get() = accountEmail.ifBlank {
+		runCatching {
+			if (accessToken.isBlank()) return@runCatching ""
+			val payload = accessToken.split(".")[1]
+			val padded = payload + "=".repeat((4 - payload.length % 4) % 4)
+			val decoded = String(android.util.Base64.decode(padded, android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP))
+			Regex(""""email"\s*:\s*"([^"]+)""").find(decoded)?.groupValues?.get(1) ?: ""
+		}.getOrDefault("")
+	}
 }

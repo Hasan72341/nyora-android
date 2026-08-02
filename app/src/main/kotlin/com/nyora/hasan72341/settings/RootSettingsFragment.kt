@@ -16,9 +16,14 @@ import com.nyora.hasan72341.core.util.ext.getQuantityStringSafe
 import com.nyora.hasan72341.core.util.ext.observe
 import com.nyora.hasan72341.settings.search.SettingsSearchMenuProvider
 import com.nyora.hasan72341.settings.search.SettingsSearchViewModel
+import com.nyora.hasan72341.sync.supabase.SupabaseConfig
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class RootSettingsFragment : BasePreferenceFragment(0) {
+
+	@Inject
+	lateinit var syncConfig: SupabaseConfig
 
 	private val viewModel: RootSettingsViewModel by viewModels()
 	private val activityViewModel: SettingsSearchViewModel by activityViewModels()
@@ -48,6 +53,15 @@ class RootSettingsFragment : BasePreferenceFragment(0) {
 			}
 		}
 		addMenuProvider(SettingsSearchMenuProvider(activityViewModel))
+	}
+
+	override fun onResume() {
+		super.onResume()
+		findPreference<Preference>("account_sync")?.summary = if (syncConfig.isAuthenticated) {
+			getString(R.string.logged_in_as, syncConfig.email.ifBlank { getString(R.string.signed_in) })
+		} else {
+			getString(R.string.account_sync_summary)
+		}
 	}
 
 	override fun setTitle(title: CharSequence?) {

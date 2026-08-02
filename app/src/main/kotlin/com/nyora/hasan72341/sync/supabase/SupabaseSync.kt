@@ -2,8 +2,11 @@ package com.nyora.hasan72341.sync.supabase
 
 import android.content.Context
 import com.nyora.hasan72341.core.db.MangaDatabase
+import com.nyora.hasan72341.core.exceptions.SyncApiException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -26,6 +29,8 @@ class SupabaseSync @Inject constructor(
     @BaseHttpClient private val http: OkHttpClient,
     private val config: SupabaseConfig,
 ) {
+	private val syncMutex = Mutex()
+
     private val historyDao get() = database.getHistoryDao()
     private val favouritesDao get() = database.getFavouritesDao()
     private val bookmarksDao get() = database.getBookmarksDao()
@@ -39,12 +44,15 @@ class SupabaseSync @Inject constructor(
 
     // -- Auth (email/password against the self-hosted OAuth2 server) --
 
-    private fun applyTokenResponse(json: JSONObject): Boolean {
+    private fun applyTokenResponse(json: JSONObject, email: String? = null): Boolean {
         val previousUserId = config.userId
         config.accessToken = json.getString("access_token")
         config.refreshToken = json.optString("refresh_token", config.refreshToken)
         config.userId = json.optString("user_id", "")
             .ifBlank { config.parseUserIdFromJwt(config.accessToken) }
+        email?.trim()?.lowercase()?.takeIf { it.isNotBlank() }?.let {
+            config.accountEmail = it
+        }
         if (previousUserId.isNotBlank() && previousUserId != config.userId) {
             config.lastSyncTimestamp = SupabaseConfig.INITIAL_SYNC_TIMESTAMP
         }
@@ -53,33 +61,37 @@ class SupabaseSync @Inject constructor(
     }
 
     /** OAuth2 password grant (form-encoded) → POST /auth/token. */
-    suspend fun signIn(email: String, password: String): Boolean = withContext(Dispatchers.IO) {
-        if (!config.isConfigured) return@withContext false
-        val body = okhttp3.FormBody.Builder()
-            .add("grant_type", "password")
-            .add("username", email.trim())
-            .add("password", password)
-            .build()
-        val req = Request.Builder().url("${config.url}/auth/token").post(body).build()
-        runCatching {
-            http.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) return@withContext false
-                applyTokenResponse(JSONObject(resp.body!!.string()))
-            }
-        }.getOrDefault(false)
+    suspend fun signIn(email: String, password: String): Boolean = syncMutex.withLock {
+        withContext(Dispatchers.IO) {
+            if (!config.isConfigured) return@withContext false
+            val body = okhttp3.FormBody.Builder()
+                .add("grant_type", "password")
+                .add("username", email.trim())
+                .add("password", password)
+                .build()
+            val req = Request.Builder().url("${config.url}/auth/token").post(body).build()
+            runCatching {
+                http.newCall(req).execute().use { resp ->
+                    if (!resp.isSuccessful) return@withContext false
+                    applyTokenResponse(JSONObject(resp.body!!.string()), email)
+                }
+            }.getOrDefault(false)
+        }
     }
 
     /** Create an account → POST /auth/register {email,password}; returns tokens on success. */
-    suspend fun register(email: String, password: String): Boolean = withContext(Dispatchers.IO) {
-        if (!config.isConfigured) return@withContext false
-        val payload = """{"email":${email.trim().jq},"password":${password.jq}}""".toRequestBody(JSON_MT)
-        val req = Request.Builder().url("${config.url}/auth/register").post(payload).build()
-        runCatching {
-            http.newCall(req).execute().use { resp ->
-                if (!resp.isSuccessful) return@withContext false
-                applyTokenResponse(JSONObject(resp.body!!.string()))
-            }
-        }.getOrDefault(false)
+    suspend fun register(email: String, password: String): Boolean = syncMutex.withLock {
+        withContext(Dispatchers.IO) {
+            if (!config.isConfigured) return@withContext false
+            val payload = """{"email":${email.trim().jq},"password":${password.jq}}""".toRequestBody(JSON_MT)
+            val req = Request.Builder().url("${config.url}/auth/register").post(payload).build()
+            runCatching {
+                http.newCall(req).execute().use { resp ->
+                    if (!resp.isSuccessful) return@withContext false
+                    applyTokenResponse(JSONObject(resp.body!!.string()), email)
+                }
+            }.getOrDefault(false)
+        }
     }
 
     suspend fun refreshToken(): Boolean = withContext(Dispatchers.IO) {
@@ -97,9 +109,7 @@ class SupabaseSync @Inject constructor(
         }.getOrDefault(false)
     }
 
-    fun signOut() {
-        config.clearTokens()
-    }
+    suspend fun signOut() = syncMutex.withLock { config.clearTokens() }
 
     private suspend fun refreshTokenIfExpired(): Boolean {
         // Decode JWT payload to check exp
@@ -119,34 +129,46 @@ class SupabaseSync @Inject constructor(
 
     // -- Push --
 
-    suspend fun syncNow() = withContext(Dispatchers.IO) {
-        if (!config.isAuthenticated) {
-            android.util.Log.w("SupabaseSync", "syncNow: not authenticated")
-            return@withContext
+    suspend fun syncNow() = syncMutex.withLock {
+        runSyncOperation {
+            val previousCursor = config.lastSyncTimestamp
+            val completedThrough = now()
+            val isBootstrap = previousCursor == SupabaseConfig.INITIAL_SYNC_TIMESTAMP
+            android.util.Log.d("SupabaseSync", "syncNow: bootstrap=$isBootstrap timestamp=$previousCursor")
+            pushAll(if (isBootstrap) 0L else parseEpochMilli(previousCursor))
+            pullAll(if (isBootstrap) SupabaseConfig.INITIAL_SYNC_TIMESTAMP else previousCursor)
+            config.markSyncSucceeded(completedThrough)
+            android.util.Log.d("SupabaseSync", "syncNow: complete")
         }
-        if (!refreshTokenIfExpired()) {
-            android.util.Log.w("SupabaseSync", "syncNow: token refresh failed")
-            return@withContext
-        }
-        val isBootstrap = config.lastSyncTimestamp == SupabaseConfig.INITIAL_SYNC_TIMESTAMP
-        android.util.Log.d("SupabaseSync", "syncNow: bootstrap=$isBootstrap timestamp=${config.lastSyncTimestamp}")
-        val cutoff = if (isBootstrap) 0L else parseEpochMilli(config.lastSyncTimestamp)
-        pushAll(cutoff)
-        pullAll(if (isBootstrap) SupabaseConfig.INITIAL_SYNC_TIMESTAMP else config.lastSyncTimestamp)
-        android.util.Log.d("SupabaseSync", "syncNow: complete")
     }
 
-    suspend fun restoreFromCloud() = withContext(Dispatchers.IO) {
-        if (!config.isAuthenticated) return@withContext
-        if (!refreshTokenIfExpired()) return@withContext
-        pullAll(SupabaseConfig.INITIAL_SYNC_TIMESTAMP)
+    suspend fun restoreFromCloud() = syncMutex.withLock {
+        runSyncOperation {
+            val completedThrough = now()
+            pullAll(SupabaseConfig.INITIAL_SYNC_TIMESTAMP)
+            config.markSyncSucceeded(completedThrough)
+        }
     }
 
-    suspend fun pushAll() = withContext(Dispatchers.IO) {
-        if (!config.isAuthenticated) return@withContext
-        if (!refreshTokenIfExpired()) return@withContext
-        val cutoff = parseEpochMilli(config.lastSyncTimestamp)
-        pushAll(cutoff)
+    suspend fun pushAll() = syncMutex.withLock {
+        runSyncOperation {
+            pushAll(parseEpochMilli(config.lastSyncTimestamp))
+        }
+    }
+
+    private suspend fun runSyncOperation(block: suspend () -> Unit) = withContext(Dispatchers.IO) {
+        try {
+            if (!config.isAuthenticated) {
+                throw SyncApiException("Sign in required", 401)
+            }
+            if (!refreshTokenIfExpired()) {
+                throw SyncApiException("Your session expired. Sign in again.", 401)
+            }
+            block()
+        } catch (e: Throwable) {
+            config.markSyncFailed(e)
+            throw e
+        }
     }
 
     private suspend fun pushAll(cutoff: Long) {
@@ -529,10 +551,12 @@ class SupabaseSync @Inject constructor(
 
     // -- Pull --
 
-    suspend fun pullAll() = kotlinx.coroutines.withContext(Dispatchers.IO) {
-        if (!config.isAuthenticated) return@withContext
-        if (!refreshTokenIfExpired()) return@withContext
-        pullAll(config.lastSyncTimestamp)
+    suspend fun pullAll() = syncMutex.withLock {
+        runSyncOperation {
+            val completedThrough = now()
+            pullAll(config.lastSyncTimestamp)
+            config.markSyncSucceeded(completedThrough)
+        }
     }
 
     private suspend fun pullAll(cutoff: String) {
@@ -546,8 +570,6 @@ class SupabaseSync @Inject constructor(
         pullSourcePrefs(cutoff)
         pullTracking(cutoff)
         pullExtensionRepos()
-        config.lastSyncTimestamp = Instant.now().toString()
-        config.saveTokens()
     }
 
     private suspend fun pullExtensionRepos() {
@@ -912,7 +934,7 @@ class SupabaseSync @Inject constructor(
         http.newCall(req).execute().use { resp ->
             val body = resp.body?.string()
             if (!resp.isSuccessful) {
-                throw IllegalStateException("fetch $table failed ${resp.code}: ${body.orEmpty()}")
+                throw SyncApiException("Sync download failed (${resp.code})", resp.code)
             }
             JSONObject(body ?: "{}").optJSONArray("data")?.toString() ?: "[]"
         }
@@ -934,7 +956,7 @@ class SupabaseSync @Inject constructor(
                 .build()
             http.newCall(req).execute().use { resp ->
                 if (!resp.isSuccessful) {
-                    throw IllegalStateException("upsert $table failed ${resp.code}: ${resp.body?.string().orEmpty()}")
+                    throw SyncApiException("Sync upload failed (${resp.code})", resp.code)
                 }
             }
         }.onFailure {

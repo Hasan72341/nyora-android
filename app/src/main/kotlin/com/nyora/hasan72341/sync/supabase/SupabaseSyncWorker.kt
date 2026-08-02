@@ -27,7 +27,7 @@ class SupabaseSyncWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
 
 	override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
-		if (!config.isAuthenticated) return@withContext Result.retry()
+		if (!config.isAuthenticated) return@withContext Result.success()
 		try {
 			sync.syncNow()
 			Result.success()

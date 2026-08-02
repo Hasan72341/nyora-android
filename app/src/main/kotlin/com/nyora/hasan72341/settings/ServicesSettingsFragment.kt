@@ -59,7 +59,6 @@ class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
 		bindScrobblerSummary(AppSettings.KEY_ANILIST, ScrobblerService.ANILIST)
 		bindScrobblerSummary(AppSettings.KEY_MAL, ScrobblerService.MAL)
 		bindScrobblerSummary(AppSettings.KEY_MANGABAKA, ScrobblerService.MANGABAKA)
-		bindSyncSummary()
 		bindAiTranslateSummary()
 	}
 
@@ -88,11 +87,6 @@ class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
 				handleScrobblerClick(ScrobblerService.MANGABAKA)
 				true
 			}
-
-			AppSettings.KEY_SYNC -> {
-				true
-			}
-
 			else -> super.onPreferenceTreeClick(preference)
 		}
 	}
@@ -131,11 +125,6 @@ class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
 		} else {
 			router.openScrobblerSettings(scrobblerService)
 		}
-	}
-
-	private fun bindSyncSummary() {
-		findPreference<Preference>(AppSettings.KEY_SYNC)?.summary = "Back up and sync your library across your devices"
-		findPreference<Preference>(AppSettings.KEY_SYNC_SETTINGS)?.isEnabled = true
 	}
 
 	private fun bindSuggestionsSummary() {

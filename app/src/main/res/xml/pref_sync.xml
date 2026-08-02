@@ -12,14 +12,17 @@
 
 	<PreferenceCategory
 		android:key="supabase_guest_category"
-		android:title="@string/guest">
+		android:title="@string/cloud_sync">
 
-			<Preference
-				android:key="supabase_sign_in"
-				android:title="@string/sign_in" />
+		<Preference
+			android:key="supabase_sign_in"
+			android:summary="@string/sign_in_sync_summary"
+			android:title="@string/sign_in"
+			app:icon="@drawable/ic_user" />
 
 		<Preference
 			android:key="supabase_continue_guest"
+			android:summary="@string/continue_guest_summary"
 			android:title="@string/continue_as_guest"
 			app:icon="@drawable/ic_arrow_forward" />
 
@@ -31,13 +34,15 @@
 
 		<Preference
 			android:key="supabase_sync_now"
+			android:summary="@string/sync_now_summary"
 			android:title="@string/sync_now"
 			app:icon="@drawable/ic_sync" />
 
 		<Preference
 			android:key="supabase_last_synced"
 			android:title="@string/last_synced"
-			app:iconSpaceReserved="true" />
+			android:selectable="false"
+			app:icon="@drawable/ic_history" />
 
 		<Preference
 			android:key="supabase_sync_error"
@@ -47,8 +52,9 @@
 
 		<Preference
 			android:key="supabase_sign_out"
+			android:summary="@string/sign_out_summary"
 			android:title="@string/sign_out"
-			app:iconSpaceReserved="true" />
+			app:icon="@drawable/ic_lock" />
 
 	</PreferenceCategory>
 

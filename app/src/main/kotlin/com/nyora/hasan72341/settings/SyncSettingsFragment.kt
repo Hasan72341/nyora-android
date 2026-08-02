@@ -1,29 +1,32 @@
 package com.nyora.hasan72341.settings
 
-import android.content.Intent
 import android.os.Bundle
+import android.text.format.DateUtils
+import android.util.Patterns
 import android.view.View
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import dagger.hilt.android.AndroidEntryPoint
 import com.nyora.hasan72341.R
-import com.nyora.hasan72341.core.db.MangaDatabase
 import com.nyora.hasan72341.core.ui.BasePreferenceFragment
-import com.nyora.hasan72341.sync.supabase.SupabaseSync
+import com.nyora.hasan72341.core.util.ext.getDisplayMessage
+import com.nyora.hasan72341.databinding.DialogSyncAuthBinding
 import com.nyora.hasan72341.sync.supabase.SupabaseConfig
+import com.nyora.hasan72341.sync.supabase.SupabaseSync
 import com.nyora.hasan72341.sync.supabase.SupabaseSyncWorker
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SyncSettingsFragment : BasePreferenceFragment(R.string.sync_settings) {
+class SyncSettingsFragment : BasePreferenceFragment(R.string.account_and_sync) {
 
 	@Inject
 	lateinit var supabaseSync: SupabaseSync
@@ -31,8 +34,8 @@ class SyncSettingsFragment : BasePreferenceFragment(R.string.sync_settings) {
 	@Inject
 	lateinit var config: SupabaseConfig
 
-	@Inject
-	lateinit var database: MangaDatabase
+	private var authDialog: AlertDialog? = null
+	private var isSyncing = false
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 		addPreferencesFromResource(R.xml.pref_sync)
@@ -43,206 +46,198 @@ class SyncSettingsFragment : BasePreferenceFragment(R.string.sync_settings) {
 		refreshState()
 	}
 
-	/** Email/password sign-in (or registration) dialog against the self-hosted server. */
-	private fun promptSignIn() {
-		val ctx = requireContext()
-		val pad = (16 * resources.displayMetrics.density).toInt()
-		val emailInput = android.widget.EditText(ctx).apply {
-			hint = getString(R.string.email)
-			inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-		}
-		val passwordInput = android.widget.EditText(ctx).apply {
-			hint = getString(R.string.password)
-			inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
-		}
-		val container = android.widget.LinearLayout(ctx).apply {
-			orientation = android.widget.LinearLayout.VERTICAL
-			setPadding(pad, pad / 2, pad, 0)
-			addView(emailInput)
-			addView(passwordInput)
-		}
-		com.google.android.material.dialog.MaterialAlertDialogBuilder(ctx)
-			.setTitle(R.string.sign_in)
-			.setView(container)
-			.setPositiveButton(R.string.sign_in) { _, _ ->
-				doAuth(emailInput.text.toString(), passwordInput.text.toString(), register = false)
-			}
-			.setNeutralButton(R.string.create_account) { _, _ ->
-				doAuth(emailInput.text.toString(), passwordInput.text.toString(), register = true)
-			}
-			.setNegativeButton(android.R.string.cancel, null)
-			.show()
+	override fun onDestroyView() {
+		authDialog?.dismiss()
+		authDialog = null
+		super.onDestroyView()
 	}
 
-	private fun doAuth(email: String, password: String, register: Boolean) {
-		val e = email.trim()
-		if (e.isEmpty() || password.isEmpty()) {
-			view?.let { Snackbar.make(it, R.string.enter_email_and_password, Snackbar.LENGTH_SHORT).show() }
+	private fun promptSignIn() {
+		val binding = DialogSyncAuthBinding.inflate(layoutInflater)
+		val dialog = MaterialAlertDialogBuilder(requireContext())
+			.setTitle(R.string.sync_auth)
+			.setMessage(R.string.sync_auth_hint)
+			.setView(binding.root)
+			.setPositiveButton(R.string.sign_in, null)
+			.setNeutralButton(R.string.create_account, null)
+			.setNegativeButton(android.R.string.cancel, null)
+			.create()
+
+		dialog.setOnShowListener {
+			dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+				submitAuth(dialog, binding, register = false)
+			}
+			dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+				submitAuth(dialog, binding, register = true)
+			}
+		}
+		dialog.setOnDismissListener {
+			if (authDialog === dialog) authDialog = null
+		}
+		authDialog = dialog
+		dialog.show()
+	}
+
+	private fun submitAuth(
+		dialog: AlertDialog,
+		binding: DialogSyncAuthBinding,
+		register: Boolean,
+	) {
+		val email = binding.editEmail.text?.toString()?.trim().orEmpty()
+		val password = binding.editPassword.text?.toString().orEmpty()
+		binding.layoutEmail.error = null
+		binding.layoutPassword.error = null
+
+		if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+			binding.layoutEmail.error = getString(R.string.invalid_email)
 			return
 		}
-		lifecycleScope.launch(Dispatchers.IO) {
-			val ok = if (register) supabaseSync.register(e, password) else supabaseSync.signIn(e, password)
-			withContext(Dispatchers.Main) {
-				val v = view ?: return@withContext
-				if (ok) {
-					Snackbar.make(v, R.string.signed_in, Snackbar.LENGTH_SHORT).show()
-					SupabaseSyncWorker.schedulePeriodic(requireContext())
-					checkFirstLoginMerge()
-					refreshState()
-				} else {
-					Snackbar.make(v, R.string.sign_in_failed, Snackbar.LENGTH_LONG).show()
-				}
+		if (password.length < MIN_PASSWORD_LENGTH) {
+			binding.layoutPassword.error = getString(R.string.password_length_hint)
+			return
+		}
+
+		setAuthBusy(dialog, binding, true)
+		viewLifecycleOwner.lifecycleScope.launch {
+			val authenticated = withContext(Dispatchers.IO) {
+				if (register) supabaseSync.register(email, password) else supabaseSync.signIn(email, password)
 			}
+			if (!authenticated) {
+				setAuthBusy(dialog, binding, false)
+				binding.layoutPassword.error = getString(
+					if (register) R.string.account_creation_failed else R.string.sign_in_failed,
+				)
+				return@launch
+			}
+
+			dialog.dismiss()
+			Snackbar.make(listView, R.string.signed_in, Snackbar.LENGTH_SHORT).show()
+			SupabaseSyncWorker.schedulePeriodic(requireContext())
+			performSync(showStartedMessage = false)
 		}
 	}
 
-	private fun checkFirstLoginMerge() {
-		// Check if local data exists and first-login flag not set
-		if (config.firstLoginHandled) return
-		lifecycleScope.launch(Dispatchers.IO) {
-			val hasLocalData = hasLocalSyncableData()
-			if (hasLocalData) {
-				withContext(Dispatchers.Main) {
-					showMergeDialog()
-				}
-			} else {
-				config.firstLoginHandled = true
-				config.saveTokens()
-				supabaseSync.syncNow()
+	private fun setAuthBusy(dialog: AlertDialog, binding: DialogSyncAuthBinding, busy: Boolean) {
+		binding.progress.isVisible = busy
+		binding.editEmail.isEnabled = !busy
+		binding.editPassword.isEnabled = !busy
+		dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = !busy
+		dialog.getButton(AlertDialog.BUTTON_NEUTRAL).isEnabled = !busy
+		dialog.getButton(AlertDialog.BUTTON_NEGATIVE).isEnabled = !busy
+	}
+
+	private fun performSync(showStartedMessage: Boolean = true) {
+		if (isSyncing || !config.isAuthenticated) return
+		isSyncing = true
+		refreshState()
+		if (showStartedMessage) {
+			Snackbar.make(listView, R.string.syncing_library, Snackbar.LENGTH_SHORT).show()
+		}
+
+		viewLifecycleOwner.lifecycleScope.launch {
+			try {
+				withContext(Dispatchers.IO) { supabaseSync.syncNow() }
 				SupabaseSyncWorker.schedulePeriodic(requireContext())
+				Snackbar.make(listView, R.string.sync_complete, Snackbar.LENGTH_SHORT).show()
+			} catch (e: Exception) {
+				Snackbar.make(
+					listView,
+					getString(R.string.sync_failed_message, e.getDisplayMessage(resources)),
+					Snackbar.LENGTH_LONG,
+				).show()
+			} finally {
+				isSyncing = false
+				refreshState()
 			}
 		}
 	}
 
-	private suspend fun hasLocalSyncableData(): Boolean {
-		if (database.getFavouritesDao().findAll().isNotEmpty()) return true
-		if (database.getHistoryDao().findAll(0, 1).isNotEmpty()) return true
-		if (database.getBookmarksDao().findAll(0, 1).isNotEmpty()) return true
-		if (database.getFavouriteCategoriesDao().findAll().isNotEmpty()) return true
-		if (database.getPreferencesDao().findAll().isNotEmpty()) return true
-		if (database.getExternalExtensionRepoDao().findAll().isNotEmpty()) return true
-		val sources = database.getSourcesDao().findAll()
-		if (sources.any { it.isPinned || !it.isEnabled || it.lastUsedAt > 0 }) return true
-		return false
-	}
-
-	private fun showMergeDialog() {
-		val items = arrayOf(
-			"Merge local data into account",
-			"Replace local with cloud data",
-			"Keep guest data separate"
-		)
-		com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-			.setTitle("Sync your data?")
-			.setMessage("Local data found. What would you like to do?")
-			.setItems(items) { _, which ->
-				lifecycleScope.launch(Dispatchers.IO) {
-					config.firstLoginHandled = true
-					config.saveTokens()
-					when (which) {
-						0 -> { // Merge
-							supabaseSync.syncNow()
-						}
-						1 -> { // Replace local with cloud
-							config.resetSyncCursor()
-							supabaseSync.restoreFromCloud()
-						}
-						2 -> { // Keep separate — do nothing
-						}
-					}
-					SupabaseSyncWorker.schedulePeriodic(requireContext())
-					withContext(Dispatchers.Main) {
-						refreshState()
-					}
-				}
-			}
-			.setCancelable(false)
-			.show()
+	private fun signOut() {
+		if (isSyncing) return
+		isSyncing = true
+		refreshState()
+		viewLifecycleOwner.lifecycleScope.launch {
+			withContext(Dispatchers.IO) { supabaseSync.signOut() }
+			SupabaseSyncWorker.cancel(requireContext())
+			isSyncing = false
+			refreshState()
+			Snackbar.make(listView, R.string.signed_out, Snackbar.LENGTH_SHORT).show()
+		}
 	}
 
 	private fun refreshState() {
 		val signedIn = config.isAuthenticated
-
-		// Status
-		findPreference<Preference>("supabase_status")?.apply {
-			if (signedIn) {
-				title = config.email.ifBlank { "Signed In" }
-				summary = config.userId
-			} else {
-				title = "Guest"
-				summary = "Your data stays tied to your account. You can also continue as a guest and sync later."
-			}
+		findPreference<Preference>(KEY_STATUS)?.apply {
+			title = if (signedIn) config.email.ifBlank { getString(R.string.signed_in) } else getString(R.string.guest)
+			summary = getString(if (signedIn) R.string.sync_account_active else R.string.welcome_account_note)
 		}
 
-		// Guest category visibility
-		findPreference<PreferenceCategory>("supabase_guest_category")?.isVisible = !signedIn
-
-		// Account category visibility
-		findPreference<PreferenceCategory>("supabase_account_category")?.isVisible = signedIn
-
-		// Last synced
-		findPreference<Preference>("supabase_last_synced")?.apply {
-			if (signedIn && config.lastSyncTimestamp != SupabaseConfig.INITIAL_SYNC_TIMESTAMP) {
-				summary = try {
-					java.time.OffsetDateTime.parse(config.lastSyncTimestamp).toInstant()
-						.atZone(ZoneId.systemDefault())
-						.toLocalDateTime()
-						.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-				} catch (e: Exception) {
-					config.lastSyncTimestamp
-				}
-			} else {
-				summary = "Never"
-			}
+		findPreference<PreferenceCategory>(KEY_GUEST_CATEGORY)?.isVisible = !signedIn
+		findPreference<PreferenceCategory>(KEY_ACCOUNT_CATEGORY)?.isVisible = signedIn
+		findPreference<Preference>(KEY_SYNC_NOW)?.apply {
+			isEnabled = signedIn && !isSyncing
+			summary = getString(if (isSyncing) R.string.sync_in_progress else R.string.sync_now_summary)
 		}
+		findPreference<Preference>(KEY_SIGN_OUT)?.isEnabled = signedIn && !isSyncing
 
-		// Sync error (clear on refresh)
-		findPreference<Preference>("supabase_sync_error")?.isVisible = false
+		findPreference<Preference>(KEY_LAST_SYNCED)?.summary = formatLastSynced()
+		findPreference<Preference>(KEY_SYNC_ERROR)?.apply {
+			isVisible = signedIn && !config.lastSyncError.isNullOrBlank()
+			summary = config.lastSyncError
+		}
+	}
+
+	private fun formatLastSynced(): CharSequence {
+		if (config.lastSyncTimestamp == SupabaseConfig.INITIAL_SYNC_TIMESTAMP) {
+			return getString(R.string.never)
+		}
+		return runCatching {
+			DateUtils.getRelativeDateTimeString(
+				requireContext(),
+				Instant.parse(config.lastSyncTimestamp).toEpochMilli(),
+				DateUtils.MINUTE_IN_MILLIS,
+				DateUtils.WEEK_IN_MILLIS,
+				DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME,
+			)
+		}.getOrDefault(config.lastSyncTimestamp)
 	}
 
 	override fun onPreferenceTreeClick(preference: Preference): Boolean {
 		return when (preference.key) {
-			"supabase_sync_now" -> {
-				val v = view
-				if (v != null && config.isAuthenticated) {
-					Snackbar.make(v, "Syncing your library…", Snackbar.LENGTH_SHORT).show()
-					lifecycleScope.launch(Dispatchers.IO) {
-						try {
-							supabaseSync.syncNow()
-							SupabaseSyncWorker.schedulePeriodic(requireContext())
-							withContext(Dispatchers.Main) {
-								Snackbar.make(v, "Sync Complete!", Snackbar.LENGTH_SHORT).show()
-								refreshState()
-							}
-						} catch (e: Exception) {
-							withContext(Dispatchers.Main) {
-								findPreference<Preference>("supabase_sync_error")?.apply {
-									isVisible = true
-									summary = e.message ?: "Sync failed"
-								}
-								Snackbar.make(v, "Sync failed: ${e.message}", Snackbar.LENGTH_LONG).show()
-							}
-						}
-					}
-				}
+			KEY_SYNC_NOW -> {
+				performSync()
 				true
 			}
-			"supabase_sign_out" -> {
-				supabaseSync.signOut()
-				SupabaseSyncWorker.cancel(requireContext())
-				view?.let { Snackbar.make(it, "Signed out", Snackbar.LENGTH_SHORT).show() }
-				refreshState()
+
+			KEY_SIGN_OUT -> {
+				signOut()
 				true
 			}
-				"supabase_sign_in" -> {
-					promptSignIn()
-					true
-				}
-			"supabase_continue_guest" -> {
-				view?.let { Snackbar.make(it, "Continuing as guest", Snackbar.LENGTH_SHORT).show() }
+
+			KEY_SIGN_IN -> {
+				promptSignIn()
 				true
 			}
+
+			KEY_CONTINUE_GUEST -> {
+				parentFragmentManager.popBackStack()
+				true
+			}
+
 			else -> super.onPreferenceTreeClick(preference)
 		}
+	}
+
+	private companion object {
+		const val MIN_PASSWORD_LENGTH = 4
+		const val KEY_STATUS = "supabase_status"
+		const val KEY_GUEST_CATEGORY = "supabase_guest_category"
+		const val KEY_ACCOUNT_CATEGORY = "supabase_account_category"
+		const val KEY_SIGN_IN = "supabase_sign_in"
+		const val KEY_CONTINUE_GUEST = "supabase_continue_guest"
+		const val KEY_SYNC_NOW = "supabase_sync_now"
+		const val KEY_LAST_SYNCED = "supabase_last_synced"
+		const val KEY_SYNC_ERROR = "supabase_sync_error"
+		const val KEY_SIGN_OUT = "supabase_sign_out"
 	}
 }
