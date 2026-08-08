@@ -49,7 +49,15 @@ class DataDrivenCatalogueRepository @Inject constructor(
         loadFromDisk().takeIf { it.isNotEmpty() }?.let { cached = it }
     }
 
+    /**
+     * The BROWSABLE sources: dead rows are hidden here, exactly as before. They remain registered
+     * for resolution, so [allSources] / [DataDrivenMangaSource.resolve] still see them.
+     */
     val sources: List<DataDrivenMangaSource>
+        get() = allSources.filterNot { it.broken }
+
+    /** Every catalogue row, including dead ones. Identity lookups, not a browsable list. */
+    val allSources: List<DataDrivenMangaSource>
         // Don't cache an empty disk read; it would pin the empty list even after refresh() lands.
         get() = cached ?: loadFromDisk().also { if (it.isNotEmpty()) cached = it }
 
@@ -95,9 +103,12 @@ class DataDrivenCatalogueRepository @Inject constructor(
         val rows = json.parseToJsonElement(text).jsonObject["sources"]?.jsonArray.orEmpty()
         return rows.asSequence()
             .mapNotNull { runCatching { json.decodeFromJsonElement<SourceRowDto>(it) }.getOrNull() }
-            // Keep bare @Broken rows (that flag is about the native kotatsu parser, not our engines);
-            // drop only rows with an explicit brokenReason (dead domain).
-            .filterNot { it.broken && !it.brokenReason.isNullOrBlank() }
+            // Dead rows are NOT dropped here any more. They are still hidden from the browsable
+            // list (see [sources]), but they must stay resolvable: a library entry — imported from
+            // Mihon via the bridge, or synced from another client — that points at a source the
+            // catalogue knows about should render as that source, not as an unknown. Dropping the
+            // row here would make it indistinguishable from a corrupted entry, and would silently
+            // undo the mapping again the moment a domain went down.
             .filter {
                 it.id.isNotBlank() && it.domain.isNotBlank() &&
                     (EngineRegistry.supports(it.engine) || it.engine in NATIVE_BACKED_ENGINES)
@@ -114,6 +125,10 @@ class DataDrivenCatalogueRepository @Inject constructor(
                     domain = row.domain.sanitizeDomain(),
                     contentType = row.contentType,
                     config = config,
+                    mihonIds = row.mihonIds,
+                    // A bare `broken` flag is about the native kotatsu parser, not our engines; only
+                    // an explicit brokenReason means the site itself is dead.
+                    broken = row.broken && !row.brokenReason.isNullOrBlank(),
                 )
             }
             .filter { it.domain.isNotBlank() }
@@ -133,6 +148,8 @@ class DataDrivenCatalogueRepository @Inject constructor(
         val brokenReason: String? = null,
         val pageSize: Int? = null,
         val config: JsonObject = JsonObject(emptyMap()),
+        // Mihon/Keiyoushi source ids reading this same site; see DataDrivenMangaSource.mihonIds.
+        val mihonIds: List<Long> = emptyList(),
     )
 
     private fun JsonObject.toValueMap(): Map<String, Any?> = mapValues { it.value.toValue() }

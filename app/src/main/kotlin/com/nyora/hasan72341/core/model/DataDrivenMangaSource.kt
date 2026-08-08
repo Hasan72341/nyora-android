@@ -16,6 +16,23 @@ data class DataDrivenMangaSource(
     // Catalogue content type (MANGA/MANHWA/HENTAI/COMICS/…); null when untagged.
     val contentType: String? = null,
     val config: Map<String, Any?> = emptyMap(),
+    /**
+     * Mihon/Keiyoushi source ids that read the SAME site as this source.
+     *
+     * Mihon identifies a source only by a 64-bit id derived from the extension's own name/lang, so
+     * nothing in a Mihon-shaped reference can be translated to a Nyora id by string surgery. The
+     * catalogue therefore ships the correspondence, computed offline by joining the extension repo
+     * indexes against this catalogue on the site each side reads (see nyora-data-driven
+     * tools/build-mihon-bridge.py). Empty for the majority of sources, which have no Mihon twin.
+     */
+    val mihonIds: List<Long> = emptyList(),
+    /**
+     * Catalogue liveness flag. A broken source is kept RESOLVABLE (so an entry that references it
+     * still shows the right source instead of reading as corrupted) but is left out of the
+     * browsable list — identity and browsability are separate concerns, and this flag is a
+     * point-in-time observation that a domain patch or the site itself can reverse.
+     */
+    val broken: Boolean = false,
 ) : MangaSource {
 
     override val name: String get() = PREFIX + sourceId
@@ -34,12 +51,25 @@ data class DataDrivenMangaSource(
         @Volatile
         private var byLowerId: Map<String, DataDrivenMangaSource> = emptyMap()
 
+        // Mihon source id -> the catalogue source reading the same site. Lets a library imported or
+        // synced from Mihon resolve to a source this app can actually open, instead of Unknown.
+        @Volatile
+        private var byMihonId: Map<Long, DataDrivenMangaSource> = emptyMap()
+
         fun isDataDriven(name: String): Boolean = name.startsWith(PREFIX)
 
         fun register(sources: List<DataDrivenMangaSource>) {
             registry = sources.associateByTo(HashMap(sources.size)) { it.name }
             // Last one wins on a case collision; acceptable — these ids are practically unique.
             byLowerId = sources.associateByTo(HashMap(sources.size)) { it.sourceId.lowercase() }
+            byMihonId = buildMap {
+                for (source in sources) {
+                    // A Mihon id maps to exactly one site, so a collision here means the catalogue
+                    // has two rows claiming it; keep the first so the result stays deterministic
+                    // regardless of catalogue ordering.
+                    for (id in source.mihonIds) putIfAbsent(id, source)
+                }
+            }
         }
 
         fun resolve(name: String): DataDrivenMangaSource? = registry[name]
@@ -58,5 +88,26 @@ data class DataDrivenMangaSource(
             if (bare.isEmpty()) return null
             return byLowerId[bare.lowercase()]
         }
+
+        /**
+         * Resolve a Mihon/Keiyoushi source id to the catalogue source reading the same site, or
+         * null when the catalogue carries no equivalent.
+         *
+         * This is a FALLBACK, not a redirect: when the user actually has the Mihon extension
+         * installed it is resolved by the extension manager and never reaches here. It only fires
+         * for a reference the app would otherwise have to render as an unknown, broken source —
+         * a library imported from Mihon, synced from another client, or left behind by an
+         * extension that has since been uninstalled.
+         */
+        fun resolveMihonId(mihonId: Long): DataDrivenMangaSource? = byMihonId[mihonId]
+
+        /** As [resolveMihonId], for a persisted `MIHON_<id>` source name. */
+        fun resolveMihonName(name: String): DataDrivenMangaSource? {
+            if (!name.startsWith(MIHON_PREFIX)) return null
+            val id = name.removePrefix(MIHON_PREFIX).toLongOrNull() ?: return null
+            return resolveMihonId(id)
+        }
+
+        const val MIHON_PREFIX = "MIHON_"
     }
 }

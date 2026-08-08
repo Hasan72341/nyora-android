@@ -136,7 +136,17 @@ class ExtensionRepoService @Inject constructor(
 						.mapNotNull { item -> item.toAvailableExtension(repo) }
 						.toList()
 				} else {
-					val dto = json.decodeFromString<List<ExtensionIndexDto>>(body)
+					var dto = json.decodeFromString<List<ExtensionIndexDto>>(body)
+					// Keiyoushi now answers index.min.json with a two-entry "update your app" stub
+					// and publishes the real manifest at index.json in a newer shape. Without this
+					// the catalogue shows two fake extensions instead of ~1400 real ones.
+					if (dto.isStubIndex()) {
+						Log.d(TAG, "fetchAvailableExtensions:stub_index falling_back_to_index_json repo=${repo.baseUrl}")
+						// Only take the fallback when it is strictly better, so a genuinely tiny
+						// repo that merely looks stub-shaped can never end up worse off than before.
+						val modern = fetchModernIndex(repo)
+						if (modern.size > dto.size) dto = modern
+					}
 					dto.asSequence()
 						.mapNotNull { item -> item.toAvailableExtension(repo) }
 						.toList()
@@ -181,6 +191,45 @@ class ExtensionRepoService @Inject constructor(
 	fun baseUrlFromIndexUrl(indexUrl: String): String {
 		return indexUrl.removeSuffix("/index.min.json")
 	}
+
+	/**
+	 * True when the index is the placeholder a repo serves to clients it considers outdated: a
+	 * couple of entries whose "extension" is really a notice. Detected by shape rather than by
+	 * exact wording, which the repos change freely — a real catalogue is never this small, and the
+	 * stub's entries carry no sources.
+	 */
+	private fun List<ExtensionIndexDto>.isStubIndex(): Boolean =
+		isNotEmpty() && size <= 2 && all { it.sources.orEmpty().size <= 1 && it.code <= 1L }
+
+	/**
+	 * The current manifest shape, published at `index.json`: extensions nested under
+	 * `extensionList.extensions`, versions split into `versionName`/`versionCode`, and the apk
+	 * given as a full CDN url rather than a bare filename. Mapped onto the legacy DTO so the rest
+	 * of the pipeline is untouched.
+	 */
+	private suspend fun fetchModernIndex(repo: ExternalExtensionRepo): List<ExtensionIndexDto> = runCatching {
+		val url = applyMirror("${repo.baseUrl}/index.json")
+		val body = httpClient.newCall(GET(url)).awaitSuccess().use { it.body.string() }
+		json.decodeFromString<ModernIndexDto>(body).extensionList.extensions.map { e ->
+			ExtensionIndexDto(
+				name = e.name,
+				pkg = e.packageName,
+				// The downloader appends this to "<repo>/apk/", so keep only the filename.
+				apk = e.resources?.apkUrl?.substringAfterLast('/').orEmpty(),
+				// No per-extension language field any more; the package path still carries it
+				// ("…extension.all.ahottie" / "…extension.en.foo"), with the sources as backup.
+				lang = e.packageName.split('.').getOrNull(4)
+					?: e.sources.firstOrNull()?.language
+					?: "all",
+				code = e.versionCode.toLongOrNull() ?: 0L,
+				version = e.versionName,
+				nsfw = if (e.contentWarning == CONTENT_WARNING_NSFW) 1 else 0,
+				sources = e.sources.map { s -> ExtensionSourceDto(name = s.name) },
+			)
+		}
+	}.onFailure { error ->
+		Log.e(TAG, "fetchModernIndex:failed repo=${repo.baseUrl} message=${error.message}", error)
+	}.getOrDefault(emptyList())
 
 	private fun ExtensionIndexDto.toAvailableExtension(repo: ExternalExtensionRepo): RepoAvailableExtension? {
 		val libVersion = runCatching { version.substringBeforeLast('.').toDouble() }.getOrNull() ?: if (repo.type == ExternalExtensionType.IREADER) 0.0 else return null
@@ -281,6 +330,48 @@ class ExtensionRepoService @Inject constructor(
 		val name: String,
 	)
 
+	// ---- current ("index.json") manifest shape ----
+
+	@Keep
+	@Serializable
+	private data class ModernIndexDto(
+		val extensionList: ModernExtensionListDto = ModernExtensionListDto(),
+	)
+
+	@Keep
+	@Serializable
+	private data class ModernExtensionListDto(
+		val extensions: List<ModernExtensionDto> = emptyList(),
+	)
+
+	@Keep
+	@Serializable
+	private data class ModernExtensionDto(
+		val name: String = "",
+		val packageName: String = "",
+		val resources: ModernResourcesDto? = null,
+		val versionCode: String = "0",
+		val versionName: String = "",
+		val contentWarning: String? = null,
+		val sources: List<ModernSourceDto> = emptyList(),
+	)
+
+	@Keep
+	@Serializable
+	private data class ModernResourcesDto(
+		val apkUrl: String? = null,
+		val iconUrl: String? = null,
+	)
+
+	@Keep
+	@Serializable
+	private data class ModernSourceDto(
+		val id: String = "",
+		val name: String = "",
+		val language: String? = null,
+		val homeUrl: String? = null,
+	)
+
 	@Keep
 	@Serializable
 	private data class IReaderExtensionIndexDto(
@@ -297,5 +388,6 @@ class ExtensionRepoService @Inject constructor(
 		const val TAG = "ExtensionRepo"
 		const val REPO_DETAILS_TIMEOUT_MS = 15_000L
 		const val CATALOG_TIMEOUT_MS = 20_000L
+		const val CONTENT_WARNING_NSFW = "CONTENT_WARNING_NSFW"
 	}
 }

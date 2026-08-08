@@ -46,6 +46,13 @@ fun MangaSource(name: String?): MangaSource {
 	if (DataDrivenMangaSource.isDataDriven(name)) {
 		return DataDrivenMangaSource.resolve(name) ?: UnknownMangaSource
 	}
+	// A Mihon-shaped reference reaching this factory means no installed extension claimed it (those
+	// resolve through MihonExtensionManager). Rather than render the entry as an unknown, broken
+	// source, fall back to the catalogue source reading the same site — this is what keeps a library
+	// imported or synced from Mihon usable without the matching Keiyoushi extension installed.
+	if (name.startsWith(DataDrivenMangaSource.MIHON_PREFIX)) {
+		return DataDrivenMangaSource.resolveMihonName(name) ?: UnknownMangaSource
+	}
 	MangaParserSource.entries.forEach {
 		if (it.name == name) return it
 	}

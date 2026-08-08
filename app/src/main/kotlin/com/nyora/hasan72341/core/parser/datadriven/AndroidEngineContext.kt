@@ -66,12 +66,12 @@ class AndroidEngineContext(
                         .apply { request.form!!.forEach { (k, v) -> addFormDataPart(k, v) } }
                         .build()
 
-                    // urlencoded form. Engine keys/values are already URL-encoded (Madara's
-                    // madara_load_more template, `query.urlEncoded()`), so use addEncoded to avoid
-                    // double-encoding — plain add() would turn `vars%5Bs%5D` into `vars%255Bs%255D`
-                    // and the request would return nothing.
+                    // urlencoded form. Engines hand over DECODED keys/values (same contract as the
+                    // multipart branch above and as the engine repo's own harness), so encode them
+                    // exactly once here. addEncoded would emit `vars[s]` and PHP-serialized markers
+                    // raw, which is not what the sites are served by their own front-ends.
                     request.form != null -> FormBody.Builder().apply {
-                        request.form!!.forEach { (k, v) -> addEncoded(k, v) }
+                        request.form!!.forEach { (k, v) -> add(k, v) }
                     }.build()
 
                     request.body != null -> {
@@ -91,13 +91,18 @@ class AndroidEngineContext(
         }
 
         client.newCall(builder.build()).execute().use { resp ->
+            // Bounded read so a hostile or runaway source page can't OOM the app; a normal
+            // HTML/JSON listing is far smaller than this cap. Peeked ONCE as bytes and decoded
+            // from those, so a binary API (MANGA Plus answers protobuf) still has its raw body:
+            // text decoding is lossy, and a second peek would double the cap's memory cost.
+            val peeked = resp.peekBody(MAX_RESPONSE_BYTES)
+            val raw = peeked.bytes()
             HttpResponse(
                 url = resp.request.url.toString(),
                 code = resp.code,
-                // Bounded read so a hostile or runaway source page can't OOM the app; a normal
-                // HTML/JSON listing is far smaller than this cap.
-                body = resp.peekBody(MAX_RESPONSE_BYTES).string(),
+                body = raw.toString(peeked.contentType()?.charset() ?: Charsets.UTF_8),
                 headers = resp.headers.toMultimap().mapValues { it.value.joinToString(", ") },
+                bytes = raw,
             )
         }
     }
