@@ -180,7 +180,7 @@ dependencies {
 	// is provided by the Android platform, so the library's copy is excluded to avoid a
 	// duplicate-class clash. Resolved from the local composite build if present, else JitPack.
 	//noinspection UseTomlInstead
-	implementation("com.github.Nyora-Manga:nyora-data-driven:v0.2.0") {
+	implementation("com.github.Nyora-Manga:nyora-data-driven:v0.2.1") {
 		exclude group: 'org.json', module: 'json'
 	}
 
